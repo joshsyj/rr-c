@@ -29,19 +29,20 @@ const components = [
   TemplateDialogWraper,
   RrCard,
   RrCheckRadio,
+  RrEcharts,
   IdToName,
   RrDropdown,
   RrCountTo,
-  RrEcharts,
   Sparrow,
 ]
 
 export default {
   install(Vue) {
-    Vue.use(Element, {
-      size: 'small', // set element-ui default size
-      // i18n: (key, value) => i18n.t(key, value)
-    })
+    // Vue.use(Element, {
+    //   size: 'small', // set element-ui default size
+    //   // i18n: (key, value) => i18n.t(key, value)
+    // })
+
     Vue.use(register)
 
     components.forEach((component) => {
