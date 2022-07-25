@@ -1,6 +1,6 @@
 {
   "name": "rr-vue2-elem",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "vue2-elementUi",
   "private": false,
   "main": "lib/rr-vue2-elem.js",
@@ -8,10 +8,8 @@
   "files": [
     "lib",
     "packages",
-    "api",
     "assets",
-    "utils",
-    "styles"
+    "utils"
   ],
   "scripts": {
     "bootstrap": "yarn || npm i",

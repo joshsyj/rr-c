@@ -43,7 +43,7 @@
 import * as SparkMD5 from 'spark-md5'
 // import { getToken } from '@/api/qiniu'
 import Cropper from './cropper'
-import Settings from '@/settings'
+// import Settings from '@/settings'
 import ajax from './ajax'
 
 export default {
@@ -214,8 +214,8 @@ export default {
     },
     handleImageSuccess(res) {
       console.log('what', res)
-      console.log(Settings.imgUrlOfImg + res.key)
-      this.updateProp([...this.value, Settings.imgUrlOfImg + res.key])
+      console.log(window.Settings.imgUrlOfImg + res.key)
+      this.updateProp([...this.value, window.Settings.imgUrlOfImg + res.key])
     },
     handleExceed() {
       this.$message.warning(`当前限制选择${this.$attrs.limit}个文件，请删除当前图片再上传`)

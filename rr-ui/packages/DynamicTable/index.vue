@@ -189,7 +189,7 @@ import Sortable from 'sortablejs'
 import async from 'async'
 // import request from '@/utils/request'
 import { insertNodeAt, removeNode } from '@/utils/helper'
-import Settings from '@/settings'
+// import Settings from '@/settings'
 import Qs from 'qs'
 
 export default {
@@ -588,7 +588,7 @@ export default {
     formatImg(url) {
       let index = url.lastIndexOf('.')
       let ext = url.substr(index + 1)
-      return Settings.qiniuNotSupportExt.includes(ext) ? url : url + '?imageView2/1/w/60/h/60'
+      return window.Settings.qiniuNotSupportExt.includes(ext) ? url : url + '?imageView2/1/w/60/h/60'
     }
   }
 }

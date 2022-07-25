@@ -1,4 +1,4 @@
-import '../styles/element-variables.scss'
+// import '../styles/element-variables.scss'
 
 import DynamicForm from './DynamicForm'
 import DyFormitemWraper from './DynamicForm/DyFormitemWraper'

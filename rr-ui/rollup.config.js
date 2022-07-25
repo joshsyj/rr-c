@@ -18,14 +18,14 @@ export default {
     input: isProd ? 'packages/index.js' : 'example/main.js',
     output: {
         file: pkg.main,
-        format: 'umd',//umd
+        format: 'umd',
         name: 'rrUi',
         globals: {
             'vue': 'Vue',
             'element-ui': 'Element',
             'axios': 'axios',
             'sortablejs': 'Sortable',
-            // 'async': 'async',
+            'async': 'async',
             'qs': 'Qs',
             'spark-md5': 'SparkMD5',
             'vue-cropper': 'vueCropper',
@@ -34,8 +34,7 @@ export default {
         },
     },
     sourceMap: isProd ? false : true,
-    // external:['vue', 'axios', 'element-ui'] ,
-    external: ['vue', 'axios', 'element-ui', 'sortablejs', 'qs', 'spark-md5', 'vue-cropper', 'vuex', 'vue-count-to'],
+    external: ['vue', 'axios', 'element-ui', 'sortablejs', 'async', 'qs', 'spark-md5', 'vue-cropper', 'vuex', 'vue-count-to'],
     plugins: [
         vue({
             css: true,
@@ -44,8 +43,6 @@ export default {
         replace({
             'preventAssignment': true,
             'process.env.NODE_ENV': JSON.stringify('production'),
-            'process.env.VUE_APP_BASE_API': JSON.stringify('https://test-admin-api.netpop.app/'),
-            '__DEBUG': false
         }),
         resolve({
             extensions: ['.js', '.ts', '.vue']
@@ -58,8 +55,6 @@ export default {
         babel({
             exclude: 'node_modules/**',
         }),
-
-
         image(),
         commonjs({
             requireReturnsDefault: true,
