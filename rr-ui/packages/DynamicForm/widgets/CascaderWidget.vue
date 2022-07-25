@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import request from '@/utils/request'
+// import request from '@/utils/request'
 import DyFormMixin from '../dyformitemMixin'
 export default {
   componentName: 'sfCascaderWidget',
@@ -36,7 +36,7 @@ export default {
       const url = requestOptions.url + (value || '')
       clearTimeout(this.timer)
       this.timer = setTimeout(() => {
-        request({ url, method: 'GET' })
+        window.request({ url, method: 'GET' })
           .then((res) => {
             this.$set(this.item, 'options', format(res))
             const formItem = this.$refs.formItemWrap.$children[0]

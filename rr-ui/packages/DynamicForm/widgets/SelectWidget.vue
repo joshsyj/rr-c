@@ -19,7 +19,7 @@
 
 <script>
 import Emitter from 'element-ui/src/mixins/emitter'
-import request from '@/utils/request'
+// import request from '@/utils/request'
 import DyFormMixin from '../dyformitemMixin'
 export default {
   componentName: 'sfSelectWidget',
@@ -66,7 +66,7 @@ export default {
     transferIdToName() {
       const { value, id2name_code } = this.item
       if (!value || !id2name_code) return false
-      request({
+      window.request({
         url: `/id2name/trans/${id2name_code}`,
         method: 'POST',
         data: [value]
@@ -90,7 +90,7 @@ export default {
       const url = requestOptions.url + (value || '')
       clearTimeout(this.timer)
       this.timer = setTimeout(() => {
-        request({ url, method: 'GET' })
+        window.request({ url, method: 'GET' })
           .then((res) => {
             this.$set(this.item, 'options', format(res))
           })

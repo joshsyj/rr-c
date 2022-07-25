@@ -41,7 +41,7 @@
 
 <script>
 import * as SparkMD5 from 'spark-md5'
-import { getToken } from '@/api/qiniu'
+// import { getToken } from '@/api/qiniu'
 import Cropper from './cropper'
 import Settings from '@/settings'
 import ajax from './ajax'
@@ -203,7 +203,7 @@ export default {
             type: _self.type,
             originalFilename: spark.end() + file.name
           }
-          getToken(params).then((response) => {
+          window.qiniu.getToken(params).then((response) => {
             let { token, fileKey } = response
             _self.dataObj['token'] = token
             _self.dataObj['key'] = fileKey

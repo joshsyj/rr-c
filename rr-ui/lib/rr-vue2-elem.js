@@ -1,10 +1,8 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('element-ui'), require('axios'), require('vue'), require('sortablejs'), require('async'), require('qs'), require('spark-md5'), require('vue-count-to')) :
-  typeof define === 'function' && define.amd ? define(['element-ui', 'axios', 'vue', 'sortablejs', 'async', 'qs', 'spark-md5', 'vue-count-to'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.rrUi = factory(global.Element, global.axios, global.Vue, global.Sortable, global.async, global.Qs, global.SparkMD5, global.CountTo));
-})(this, (function (elementUi, axios, Vue, Sortable, async, Qs, SparkMD5, CountTo) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('sortablejs'), require('async'), require('qs'), require('spark-md5'), require('vue-cropper'), require('vuex'), require('vue-count-to')) :
+  typeof define === 'function' && define.amd ? define(['sortablejs', 'async', 'qs', 'spark-md5', 'vue-cropper', 'vuex', 'vue-count-to'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.rrUi = factory(global.Sortable, global.async, global.Qs, global.SparkMD5, global.vueCropper, global.vuex, global.CountTo));
+})(this, (function (Sortable, async, Qs, SparkMD5, vueCropper, vuex, CountTo) { 'use strict';
 
   function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -26,8 +24,6 @@
     return Object.freeze(n);
   }
 
-  var axios__default = /*#__PURE__*/_interopDefaultLegacy(axios);
-  var Vue__default = /*#__PURE__*/_interopDefaultLegacy(Vue);
   var Sortable__default = /*#__PURE__*/_interopDefaultLegacy(Sortable);
   var async__default = /*#__PURE__*/_interopDefaultLegacy(async);
   var Qs__default = /*#__PURE__*/_interopDefaultLegacy(Qs);
@@ -1188,101 +1184,7 @@
       undefined
     );
 
-  var LoadingInstance = null; // create an axios instance
-
-  var service = axios__default["default"].create({
-    baseURL: "https://www.baidu.com",
-    // url = base url + request url
-    withCredentials: true,
-    // send cookies when cross-domain requests
-    timeout: 65000 // request timeout
-
-  }); // request interceptor
-
-  service.interceptors.request.use(function (config) {
-    // do something before request is sent
-    if (config.loading && LoadingInstance === null) {
-      LoadingInstance = Loading.service({
-        lock: true,
-        text: '正在努力加载中...',
-        spinner: 'el-icon-loading',
-        // fullscreen: false,
-        background: 'rgba(255, 255, 255, 0.1)'
-      });
-    } // if (config.method === 'get')
-    //   config.params = Qs.stringify(config.params, { arrayFormat: 'comma' })
-
-
-    return config;
-  }); // response interceptor
-
-  service.interceptors.response.use(
-  /**
-   * If you want to get http information such as headers or status
-   * Please return  response => response
-   */
-
-  /**
-   * Determine the request status by custom code
-   * Here is just an example
-   * You can also judge the status by HTTP Status Code
-   */
-  function (response) {
-    var res = response.data;
-
-    if (LoadingInstance) {
-      Vue__default["default"].nextTick(function () {
-        // 以服务的方式调用的 Loading 需要异步关闭
-        LoadingInstance.close();
-        LoadingInstance = null;
-      });
-    } //是否自定义response
-
-
-    if (response.config.customize) {
-      return res;
-    } // if the custom code is not 20000, it is judged as an error.
-
-
-    if (res.code !== '00000') {
-      Message({
-        message: res.msg || 'Error',
-        type: 'error',
-        duration: 5 * 1000
-      }); // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
-
-      if (res.code === 'A0230') {
-        // to re-login
-        MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or login again', 'Confirm logout', {
-          confirmButtonText: 'Re-Login',
-          cancelButtonText: 'Cancel',
-          type: 'warning'
-        }).then(function () {});
-      }
-
-      return Promise.reject(new Error(res.msg || 'Error'));
-    } else {
-      return res.data;
-    }
-  }, function (error) {
-    console.log('err' + error); // for debug
-
-    if (LoadingInstance) {
-      Vue__default["default"].nextTick(function () {
-        // 以服务的方式调用的 Loading 需要异步关闭
-        LoadingInstance.close();
-        LoadingInstance = null;
-      });
-    }
-
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    });
-    return Promise.reject(error);
-  });
-
+  // import request from '@/utils/request'
   var DyFormMixin = {
     props: {
       item: {
@@ -1319,7 +1221,7 @@
             method = requestOptions.method,
             _requestOptions$data = requestOptions.data,
             data = _requestOptions$data === void 0 ? {} : _requestOptions$data;
-        url && service({
+        url && window.request({
           url: url,
           method: method.toLowerCase() || 'get',
           data: data
@@ -1996,7 +1898,7 @@
             value = _this$item3.value,
             id2name_code = _this$item3.id2name_code;
         if (!value || !id2name_code) return false;
-        service({
+        window.request({
           url: "/id2name/trans/".concat(id2name_code),
           method: 'POST',
           data: [value]
@@ -2033,7 +1935,7 @@
         var url = requestOptions.url + (value || '');
         clearTimeout(this.timer);
         this.timer = setTimeout(function () {
-          service({
+          window.request({
             url: url,
             method: 'GET'
           }).then(function (res) {
@@ -2327,7 +2229,7 @@
         var url = requestOptions.url + (value || '');
         clearTimeout(this.timer);
         this.timer = setTimeout(function () {
-          service({
+          window.request({
             url: url,
             method: 'GET'
           }).then(function (res) {
@@ -2603,16 +2505,23 @@
     }
   }
 
-  var name = "rr-ui";
+  var name = "rr-vue2-elem";
   var version$1 = "1.0.0";
-  var description = "";
+  var description = "vue2-elementUi";
   var main = "lib/rr-vue2-elem.js";
   var module = "lib/rr-vue2-elem.js";
+  var files = [
+  	"lib",
+  	"packages",
+  	"api",
+  	"assets",
+  	"utils",
+  	"styles"
+  ];
   var scripts = {
   	bootstrap: "yarn || npm i",
-  	"build:umd": "rollup -c --format umd --file dist/components.umd.js",
-  	dev: "cross-env NODE_ENV=dev rollup -c -w ",
-  	build: "cross-env NODE_ENV=prod rollup -c",
+  	dev: "cross-env NODE_ENV=dev rollup -c -w",
+  	build: "cross-env NODE_ENV=prod rollup -c && npm link",
   	clean: "rimraf lib",
   	dist: "npm run clean && npm run build"
   };
@@ -2652,18 +2561,25 @@
   };
   var dependencies = {
   };
+  var directories = {
+  	example: "example",
+  	lib: "lib"
+  };
   var _package = {
   	name: name,
   	version: version$1,
   	description: description,
+  	"private": false,
   	main: main,
   	module: module,
+  	files: files,
   	scripts: scripts,
   	keywords: keywords,
   	author: author,
   	license: license,
   	devDependencies: devDependencies,
-  	dependencies: dependencies
+  	dependencies: dependencies,
+  	directories: directories
   };
 
   var _package$1 = /*#__PURE__*/Object.freeze({
@@ -2673,22 +2589,16 @@
     description: description,
     main: main,
     module: module,
+    files: files,
     scripts: scripts,
     keywords: keywords,
     author: author,
     license: license,
     devDependencies: devDependencies,
     dependencies: dependencies,
+    directories: directories,
     'default': _package
   });
-
-  function unwrapExports (x) {
-  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-  }
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
 
   function getCjsExportFromNamespace (n) {
   	return n && n['default'] || n;
@@ -2964,7 +2874,7 @@
         this.query();
       },
       query: function query() {
-        var _request,
+        var _window$request,
             _this = this;
 
         if (!this.requestOptions) {
@@ -2993,17 +2903,17 @@
         }
 
         var dataKey = method && method.toLowerCase() == 'get' ? 'params' : 'data';
-        service((_request = {
+        window.request((_window$request = {
           baseURL: baseURL,
           url: url,
           method: method,
           withCredentials: withCredentials
-        }, _defineProperty(_request, dataKey, reqData), _defineProperty(_request, "paramsSerializer", function paramsSerializer(params) {
+        }, _defineProperty(_window$request, dataKey, reqData), _defineProperty(_window$request, "paramsSerializer", function paramsSerializer(params) {
           return Qs__default["default"].stringify(params, {
             arrayFormat: 'indices',
             allowDots: true
           });
-        }), _request)).then(function (data) {
+        }), _window$request)).then(function (data) {
           var _ref = _this.dataIsDicType ? {
             content: data,
             totalElements: 0
@@ -3909,7 +3819,7 @@
     /* style */
     const __vue_inject_styles__$d = function (inject) {
       if (!inject) return
-      inject("data-v-0daf9592_0", { source: ".page-table {\n  margin-top: 10px;\n}\n.page-table .popconfirm + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .el-button + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .popconfirm + .el-button {\n  margin-left: 10px;\n}\n.st__table .el-table__expanded-cell {\n  padding: 10px 50px;\n}\n.dy-table-popover {\n  display: block;\n  margin: auto;\n  width: 120px;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.pagination-flex {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\DynamicTable\\index.vue","index.vue"],"names":[],"mappings":"AAqlBA;EACA,gBAAA;ACplBA;ADslBA;EACA,iBAAA;ACplBA;ADslBA;EACA,iBAAA;ACplBA;ADslBA;EACA,iBAAA;ACplBA;ADwlBA;EACA,kBAAA;ACrlBA;ADulBA;EACA,cAAA;EACA,YAAA;EACA,YAAA;EACA,kBAAA;EACA,mBAAA;EACA,gBAAA;EACA,uBAAA;ACplBA;ADulBA;EACA,aAAA;EACA,8BAAA;EACA,mBAAA;ACplBA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <div class=\"page-table\" :class=\"className\">\r\n    <el-table\r\n      ref=\"elTable\"\r\n      v-loading=\"loading\"\r\n      class=\"st__table\"\r\n      stripe\r\n      v-bind=\"$attrs\"\r\n      style=\"width: 100%\"\r\n      :max-height=\"maxHeight\"\r\n      border\r\n      :data=\"data\"\r\n      :row-key=\"rowKey\"\r\n      :header-row-style=\"{ height: '50px', color: '#606266' }\"\r\n      v-on=\"$listeners\"\r\n    >\r\n      <!--多选-->\r\n      <el-table-column v-if=\"checkBox\" :key=\"'selection'\" type=\"selection\" width=\"55px\" v-bind=\"$attrs\" />\r\n      <!--单选-->\r\n      <el-table-column v-if=\"radioCheck\" label=\"选择\" width=\"55\" header-align=\"center\" align=\"center\" :fixed=\"columns.some((item) => item.fixed)\">\r\n        <template slot-scope=\"scope\">\r\n          <el-radio v-model=\"radio\" class=\"radio\" :label=\"scope.$index\"> &nbsp; </el-radio>\r\n        </template>\r\n      </el-table-column>\r\n      <!-- tabIndex -->\r\n      <el-table-column v-if=\"tabIndex\" :key=\"'index'\" align=\"center\" label=\"序号\" :width=\"columns.length === 0 ? '' : 80\" :fixed=\"columns.some((item) => item.fixed)\">\r\n        <template v-slot=\"scope\">\r\n          <slot v-if=\"tabIndexSlot\" name=\"sort-by-index\" :row=\"scope.row\" :$index=\"scope.$index\" />\r\n          <span v-else>{{ scope.$index + 1 }}</span>\r\n        </template>\r\n      </el-table-column>\r\n      <!-- handle -->\r\n      <el-table-column v-if=\"handle\" :key=\"'handle'\" :fixed=\"handle.fixed\" align=\"center\" :label=\"handle.label\" :width=\"handle.width\">\r\n        <template v-slot=\"scope\">\r\n          <template v-for=\"(item, index) in handle.btns || []\">\r\n            <!-- 自定义操作类型 -->\r\n            <slot v-if=\"item.slot\" :name=\"'bt-' + item.event\" :data=\"{ item, row: scope.row, $index: scope.$index }\" />\r\n            <!-- -->\r\n            <slot v-if=\"item.slot\" name=\"dy-query-btn\" :data=\"{ item, row: scope.row, $index: scope.$index }\" />\r\n            <!--  -->\r\n\r\n            <el-popconfirm\r\n              v-if=\"!item.slot && item.popconfirm && (!item.ifRender || item.ifRender(scope.row))\"\r\n              class=\"popconfirm\"\r\n              v-permission=\"item.permission\"\r\n              :key=\"index\"\r\n              :icon=\"item.icon\"\r\n              :title=\"item.popTitle || '确定删除吗？'\"\r\n              @confirm=\"handleClick(item.event, scope.row, scope.$index)\"\r\n            >\r\n              <el-button slot=\"reference\" size=\"mini\" :type=\"item.type\" :disabled=\"item.disabled\" :class=\"item.class\">\r\n                {{ item.label }}\r\n              </el-button>\r\n            </el-popconfirm>\r\n            <!--  -->\r\n            <el-button\r\n              v-if=\"!item.slot && !item.popconfirm && (!item.ifRender || item.ifRender(scope.row))\"\r\n              v-permission=\"item.permission\"\r\n              :key=\"index\"\r\n              size=\"mini\"\r\n              :type=\"item.type\"\r\n              :icon=\"item.icon\"\r\n              :disabled=\"item.disabled\"\r\n              :class=\"item.class\"\r\n              @click.stop=\"handleClick(item.event, scope.row, scope.$index)\"\r\n            >\r\n              {{ item.label }}\r\n            </el-button>\r\n          </template>\r\n        </template>\r\n      </el-table-column>\r\n      <el-table-column\r\n        v-for=\"item in columns.filter((item) => !item.hidden)\"\r\n        :key=\"item.label\"\r\n        header-align=\"center\"\r\n        :prop=\"item.value\"\r\n        :label=\"item.label\"\r\n        :fixed=\"item.fixed\"\r\n        :align=\"item.align || 'center'\"\r\n        :width=\"item.width\"\r\n        :min-width=\"item.minWidth || '100px'\"\r\n        :show-overflow-tooltip=\"item.showOverflowTooltip || false\"\r\n        :sortable=\"item.sortable || false\"\r\n      >\r\n        <!-- header 自定义气泡 -->\r\n        <template slot=\"header\">\r\n          <template v-if=\"item.headerType === 'slot'\">\r\n            <slot :name=\"'header-' + item.value\" :item=\"item\" />\r\n            <slot name=\"dy-query-header\" :data=\"{ item: item }\" />\r\n          </template>\r\n          <el-popover v-else-if=\"item.header_bubble\" trigger=\"hover\" placement=\"top\" :width=\"300\">\r\n            <span slot=\"reference\">\r\n              {{ item.label }}\r\n              <i class=\"el-icon-warning\"></i>\r\n            </span>\r\n            <span>{{ item.header_bubble_text }}</span>\r\n          </el-popover>\r\n          <template v-else>{{ item.label }}</template>\r\n        </template>\r\n        <!-- col -->\r\n        <template #default=\"scope\">\r\n          <!-- 父级指定模板 自定义 -->\r\n          <template v-if=\"item.type === 'slot'\">\r\n            <slot :name=\"'col-' + item.value\" :row=\"scope.row\" :item=\"item\" :$index=\"scope.$index\" />\r\n            <slot name=\"dy-query-col\" :data=\"{ row: scope.row, item: item, $index: scope.$index }\" />\r\n          </template>\r\n          <!-- pipe -->\r\n          <span v-else-if=\"item.type === 'pipe'\" :style=\"calcuRowColor(item.color)\">\r\n            {{ $options.filters[item.pipe](scope.row[item.value], item.pipeArg || '') }}\r\n          </span>\r\n          <!-- popover-->\r\n          <el-popover v-else-if=\"item.type === 'popover'\" trigger=\"hover\" placement=\"top\">\r\n            <p class=\"text-c\">{{ scope.row[item.value] }}</p>\r\n            <span slot=\"reference\" class=\"dy-table-popover\">\r\n              {{ scope.row[item.value] }}\r\n            </span>\r\n          </el-popover>\r\n          <!-- image -->\r\n          <el-image\r\n            v-else-if=\"item.type === 'image' && scope.row[item.value]\"\r\n            fit=\"contain\"\r\n            style=\"width: 60px; height: 60px\"\r\n            :src=\"formatImg(scope.row[item.value])\"\r\n            :preview-src-list=\"[scope.row[item.value]]\"\r\n          />\r\n          <!-- tag -->\r\n          <el-tag v-else-if=\"item.type === 'tag'\">\r\n            {{ scope.row[item.value] }}\r\n          </el-tag>\r\n          <!-- link -->\r\n          <el-link v-else-if=\"item.type === 'link'\" type=\"primary\" :href=\"scope.row[item.value]\" target=\"_blank\">\r\n            {{ scope.row[item.value] }}\r\n          </el-link>\r\n          <span v-else-if=\"item.type === 'id2name'\">\r\n            <el-tag v-if=\"item.subtype === 'tag'\" :type=\"item.tagType || ''\">\r\n              {{ scope.row[item.value + '_id2name'] }}\r\n            </el-tag>\r\n            <el-image\r\n              v-else-if=\"item.subtype === 'image' && scope.row[item.value + '_id2name']\"\r\n              fit=\"contain\"\r\n              style=\"width: 60px; height: 60px\"\r\n              :src=\"scope.row[item.value + '_id2name']\"\r\n              :preview-src-list=\"[scope.row[item.value + '_id2name']]\"\r\n            />\r\n            <template v-else>{{ scope.row[item.value + '_id2name'] }}</template>\r\n          </span>\r\n          <!-- time -->\r\n          <span v-else-if=\"item.type === 'time'\">\r\n            {{ scope.row[item.value] | parseTime }}\r\n          </span>\r\n          <!-- boolean -->\r\n          <span v-else-if=\"item.type === 'boolean'\" :style=\"calcuRowColor(item.color)\">\r\n            {{ scope.row[item.value] ? '是' : '否' }}\r\n          </span>\r\n          <!-- doubleClick -->\r\n          <div v-else-if=\"item.type === 'dbEdit'\" @dblclick=\"handleDbClick(scope.row, item)\">\r\n            <el-input v-if=\"!!scope.row.nameFlag\" v-focus v-model=\"scope.row[item.value]\" placeholder=\"请输入内容\" @blur=\"handleClick(item.value, scope.row, scope.$index)\"></el-input>\r\n            <span v-else>{{ scope.row[item.value] }}</span>\r\n          </div>\r\n          <!-- default -->\r\n          <span v-else :style=\"calcuRowColor(item.color)\">\r\n            {{ scope.row[item.value] }}\r\n          </span>\r\n        </template>\r\n      </el-table-column>\r\n    </el-table>\r\n    <!--  -->\r\n    <template v-if=\"pager\">\r\n      <div v-show=\"data.length\" style=\"margin-top: 20px\" :class=\"['text-c', paginationLeft ? 'pagination-flex' : '']\">\r\n        <slot name=\"pagination-left\"></slot>\r\n        <el-pagination\r\n          class=\"flex\"\r\n          :current-page.sync=\"pagerConfig.query.page\"\r\n          :page-size.sync=\"pagerConfig.query.size\"\r\n          layout=\"total,prev, pager, next, sizes, jumper\"\r\n          :total=\"pagerConfig.totalElements\"\r\n          :page-sizes=\"[10, 20, 50, 100]\"\r\n          @current-change=\"handleCurrentChange\"\r\n          @size-change=\"handleSizeChange\"\r\n        />\r\n      </div>\r\n    </template>\r\n  </div>\r\n</template>\r\n\r\n<script>\r\nimport { debounce, deepClone } from '@/utils/index'\r\nimport Sortable from 'sortablejs'\r\nimport async from 'async'\r\nimport request from '@/utils/request'\r\nimport { insertNodeAt, removeNode } from '@/utils/helper'\r\nimport Settings from '@/settings'\r\nimport Qs from 'qs'\r\n\r\nexport default {\r\n  name: 'dynamic-table',\r\n  props: {\r\n    // 自定义类名\r\n    className: {\r\n      type: String,\r\n      default: ''\r\n    },\r\n    // 表格字段配置\r\n    columns: {\r\n      type: Array,\r\n      default: () => []\r\n    },\r\n    // 列表数据\r\n    data: {\r\n      type: Array,\r\n      default: () => []\r\n    },\r\n    // 是否显示序号\r\n    tabIndex: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    // 是否有选择框\r\n    checkBox: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //是否单选radio\r\n    radioCheck: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    // 操作栏配置\r\n    handle: {\r\n      type: Object,\r\n      default: null\r\n    },\r\n    /** *分页 */\r\n    pager: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //格式化data\r\n    formatData: {\r\n      type: Function,\r\n      default: (v) => v\r\n    },\r\n    //行数据的 Key，用来优化 Table 的渲染；显示树形数据时，该属性是必填的。\r\n    rowKey: {\r\n      type: String,\r\n      default: 'id'\r\n    },\r\n    // 是否支持拖拽\r\n    draggable: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    // 限制表格高度\r\n    limitMaxHeight: {\r\n      type: Boolean,\r\n      default: true\r\n    },\r\n    pagination: {\r\n      type: Object,\r\n      default: () => ({})\r\n    },\r\n    // 默认init查询 当有校验条件时 必填等 默认查询\r\n    initQuery: {\r\n      type: Boolean,\r\n      default: true\r\n    },\r\n    requestOptions: {\r\n      type: Object,\r\n      default: null\r\n    },\r\n    initialFormValue: {\r\n      type: Function,\r\n      default: (v) => v\r\n    },\r\n    queryParams: {\r\n      type: Function,\r\n      default: (v) => v\r\n    },\r\n    tabIndexSlot: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //该表格数据是否是数据字典格式\r\n    dataIsDicType: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //缓存未筛选情况下totalElements总条数，在某种场景下，当有筛选情况时需要用到未筛选总条数\r\n    cacheTotal: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //配合cacheTotal\r\n    cacheKeys: {\r\n      type: Array,\r\n      default: () => []\r\n    },\r\n    //是否开启左边分页插槽\r\n    paginationLeft: {\r\n      type: Boolean,\r\n      default: false\r\n    }\r\n  },\r\n  data() {\r\n    return {\r\n      loading: false,\r\n      TIMES: 0,\r\n      radio: null,\r\n      maxHeight: null,\r\n      pagerConfig: {\r\n        _totalElements: 0, //未筛选情况下的总条数，需要做缓存\r\n        totalElements: 0, // 总条数\r\n        //pageSizes: [10, 20, 50, 100], // 分页数量列表\r\n        query: {\r\n          // 查询条件\r\n          page: 1, // 当前页\r\n          size: 10 // 每页条数\r\n        }\r\n      }\r\n    }\r\n  },\r\n  computed: {\r\n    data_length() {\r\n      return this.data.length\r\n    }\r\n  },\r\n  watch: {\r\n    // 'data.length': {\r\n    //   handler(newVal, oldVal) {\r\n    // if (this.draggable && newVal !== oldVal) {\r\n    // if (this.draggable) {\r\n    //   this.$nextTick(() => {\r\n    //     this.setSort()\r\n    //   })\r\n    // }\r\n    // if (newVal) {\r\n    //   const _data = this.formatData(this.data)\r\n    //   this.batchId2nameForTableData(_data, this.columns, false, (data) => {\r\n    //     this.afterUpdateTableData()\r\n    //   })\r\n    //   this.$refs.elTable && this.$refs.elTable.doLayout()\r\n    // }\r\n    //   },\r\n    //   immediate: true,\r\n    //   deep: false,\r\n    // },\r\n    // draggable(value) {\r\n    //   if (!value) {\r\n    //     return this.sortable.destroy()\r\n    //   }\r\n    //   return value && this.data.length && this.setSort()\r\n    // },\r\n  },\r\n  mounted() {\r\n    if (this.limitMaxHeight) {\r\n      this.calculateMaxHeight()\r\n      this.__resizeHandler = debounce(this.calculateMaxHeight, 100)\r\n      window.addEventListener('resize', this.__resizeHandler)\r\n    }\r\n    this.initQuery && this.query()\r\n    this.draggable && this.setSort()\r\n  },\r\n  beforeDestroy() {\r\n    this.$emit('update:data', [])\r\n    this.limitMaxHeight && window.removeEventListener('resize', this.__resizeHandler)\r\n  },\r\n  updated() {\r\n    this.batchId2nameForTableData(this.data, this.columns, false)\r\n  },\r\n  methods: {\r\n    handleSizeChange(val) {\r\n      this.pagerConfig.query.size = val // 每页条数\r\n      this.pagerConfig.query.page = 1 // 每页条数切换，重置当前页\r\n      this.query()\r\n    },\r\n    reset() {\r\n      this.pagerConfig.query.page = 1\r\n      this.query()\r\n    },\r\n    query() {\r\n      if (!this.requestOptions) {\r\n        return false\r\n      }\r\n      this.loading = true\r\n      let { url, method, params = {}, baseURL,withCredentials=true } = this.requestOptions\r\n      const { page, size } = this.pagerConfig.query\r\n      const reqParams = this.handleParams(this.initialFormValue())\r\n      // debugger\r\n      const reqData = Object.assign({}, reqParams, {\r\n        ...params\r\n      })\r\n      if (this.pager) {\r\n        reqData['page'] = page - 1\r\n        reqData['size'] = size\r\n      }\r\n      const dataKey = method && method.toLowerCase() == 'get' ? 'params' : 'data'\r\n      request({\r\n        baseURL,\r\n        url,\r\n        method,\r\n        withCredentials,\r\n        [dataKey]: reqData,\r\n        paramsSerializer: function (params) {\r\n          return Qs.stringify(params, {\r\n            arrayFormat: 'indices',\r\n            allowDots: true\r\n          })\r\n        }\r\n      })\r\n        .then((data) => {\r\n          let { content, totalElements } = this.dataIsDicType\r\n            ? {\r\n                content: data,\r\n                totalElements: 0\r\n              }\r\n            : data\r\n\r\n          if (this.cacheTotal) {\r\n            let status = this.cacheKeys.every((item) => reqData[item.key] == item.init)\r\n            if (status) {\r\n              this.pagerConfig._totalElements = totalElements\r\n            }\r\n          }\r\n\r\n          this.$emit('update:data', this.formatData(content))\r\n\r\n          if (this.pager && totalElements > 0) {\r\n            this.pagerConfig.totalElements = totalElements\r\n            //this.pagerConfig.query.page++\r\n          }\r\n        })\r\n        .finally(() => {\r\n          this.loading = false\r\n        })\r\n    },\r\n    calculateMaxHeight() {\r\n      this.maxHeight = (document.body.clientHeight || document.documentElement.clientHeight) - 80 - 52 - 50\r\n      this.$nextTick(() => {\r\n        this.$refs.elTable && this.$refs.elTable.doLayout()\r\n      })\r\n    },\r\n    // 派发按钮点击事件\r\n    handleClick(event, row, $index) {\r\n      let name = ''\r\n      if (row.nameFlag) {\r\n        name = row.nameFlag\r\n        row.nameFlag = ''\r\n        if (name == row.name) return false\r\n      }\r\n      this.$emit('handleClick', event, row, $index)\r\n    },\r\n    // 跳转某一页\r\n    handleCurrentChange(val) {\r\n      this.pagerConfig.query.page = val // 当前页\r\n      this.query()\r\n    },\r\n    // 为default-row添加色值\r\n    calcuRowColor(colorType) {\r\n      const colrMap = {\r\n        success: '#67C23A',\r\n        warning: '#E6A23C',\r\n        danger: '#F56C6C',\r\n        theme: '#FF4240'\r\n      }\r\n      return { color: colrMap[colorType] || 'inherit' }\r\n    },\r\n    // draggable\r\n    setSort() {\r\n      const _self = this\r\n      const el = this.$refs.elTable.$el.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]\r\n      this.sortable = Sortable.create(el, {\r\n        ghostClass: 'sortable-ghost',\r\n        sort: true,\r\n        setData: function (dataTransfer) {\r\n          //console.log(dataTransfer)\r\n          dataTransfer.setData('Text', '')\r\n        },\r\n        onUpdate: function (/**Event*/ evt) {\r\n          // same properties as onEnd\r\n          console.log(evt)\r\n          removeNode(evt.item)\r\n          insertNodeAt(evt.from, evt.item, evt.oldIndex)\r\n          const updatePosition = (list) => list.splice(evt.newIndex, 0, list.splice(evt.oldIndex, 1)[0])\r\n          const newList = [..._self.data]\r\n          const oldRow = newList[evt.oldIndex]\r\n          const targetRow = newList[evt.newIndex]\r\n          updatePosition(newList)\r\n          console.log(newList)\r\n          _self.$emit('update:data', newList)\r\n          _self.$emit('onSort', oldRow, targetRow)\r\n        },\r\n        onEnd: (evt) => {\r\n          console.log(evt)\r\n          // if (this.tabIndexSlot) {\r\n          //   console.log(evt)\r\n          //   //this.$emit('onSort', evt.oldIndex, evt.newIndex)\r\n          // } else {\r\n          //   const temp = this.data.slice()\r\n          //   const targetRow = temp.splice(evt.oldIndex, 1)[0]\r\n          //   temp.splice(evt.newIndex, 0, targetRow)\r\n          //   this.$emit('onSort', temp)\r\n          // }\r\n          // this.$nextTick(() => {\r\n          //   //this.$set(this.data, 0, targetRow)\r\n          //   this.$emit('update:data', temp)\r\n          // })\r\n          //this.$set(this.data,evt.newIndex, )\r\n          // const targetRow = this.data.splice(evt.oldIndex, 1)[0]\r\n          // this.data.splice(evt.newIndex, 0, targetRow)\r\n          // const temp = JSON.parse(JSON.stringify(this.data))\r\n          // const targetRow = temp.splice(evt.oldIndex, 1)[0]\r\n          // temp.splice(evt.newIndex, 0, targetRow)\r\n          // this.$emit('onSort', temp)\r\n          //const targetRow = this.data.splice(evt.oldIndex, 1)[0]\r\n          //this.data.splice(evt.newIndex, 0, targetRow)\r\n          //this.$refs.elTable.doLayout()\r\n          // const temp = this.data.slice()\r\n          // const targetRow = temp.splice(evt.oldIndex, 1)[0]\r\n          // temp.splice(evt.newIndex, 0, targetRow)\r\n          // this.$emit('onSort', temp)\r\n        }\r\n      })\r\n    },\r\n    etVmIndex(domIndex) {\r\n      const indexes = this.visibleIndexes\r\n      const numberIndexes = indexes.length\r\n      return domIndex > numberIndexes - 1 ? numberIndexes : indexes[domIndex]\r\n    },\r\n    batchId2nameForTableData(tableData, columns, forExcel, cb) {\r\n      const _tableData = forExcel ? deepClone(tableData) : tableData // 导出的 直接赋值\r\n      const id2name_items = columns\r\n        .map((item) => {\r\n          if (item.type === 'id2name') {\r\n            return {\r\n              rowKey: item.value,\r\n              id2name_code: item.id2name_code,\r\n              instance: item.instance\r\n            }\r\n          }\r\n          return null\r\n        })\r\n        .filter(Boolean)\r\n      const tasks = []\r\n      id2name_items.forEach((obj) => {\r\n        const { rowKey, id2name_code, instance } = obj\r\n        const options = instance ? this[id2name_code] : this.$store.getters.enums[id2name_code]\r\n        if (options && Array.isArray(options)) {\r\n          for (const rows of _tableData) {\r\n            const row = rows[rowKey]\r\n            if (Array.isArray(row)) {\r\n              const arr = row.filter((v) => {\r\n                const obj = options.find((o) => o.id === v)\r\n                return obj && obj.name\r\n              })\r\n              arr.length > 0 && this.$set(rows, rowKey + '_id2name', arr.join(','))\r\n            } else {\r\n              const obj = options.find((o) => {\r\n                return o.id === row\r\n              })\r\n              obj && this.$set(rows, rowKey + '_id2name', obj.name)\r\n            }\r\n          }\r\n        }\r\n        typeof cb === 'function' && cb(null)\r\n      })\r\n      async.parallel(tasks, () => {\r\n        //console.log(err)\r\n        typeof cb === 'function' && cb(_tableData)\r\n      })\r\n    },\r\n    afterUpdateTableData() {\r\n      //hack  alreadyCheckedList\r\n      console.log('afterUpdateTableData')\r\n      this.draggable &&\r\n        this.$nextTick(() => {\r\n          this.setSort()\r\n        })\r\n    },\r\n    handleParams(initialVal) {\r\n      return Object.assign({}, initialVal, this.queryParams())\r\n    },\r\n    handleDbClick(row, item) {\r\n      if (item.permission && !this.$hasPermission(item.permission)) return false\r\n      if (!item.ifEdit || item.ifEdit(row)) {\r\n        this.$set(row, 'nameFlag', item.value)\r\n      }\r\n    },\r\n    formatImg(url) {\r\n      let index = url.lastIndexOf('.')\r\n      let ext = url.substr(index + 1)\r\n      return Settings.qiniuNotSupportExt.includes(ext) ? url : url + '?imageView2/1/w/60/h/60'\r\n    }\r\n  }\r\n}\r\n</script>\r\n\r\n<style lang=\"scss\">\r\n.page-table {\r\n  margin-top: 10px;\r\n\r\n  .popconfirm + .popconfirm {\r\n    margin-left: 10px;\r\n  }\r\n  .el-button + .popconfirm {\r\n    margin-left: 10px;\r\n  }\r\n  .popconfirm + .el-button {\r\n    margin-left: 10px;\r\n  }\r\n}\r\n\r\n.st__table .el-table__expanded-cell {\r\n  padding: 10px 50px;\r\n}\r\n.dy-table-popover {\r\n  display: block;\r\n  margin: auto;\r\n  width: 120px;\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n}\r\n\r\n.pagination-flex {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n}\r\n</style>\r\n",".page-table {\n  margin-top: 10px;\n}\n.page-table .popconfirm + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .el-button + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .popconfirm + .el-button {\n  margin-left: 10px;\n}\n\n.st__table .el-table__expanded-cell {\n  padding: 10px 50px;\n}\n\n.dy-table-popover {\n  display: block;\n  margin: auto;\n  width: 120px;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.pagination-flex {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
+      inject("data-v-5d51993c_0", { source: ".page-table {\n  margin-top: 10px;\n}\n.page-table .popconfirm + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .el-button + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .popconfirm + .el-button {\n  margin-left: 10px;\n}\n.st__table .el-table__expanded-cell {\n  padding: 10px 50px;\n}\n.dy-table-popover {\n  display: block;\n  margin: auto;\n  width: 120px;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.pagination-flex {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\DynamicTable\\index.vue","index.vue"],"names":[],"mappings":"AAqlBA;EACA,gBAAA;ACplBA;ADslBA;EACA,iBAAA;ACplBA;ADslBA;EACA,iBAAA;ACplBA;ADslBA;EACA,iBAAA;ACplBA;ADwlBA;EACA,kBAAA;ACrlBA;ADulBA;EACA,cAAA;EACA,YAAA;EACA,YAAA;EACA,kBAAA;EACA,mBAAA;EACA,gBAAA;EACA,uBAAA;ACplBA;ADulBA;EACA,aAAA;EACA,8BAAA;EACA,mBAAA;ACplBA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <div class=\"page-table\" :class=\"className\">\r\n    <el-table\r\n      ref=\"elTable\"\r\n      v-loading=\"loading\"\r\n      class=\"st__table\"\r\n      stripe\r\n      v-bind=\"$attrs\"\r\n      style=\"width: 100%\"\r\n      :max-height=\"maxHeight\"\r\n      border\r\n      :data=\"data\"\r\n      :row-key=\"rowKey\"\r\n      :header-row-style=\"{ height: '50px', color: '#606266' }\"\r\n      v-on=\"$listeners\"\r\n    >\r\n      <!--多选-->\r\n      <el-table-column v-if=\"checkBox\" :key=\"'selection'\" type=\"selection\" width=\"55px\" v-bind=\"$attrs\" />\r\n      <!--单选-->\r\n      <el-table-column v-if=\"radioCheck\" label=\"选择\" width=\"55\" header-align=\"center\" align=\"center\" :fixed=\"columns.some((item) => item.fixed)\">\r\n        <template slot-scope=\"scope\">\r\n          <el-radio v-model=\"radio\" class=\"radio\" :label=\"scope.$index\"> &nbsp; </el-radio>\r\n        </template>\r\n      </el-table-column>\r\n      <!-- tabIndex -->\r\n      <el-table-column v-if=\"tabIndex\" :key=\"'index'\" align=\"center\" label=\"序号\" :width=\"columns.length === 0 ? '' : 80\" :fixed=\"columns.some((item) => item.fixed)\">\r\n        <template v-slot=\"scope\">\r\n          <slot v-if=\"tabIndexSlot\" name=\"sort-by-index\" :row=\"scope.row\" :$index=\"scope.$index\" />\r\n          <span v-else>{{ scope.$index + 1 }}</span>\r\n        </template>\r\n      </el-table-column>\r\n      <!-- handle -->\r\n      <el-table-column v-if=\"handle\" :key=\"'handle'\" :fixed=\"handle.fixed\" align=\"center\" :label=\"handle.label\" :width=\"handle.width\">\r\n        <template v-slot=\"scope\">\r\n          <template v-for=\"(item, index) in handle.btns || []\">\r\n            <!-- 自定义操作类型 -->\r\n            <slot v-if=\"item.slot\" :name=\"'bt-' + item.event\" :data=\"{ item, row: scope.row, $index: scope.$index }\" />\r\n            <!-- -->\r\n            <slot v-if=\"item.slot\" name=\"dy-query-btn\" :data=\"{ item, row: scope.row, $index: scope.$index }\" />\r\n            <!--  -->\r\n\r\n            <el-popconfirm\r\n              v-if=\"!item.slot && item.popconfirm && (!item.ifRender || item.ifRender(scope.row))\"\r\n              class=\"popconfirm\"\r\n              v-permission=\"item.permission\"\r\n              :key=\"index\"\r\n              :icon=\"item.icon\"\r\n              :title=\"item.popTitle || '确定删除吗？'\"\r\n              @confirm=\"handleClick(item.event, scope.row, scope.$index)\"\r\n            >\r\n              <el-button slot=\"reference\" size=\"mini\" :type=\"item.type\" :disabled=\"item.disabled\" :class=\"item.class\">\r\n                {{ item.label }}\r\n              </el-button>\r\n            </el-popconfirm>\r\n            <!--  -->\r\n            <el-button\r\n              v-if=\"!item.slot && !item.popconfirm && (!item.ifRender || item.ifRender(scope.row))\"\r\n              v-permission=\"item.permission\"\r\n              :key=\"index\"\r\n              size=\"mini\"\r\n              :type=\"item.type\"\r\n              :icon=\"item.icon\"\r\n              :disabled=\"item.disabled\"\r\n              :class=\"item.class\"\r\n              @click.stop=\"handleClick(item.event, scope.row, scope.$index)\"\r\n            >\r\n              {{ item.label }}\r\n            </el-button>\r\n          </template>\r\n        </template>\r\n      </el-table-column>\r\n      <el-table-column\r\n        v-for=\"item in columns.filter((item) => !item.hidden)\"\r\n        :key=\"item.label\"\r\n        header-align=\"center\"\r\n        :prop=\"item.value\"\r\n        :label=\"item.label\"\r\n        :fixed=\"item.fixed\"\r\n        :align=\"item.align || 'center'\"\r\n        :width=\"item.width\"\r\n        :min-width=\"item.minWidth || '100px'\"\r\n        :show-overflow-tooltip=\"item.showOverflowTooltip || false\"\r\n        :sortable=\"item.sortable || false\"\r\n      >\r\n        <!-- header 自定义气泡 -->\r\n        <template slot=\"header\">\r\n          <template v-if=\"item.headerType === 'slot'\">\r\n            <slot :name=\"'header-' + item.value\" :item=\"item\" />\r\n            <slot name=\"dy-query-header\" :data=\"{ item: item }\" />\r\n          </template>\r\n          <el-popover v-else-if=\"item.header_bubble\" trigger=\"hover\" placement=\"top\" :width=\"300\">\r\n            <span slot=\"reference\">\r\n              {{ item.label }}\r\n              <i class=\"el-icon-warning\"></i>\r\n            </span>\r\n            <span>{{ item.header_bubble_text }}</span>\r\n          </el-popover>\r\n          <template v-else>{{ item.label }}</template>\r\n        </template>\r\n        <!-- col -->\r\n        <template #default=\"scope\">\r\n          <!-- 父级指定模板 自定义 -->\r\n          <template v-if=\"item.type === 'slot'\">\r\n            <slot :name=\"'col-' + item.value\" :row=\"scope.row\" :item=\"item\" :$index=\"scope.$index\" />\r\n            <slot name=\"dy-query-col\" :data=\"{ row: scope.row, item: item, $index: scope.$index }\" />\r\n          </template>\r\n          <!-- pipe -->\r\n          <span v-else-if=\"item.type === 'pipe'\" :style=\"calcuRowColor(item.color)\">\r\n            {{ $options.filters[item.pipe](scope.row[item.value], item.pipeArg || '') }}\r\n          </span>\r\n          <!-- popover-->\r\n          <el-popover v-else-if=\"item.type === 'popover'\" trigger=\"hover\" placement=\"top\">\r\n            <p class=\"text-c\">{{ scope.row[item.value] }}</p>\r\n            <span slot=\"reference\" class=\"dy-table-popover\">\r\n              {{ scope.row[item.value] }}\r\n            </span>\r\n          </el-popover>\r\n          <!-- image -->\r\n          <el-image\r\n            v-else-if=\"item.type === 'image' && scope.row[item.value]\"\r\n            fit=\"contain\"\r\n            style=\"width: 60px; height: 60px\"\r\n            :src=\"formatImg(scope.row[item.value])\"\r\n            :preview-src-list=\"[scope.row[item.value]]\"\r\n          />\r\n          <!-- tag -->\r\n          <el-tag v-else-if=\"item.type === 'tag'\">\r\n            {{ scope.row[item.value] }}\r\n          </el-tag>\r\n          <!-- link -->\r\n          <el-link v-else-if=\"item.type === 'link'\" type=\"primary\" :href=\"scope.row[item.value]\" target=\"_blank\">\r\n            {{ scope.row[item.value] }}\r\n          </el-link>\r\n          <span v-else-if=\"item.type === 'id2name'\">\r\n            <el-tag v-if=\"item.subtype === 'tag'\" :type=\"item.tagType || ''\">\r\n              {{ scope.row[item.value + '_id2name'] }}\r\n            </el-tag>\r\n            <el-image\r\n              v-else-if=\"item.subtype === 'image' && scope.row[item.value + '_id2name']\"\r\n              fit=\"contain\"\r\n              style=\"width: 60px; height: 60px\"\r\n              :src=\"scope.row[item.value + '_id2name']\"\r\n              :preview-src-list=\"[scope.row[item.value + '_id2name']]\"\r\n            />\r\n            <template v-else>{{ scope.row[item.value + '_id2name'] }}</template>\r\n          </span>\r\n          <!-- time -->\r\n          <span v-else-if=\"item.type === 'time'\">\r\n            {{ scope.row[item.value] | parseTime }}\r\n          </span>\r\n          <!-- boolean -->\r\n          <span v-else-if=\"item.type === 'boolean'\" :style=\"calcuRowColor(item.color)\">\r\n            {{ scope.row[item.value] ? '是' : '否' }}\r\n          </span>\r\n          <!-- doubleClick -->\r\n          <div v-else-if=\"item.type === 'dbEdit'\" @dblclick=\"handleDbClick(scope.row, item)\">\r\n            <el-input v-if=\"!!scope.row.nameFlag\" v-focus v-model=\"scope.row[item.value]\" placeholder=\"请输入内容\" @blur=\"handleClick(item.value, scope.row, scope.$index)\"></el-input>\r\n            <span v-else>{{ scope.row[item.value] }}</span>\r\n          </div>\r\n          <!-- default -->\r\n          <span v-else :style=\"calcuRowColor(item.color)\">\r\n            {{ scope.row[item.value] }}\r\n          </span>\r\n        </template>\r\n      </el-table-column>\r\n    </el-table>\r\n    <!--  -->\r\n    <template v-if=\"pager\">\r\n      <div v-show=\"data.length\" style=\"margin-top: 20px\" :class=\"['text-c', paginationLeft ? 'pagination-flex' : '']\">\r\n        <slot name=\"pagination-left\"></slot>\r\n        <el-pagination\r\n          class=\"flex\"\r\n          :current-page.sync=\"pagerConfig.query.page\"\r\n          :page-size.sync=\"pagerConfig.query.size\"\r\n          layout=\"total,prev, pager, next, sizes, jumper\"\r\n          :total=\"pagerConfig.totalElements\"\r\n          :page-sizes=\"[10, 20, 50, 100]\"\r\n          @current-change=\"handleCurrentChange\"\r\n          @size-change=\"handleSizeChange\"\r\n        />\r\n      </div>\r\n    </template>\r\n  </div>\r\n</template>\r\n\r\n<script>\r\nimport { debounce, deepClone } from '@/utils/index'\r\nimport Sortable from 'sortablejs'\r\nimport async from 'async'\r\n// import request from '@/utils/request'\r\nimport { insertNodeAt, removeNode } from '@/utils/helper'\r\nimport Settings from '@/settings'\r\nimport Qs from 'qs'\r\n\r\nexport default {\r\n  name: 'dynamic-table',\r\n  props: {\r\n    // 自定义类名\r\n    className: {\r\n      type: String,\r\n      default: ''\r\n    },\r\n    // 表格字段配置\r\n    columns: {\r\n      type: Array,\r\n      default: () => []\r\n    },\r\n    // 列表数据\r\n    data: {\r\n      type: Array,\r\n      default: () => []\r\n    },\r\n    // 是否显示序号\r\n    tabIndex: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    // 是否有选择框\r\n    checkBox: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //是否单选radio\r\n    radioCheck: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    // 操作栏配置\r\n    handle: {\r\n      type: Object,\r\n      default: null\r\n    },\r\n    /** *分页 */\r\n    pager: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //格式化data\r\n    formatData: {\r\n      type: Function,\r\n      default: (v) => v\r\n    },\r\n    //行数据的 Key，用来优化 Table 的渲染；显示树形数据时，该属性是必填的。\r\n    rowKey: {\r\n      type: String,\r\n      default: 'id'\r\n    },\r\n    // 是否支持拖拽\r\n    draggable: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    // 限制表格高度\r\n    limitMaxHeight: {\r\n      type: Boolean,\r\n      default: true\r\n    },\r\n    pagination: {\r\n      type: Object,\r\n      default: () => ({})\r\n    },\r\n    // 默认init查询 当有校验条件时 必填等 默认查询\r\n    initQuery: {\r\n      type: Boolean,\r\n      default: true\r\n    },\r\n    requestOptions: {\r\n      type: Object,\r\n      default: null\r\n    },\r\n    initialFormValue: {\r\n      type: Function,\r\n      default: (v) => v\r\n    },\r\n    queryParams: {\r\n      type: Function,\r\n      default: (v) => v\r\n    },\r\n    tabIndexSlot: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //该表格数据是否是数据字典格式\r\n    dataIsDicType: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //缓存未筛选情况下totalElements总条数，在某种场景下，当有筛选情况时需要用到未筛选总条数\r\n    cacheTotal: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //配合cacheTotal\r\n    cacheKeys: {\r\n      type: Array,\r\n      default: () => []\r\n    },\r\n    //是否开启左边分页插槽\r\n    paginationLeft: {\r\n      type: Boolean,\r\n      default: false\r\n    }\r\n  },\r\n  data() {\r\n    return {\r\n      loading: false,\r\n      TIMES: 0,\r\n      radio: null,\r\n      maxHeight: null,\r\n      pagerConfig: {\r\n        _totalElements: 0, //未筛选情况下的总条数，需要做缓存\r\n        totalElements: 0, // 总条数\r\n        //pageSizes: [10, 20, 50, 100], // 分页数量列表\r\n        query: {\r\n          // 查询条件\r\n          page: 1, // 当前页\r\n          size: 10 // 每页条数\r\n        }\r\n      }\r\n    }\r\n  },\r\n  computed: {\r\n    data_length() {\r\n      return this.data.length\r\n    }\r\n  },\r\n  watch: {\r\n    // 'data.length': {\r\n    //   handler(newVal, oldVal) {\r\n    // if (this.draggable && newVal !== oldVal) {\r\n    // if (this.draggable) {\r\n    //   this.$nextTick(() => {\r\n    //     this.setSort()\r\n    //   })\r\n    // }\r\n    // if (newVal) {\r\n    //   const _data = this.formatData(this.data)\r\n    //   this.batchId2nameForTableData(_data, this.columns, false, (data) => {\r\n    //     this.afterUpdateTableData()\r\n    //   })\r\n    //   this.$refs.elTable && this.$refs.elTable.doLayout()\r\n    // }\r\n    //   },\r\n    //   immediate: true,\r\n    //   deep: false,\r\n    // },\r\n    // draggable(value) {\r\n    //   if (!value) {\r\n    //     return this.sortable.destroy()\r\n    //   }\r\n    //   return value && this.data.length && this.setSort()\r\n    // },\r\n  },\r\n  mounted() {\r\n    if (this.limitMaxHeight) {\r\n      this.calculateMaxHeight()\r\n      this.__resizeHandler = debounce(this.calculateMaxHeight, 100)\r\n      window.addEventListener('resize', this.__resizeHandler)\r\n    }\r\n    this.initQuery && this.query()\r\n    this.draggable && this.setSort()\r\n  },\r\n  beforeDestroy() {\r\n    this.$emit('update:data', [])\r\n    this.limitMaxHeight && window.removeEventListener('resize', this.__resizeHandler)\r\n  },\r\n  updated() {\r\n    this.batchId2nameForTableData(this.data, this.columns, false)\r\n  },\r\n  methods: {\r\n    handleSizeChange(val) {\r\n      this.pagerConfig.query.size = val // 每页条数\r\n      this.pagerConfig.query.page = 1 // 每页条数切换，重置当前页\r\n      this.query()\r\n    },\r\n    reset() {\r\n      this.pagerConfig.query.page = 1\r\n      this.query()\r\n    },\r\n    query() {\r\n      if (!this.requestOptions) {\r\n        return false\r\n      }\r\n      this.loading = true\r\n      let { url, method, params = {}, baseURL,withCredentials=true } = this.requestOptions\r\n      const { page, size } = this.pagerConfig.query\r\n      const reqParams = this.handleParams(this.initialFormValue())\r\n      // debugger\r\n      const reqData = Object.assign({}, reqParams, {\r\n        ...params\r\n      })\r\n      if (this.pager) {\r\n        reqData['page'] = page - 1\r\n        reqData['size'] = size\r\n      }\r\n      const dataKey = method && method.toLowerCase() == 'get' ? 'params' : 'data'\r\n      window.request({\r\n        baseURL,\r\n        url,\r\n        method,\r\n        withCredentials,\r\n        [dataKey]: reqData,\r\n        paramsSerializer: function (params) {\r\n          return Qs.stringify(params, {\r\n            arrayFormat: 'indices',\r\n            allowDots: true\r\n          })\r\n        }\r\n      })\r\n        .then((data) => {\r\n          let { content, totalElements } = this.dataIsDicType\r\n            ? {\r\n                content: data,\r\n                totalElements: 0\r\n              }\r\n            : data\r\n\r\n          if (this.cacheTotal) {\r\n            let status = this.cacheKeys.every((item) => reqData[item.key] == item.init)\r\n            if (status) {\r\n              this.pagerConfig._totalElements = totalElements\r\n            }\r\n          }\r\n\r\n          this.$emit('update:data', this.formatData(content))\r\n\r\n          if (this.pager && totalElements > 0) {\r\n            this.pagerConfig.totalElements = totalElements\r\n            //this.pagerConfig.query.page++\r\n          }\r\n        })\r\n        .finally(() => {\r\n          this.loading = false\r\n        })\r\n    },\r\n    calculateMaxHeight() {\r\n      this.maxHeight = (document.body.clientHeight || document.documentElement.clientHeight) - 80 - 52 - 50\r\n      this.$nextTick(() => {\r\n        this.$refs.elTable && this.$refs.elTable.doLayout()\r\n      })\r\n    },\r\n    // 派发按钮点击事件\r\n    handleClick(event, row, $index) {\r\n      let name = ''\r\n      if (row.nameFlag) {\r\n        name = row.nameFlag\r\n        row.nameFlag = ''\r\n        if (name == row.name) return false\r\n      }\r\n      this.$emit('handleClick', event, row, $index)\r\n    },\r\n    // 跳转某一页\r\n    handleCurrentChange(val) {\r\n      this.pagerConfig.query.page = val // 当前页\r\n      this.query()\r\n    },\r\n    // 为default-row添加色值\r\n    calcuRowColor(colorType) {\r\n      const colrMap = {\r\n        success: '#67C23A',\r\n        warning: '#E6A23C',\r\n        danger: '#F56C6C',\r\n        theme: '#FF4240'\r\n      }\r\n      return { color: colrMap[colorType] || 'inherit' }\r\n    },\r\n    // draggable\r\n    setSort() {\r\n      const _self = this\r\n      const el = this.$refs.elTable.$el.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]\r\n      this.sortable = Sortable.create(el, {\r\n        ghostClass: 'sortable-ghost',\r\n        sort: true,\r\n        setData: function (dataTransfer) {\r\n          //console.log(dataTransfer)\r\n          dataTransfer.setData('Text', '')\r\n        },\r\n        onUpdate: function (/**Event*/ evt) {\r\n          // same properties as onEnd\r\n          console.log(evt)\r\n          removeNode(evt.item)\r\n          insertNodeAt(evt.from, evt.item, evt.oldIndex)\r\n          const updatePosition = (list) => list.splice(evt.newIndex, 0, list.splice(evt.oldIndex, 1)[0])\r\n          const newList = [..._self.data]\r\n          const oldRow = newList[evt.oldIndex]\r\n          const targetRow = newList[evt.newIndex]\r\n          updatePosition(newList)\r\n          console.log(newList)\r\n          _self.$emit('update:data', newList)\r\n          _self.$emit('onSort', oldRow, targetRow)\r\n        },\r\n        onEnd: (evt) => {\r\n          console.log(evt)\r\n          // if (this.tabIndexSlot) {\r\n          //   console.log(evt)\r\n          //   //this.$emit('onSort', evt.oldIndex, evt.newIndex)\r\n          // } else {\r\n          //   const temp = this.data.slice()\r\n          //   const targetRow = temp.splice(evt.oldIndex, 1)[0]\r\n          //   temp.splice(evt.newIndex, 0, targetRow)\r\n          //   this.$emit('onSort', temp)\r\n          // }\r\n          // this.$nextTick(() => {\r\n          //   //this.$set(this.data, 0, targetRow)\r\n          //   this.$emit('update:data', temp)\r\n          // })\r\n          //this.$set(this.data,evt.newIndex, )\r\n          // const targetRow = this.data.splice(evt.oldIndex, 1)[0]\r\n          // this.data.splice(evt.newIndex, 0, targetRow)\r\n          // const temp = JSON.parse(JSON.stringify(this.data))\r\n          // const targetRow = temp.splice(evt.oldIndex, 1)[0]\r\n          // temp.splice(evt.newIndex, 0, targetRow)\r\n          // this.$emit('onSort', temp)\r\n          //const targetRow = this.data.splice(evt.oldIndex, 1)[0]\r\n          //this.data.splice(evt.newIndex, 0, targetRow)\r\n          //this.$refs.elTable.doLayout()\r\n          // const temp = this.data.slice()\r\n          // const targetRow = temp.splice(evt.oldIndex, 1)[0]\r\n          // temp.splice(evt.newIndex, 0, targetRow)\r\n          // this.$emit('onSort', temp)\r\n        }\r\n      })\r\n    },\r\n    etVmIndex(domIndex) {\r\n      const indexes = this.visibleIndexes\r\n      const numberIndexes = indexes.length\r\n      return domIndex > numberIndexes - 1 ? numberIndexes : indexes[domIndex]\r\n    },\r\n    batchId2nameForTableData(tableData, columns, forExcel, cb) {\r\n      const _tableData = forExcel ? deepClone(tableData) : tableData // 导出的 直接赋值\r\n      const id2name_items = columns\r\n        .map((item) => {\r\n          if (item.type === 'id2name') {\r\n            return {\r\n              rowKey: item.value,\r\n              id2name_code: item.id2name_code,\r\n              instance: item.instance\r\n            }\r\n          }\r\n          return null\r\n        })\r\n        .filter(Boolean)\r\n      const tasks = []\r\n      id2name_items.forEach((obj) => {\r\n        const { rowKey, id2name_code, instance } = obj\r\n        const options = instance ? this[id2name_code] : this.$store.getters.enums[id2name_code]\r\n        if (options && Array.isArray(options)) {\r\n          for (const rows of _tableData) {\r\n            const row = rows[rowKey]\r\n            if (Array.isArray(row)) {\r\n              const arr = row.filter((v) => {\r\n                const obj = options.find((o) => o.id === v)\r\n                return obj && obj.name\r\n              })\r\n              arr.length > 0 && this.$set(rows, rowKey + '_id2name', arr.join(','))\r\n            } else {\r\n              const obj = options.find((o) => {\r\n                return o.id === row\r\n              })\r\n              obj && this.$set(rows, rowKey + '_id2name', obj.name)\r\n            }\r\n          }\r\n        }\r\n        typeof cb === 'function' && cb(null)\r\n      })\r\n      async.parallel(tasks, () => {\r\n        //console.log(err)\r\n        typeof cb === 'function' && cb(_tableData)\r\n      })\r\n    },\r\n    afterUpdateTableData() {\r\n      //hack  alreadyCheckedList\r\n      console.log('afterUpdateTableData')\r\n      this.draggable &&\r\n        this.$nextTick(() => {\r\n          this.setSort()\r\n        })\r\n    },\r\n    handleParams(initialVal) {\r\n      return Object.assign({}, initialVal, this.queryParams())\r\n    },\r\n    handleDbClick(row, item) {\r\n      if (item.permission && !this.$hasPermission(item.permission)) return false\r\n      if (!item.ifEdit || item.ifEdit(row)) {\r\n        this.$set(row, 'nameFlag', item.value)\r\n      }\r\n    },\r\n    formatImg(url) {\r\n      let index = url.lastIndexOf('.')\r\n      let ext = url.substr(index + 1)\r\n      return Settings.qiniuNotSupportExt.includes(ext) ? url : url + '?imageView2/1/w/60/h/60'\r\n    }\r\n  }\r\n}\r\n</script>\r\n\r\n<style lang=\"scss\">\r\n.page-table {\r\n  margin-top: 10px;\r\n\r\n  .popconfirm + .popconfirm {\r\n    margin-left: 10px;\r\n  }\r\n  .el-button + .popconfirm {\r\n    margin-left: 10px;\r\n  }\r\n  .popconfirm + .el-button {\r\n    margin-left: 10px;\r\n  }\r\n}\r\n\r\n.st__table .el-table__expanded-cell {\r\n  padding: 10px 50px;\r\n}\r\n.dy-table-popover {\r\n  display: block;\r\n  margin: auto;\r\n  width: 120px;\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n}\r\n\r\n.pagination-flex {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n}\r\n</style>\r\n",".page-table {\n  margin-top: 10px;\n}\n.page-table .popconfirm + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .el-button + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .popconfirm + .el-button {\n  margin-left: 10px;\n}\n\n.st__table .el-table__expanded-cell {\n  padding: 10px 50px;\n}\n\n.dy-table-popover {\n  display: block;\n  margin: auto;\n  width: 120px;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.pagination-flex {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
@@ -4536,23 +4446,6 @@
       undefined
     );
 
-  function getToken(query) {
-    return service({
-      url: '/third/qiniu/token',
-      // 假地址 自行替换
-      method: 'get',
-      params: query
-    });
-  }
-
-  var dist = createCommonjsModule(function (module, exports) {
-  !function(t,e){module.exports=e();}(window,function(){return function(t){var e={};function o(n){if(e[n])return e[n].exports;var r=e[n]={i:n,l:!1,exports:{}};return t[n].call(r.exports,r,r.exports,o),r.l=!0,r.exports}return o.m=t,o.c=e,o.d=function(t,e,n){o.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:n});},o.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0});},o.t=function(t,e){if(1&e&&(t=o(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var n=Object.create(null);if(o.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var r in t)o.d(n,r,function(e){return t[e]}.bind(null,r));return n},o.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return o.d(e,"a",e),e},o.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},o.p="",o(o.s=6)}([function(t,e,o){var n=o(2);"string"==typeof n&&(n=[[t.i,n,""]]);var r={hmr:!0,transform:void 0,insertInto:void 0};o(4)(n,r);n.locals&&(t.exports=n.locals);},function(t,e,o){var n=o(0);o.n(n).a;},function(t,e,o){(t.exports=o(3)(!1)).push([t.i,'\n.vue-cropper[data-v-6dae58fd] {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n  user-select: none;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  direction: ltr;\n  touch-action: none;\n  text-align: left;\n  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC");\n}\n.cropper-box[data-v-6dae58fd],\n.cropper-box-canvas[data-v-6dae58fd],\n.cropper-drag-box[data-v-6dae58fd],\n.cropper-crop-box[data-v-6dae58fd],\n.cropper-face[data-v-6dae58fd] {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  user-select: none;\n}\n.cropper-box-canvas img[data-v-6dae58fd] {\n  position: relative;\n  text-align: left;\n  user-select: none;\n  transform: none;\n  max-width: none;\n  max-height: none;\n}\n.cropper-box[data-v-6dae58fd] {\n  overflow: hidden;\n}\n.cropper-move[data-v-6dae58fd] {\n  cursor: move;\n}\n.cropper-crop[data-v-6dae58fd] {\n  cursor: crosshair;\n}\n.cropper-modal[data-v-6dae58fd] {\n  background: rgba(0, 0, 0, 0.5);\n}\n.cropper-crop-box[data-v-6dae58fd] {\n  /*border: 2px solid #39f;*/\n}\n.cropper-view-box[data-v-6dae58fd] {\n  display: block;\n  overflow: hidden;\n  width: 100%;\n  height: 100%;\n  outline: 1px solid #39f;\n  outline-color: rgba(51, 153, 255, 0.75);\n  user-select: none;\n}\n.cropper-view-box img[data-v-6dae58fd] {\n  user-select: none;\n  text-align: left;\n  max-width: none;\n  max-height: none;\n}\n.cropper-face[data-v-6dae58fd] {\n  top: 0;\n  left: 0;\n  background-color: #fff;\n  opacity: 0.1;\n}\n.crop-info[data-v-6dae58fd] {\n  position: absolute;\n  left: 0px;\n  min-width: 65px;\n  text-align: center;\n  color: white;\n  line-height: 20px;\n  background-color: rgba(0, 0, 0, 0.8);\n  font-size: 12px;\n}\n.crop-line[data-v-6dae58fd] {\n  position: absolute;\n  display: block;\n  width: 100%;\n  height: 100%;\n  opacity: 0.1;\n}\n.line-w[data-v-6dae58fd] {\n  top: -3px;\n  left: 0;\n  height: 5px;\n  cursor: n-resize;\n}\n.line-a[data-v-6dae58fd] {\n  top: 0;\n  left: -3px;\n  width: 5px;\n  cursor: w-resize;\n}\n.line-s[data-v-6dae58fd] {\n  bottom: -3px;\n  left: 0;\n  height: 5px;\n  cursor: s-resize;\n}\n.line-d[data-v-6dae58fd] {\n  top: 0;\n  right: -3px;\n  width: 5px;\n  cursor: e-resize;\n}\n.crop-point[data-v-6dae58fd] {\n  position: absolute;\n  width: 8px;\n  height: 8px;\n  opacity: 0.75;\n  background-color: #39f;\n  border-radius: 100%;\n}\n.point1[data-v-6dae58fd] {\n  top: -4px;\n  left: -4px;\n  cursor: nw-resize;\n}\n.point2[data-v-6dae58fd] {\n  top: -5px;\n  left: 50%;\n  margin-left: -3px;\n  cursor: n-resize;\n}\n.point3[data-v-6dae58fd] {\n  top: -4px;\n  right: -4px;\n  cursor: ne-resize;\n}\n.point4[data-v-6dae58fd] {\n  top: 50%;\n  left: -4px;\n  margin-top: -3px;\n  cursor: w-resize;\n}\n.point5[data-v-6dae58fd] {\n  top: 50%;\n  right: -4px;\n  margin-top: -3px;\n  cursor: e-resize;\n}\n.point6[data-v-6dae58fd] {\n  bottom: -5px;\n  left: -4px;\n  cursor: sw-resize;\n}\n.point7[data-v-6dae58fd] {\n  bottom: -5px;\n  left: 50%;\n  margin-left: -3px;\n  cursor: s-resize;\n}\n.point8[data-v-6dae58fd] {\n  bottom: -5px;\n  right: -4px;\n  cursor: se-resize;\n}\n@media screen and (max-width: 500px) {\n.crop-point[data-v-6dae58fd] {\n    position: absolute;\n    width: 20px;\n    height: 20px;\n    opacity: 0.45;\n    background-color: #39f;\n    border-radius: 100%;\n}\n.point1[data-v-6dae58fd] {\n    top: -10px;\n    left: -10px;\n}\n.point2[data-v-6dae58fd],\n  .point4[data-v-6dae58fd],\n  .point5[data-v-6dae58fd],\n  .point7[data-v-6dae58fd] {\n    display: none;\n}\n.point3[data-v-6dae58fd] {\n    top: -10px;\n    right: -10px;\n}\n.point4[data-v-6dae58fd] {\n    top: 0;\n    left: 0;\n}\n.point6[data-v-6dae58fd] {\n    bottom: -10px;\n    left: -10px;\n}\n.point8[data-v-6dae58fd] {\n    bottom: -10px;\n    right: -10px;\n}\n}\n',""]);},function(t,e){t.exports=function(t){var e=[];return e.toString=function(){return this.map(function(e){var o=function(t,e){var o=t[1]||"",n=t[3];if(!n)return o;if(e&&"function"==typeof btoa){var r=function(t){return "/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(t))))+" */"}(n),i=n.sources.map(function(t){return "/*# sourceURL="+n.sourceRoot+t+" */"});return [o].concat(i).concat([r]).join("\n")}return [o].join("\n")}(e,t);return e[2]?"@media "+e[2]+"{"+o+"}":o}).join("")},e.i=function(t,o){"string"==typeof t&&(t=[[null,t,""]]);for(var n={},r=0;r<this.length;r++){var i=this[r][0];"number"==typeof i&&(n[i]=!0);}for(r=0;r<t.length;r++){var s=t[r];"number"==typeof s[0]&&n[s[0]]||(o&&!s[2]?s[2]=o:o&&(s[2]="("+s[2]+") and ("+o+")"),e.push(s));}},e};},function(t,e,o){var n={},r=function(t){var e;return function(){return void 0===e&&(e=t.apply(this,arguments)),e}}(function(){return window&&document&&document.all&&!window.atob}),i=function(t){var e={};return function(t,o){if("function"==typeof t)return t();if(void 0===e[t]){var n=function(t,e){return e?e.querySelector(t):document.querySelector(t)}.call(this,t,o);if(window.HTMLIFrameElement&&n instanceof window.HTMLIFrameElement)try{n=n.contentDocument.head;}catch(t){n=null;}e[t]=n;}return e[t]}}(),s=null,a=0,c=[],h=o(5);function p(t,e){for(var o=0;o<t.length;o++){var r=t[o],i=n[r.id];if(i){i.refs++;for(var s=0;s<i.parts.length;s++)i.parts[s](r.parts[s]);for(;s<r.parts.length;s++)i.parts.push(v(r.parts[s],e));}else {var a=[];for(s=0;s<r.parts.length;s++)a.push(v(r.parts[s],e));n[r.id]={id:r.id,refs:1,parts:a};}}}function u(t,e){for(var o=[],n={},r=0;r<t.length;r++){var i=t[r],s=e.base?i[0]+e.base:i[0],a={css:i[1],media:i[2],sourceMap:i[3]};n[s]?n[s].parts.push(a):o.push(n[s]={id:s,parts:[a]});}return o}function l(t,e){var o=i(t.insertInto);if(!o)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var n=c[c.length-1];if("top"===t.insertAt)n?n.nextSibling?o.insertBefore(e,n.nextSibling):o.appendChild(e):o.insertBefore(e,o.firstChild),c.push(e);else if("bottom"===t.insertAt)o.appendChild(e);else {if("object"!=typeof t.insertAt||!t.insertAt.before)throw new Error("[Style Loader]\n\n Invalid value for parameter 'insertAt' ('options.insertAt') found.\n Must be 'top', 'bottom', or Object.\n (https://github.com/webpack-contrib/style-loader#insertat)\n");var r=i(t.insertAt.before,o);o.insertBefore(e,r);}}function d(t){if(null===t.parentNode)return !1;t.parentNode.removeChild(t);var e=c.indexOf(t);e>=0&&c.splice(e,1);}function f(t){var e=document.createElement("style");if(void 0===t.attrs.type&&(t.attrs.type="text/css"),void 0===t.attrs.nonce){var n=function(){return o.nc}();n&&(t.attrs.nonce=n);}return g(e,t.attrs),l(t,e),e}function g(t,e){Object.keys(e).forEach(function(o){t.setAttribute(o,e[o]);});}function v(t,e){var o,n,r,i;if(e.transform&&t.css){if(!(i="function"==typeof e.transform?e.transform(t.css):e.transform.default(t.css)))return function(){};t.css=i;}if(e.singleton){var c=a++;o=s||(s=f(e)),n=w.bind(null,o,c,!1),r=w.bind(null,o,c,!0);}else t.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(o=function(t){var e=document.createElement("link");return void 0===t.attrs.type&&(t.attrs.type="text/css"),t.attrs.rel="stylesheet",g(e,t.attrs),l(t,e),e}(e),n=function(t,e,o){var n=o.css,r=o.sourceMap,i=void 0===e.convertToAbsoluteUrls&&r;(e.convertToAbsoluteUrls||i)&&(n=h(n));r&&(n+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(r))))+" */");var s=new Blob([n],{type:"text/css"}),a=t.href;t.href=URL.createObjectURL(s),a&&URL.revokeObjectURL(a);}.bind(null,o,e),r=function(){d(o),o.href&&URL.revokeObjectURL(o.href);}):(o=f(e),n=function(t,e){var o=e.css,n=e.media;n&&t.setAttribute("media",n);if(t.styleSheet)t.styleSheet.cssText=o;else {for(;t.firstChild;)t.removeChild(t.firstChild);t.appendChild(document.createTextNode(o));}}.bind(null,o),r=function(){d(o);});return n(t),function(e){if(e){if(e.css===t.css&&e.media===t.media&&e.sourceMap===t.sourceMap)return;n(t=e);}else r();}}t.exports=function(t,e){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");(e=e||{}).attrs="object"==typeof e.attrs?e.attrs:{},e.singleton||"boolean"==typeof e.singleton||(e.singleton=r()),e.insertInto||(e.insertInto="head"),e.insertAt||(e.insertAt="bottom");var o=u(t,e);return p(o,e),function(t){for(var r=[],i=0;i<o.length;i++){var s=o[i];(a=n[s.id]).refs--,r.push(a);}t&&p(u(t,e),e);for(i=0;i<r.length;i++){var a;if(0===(a=r[i]).refs){for(var c=0;c<a.parts.length;c++)a.parts[c]();delete n[a.id];}}}};var m=function(){var t=[];return function(e,o){return t[e]=o,t.filter(Boolean).join("\n")}}();function w(t,e,o,n){var r=o?"":n.css;if(t.styleSheet)t.styleSheet.cssText=m(e,r);else {var i=document.createTextNode(r),s=t.childNodes;s[e]&&t.removeChild(s[e]),s.length?t.insertBefore(i,s[e]):t.appendChild(i);}}},function(t,e){t.exports=function(t){var e="undefined"!=typeof window&&window.location;if(!e)throw new Error("fixUrls requires window.location");if(!t||"string"!=typeof t)return t;var o=e.protocol+"//"+e.host,n=o+e.pathname.replace(/\/[^\/]*$/,"/");return t.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(t,e){var r,i=e.trim().replace(/^"(.*)"$/,function(t,e){return e}).replace(/^'(.*)'$/,function(t,e){return e});return /^(#|data:|http:\/\/|https:\/\/|file:\/\/\/|\s*$)/i.test(i)?t:(r=0===i.indexOf("//")?i:0===i.indexOf("/")?o+i:n+i.replace(/^\.\//,""),"url("+JSON.stringify(r)+")")})};},function(t,e,o){o.r(e);var n=function(){var t=this,e=t.$createElement,o=t._self._c||e;return o("div",{ref:"cropper",staticClass:"vue-cropper",on:{mouseover:t.scaleImg,mouseout:t.cancelScale}},[t.imgs?o("div",{staticClass:"cropper-box"},[o("div",{directives:[{name:"show",rawName:"v-show",value:!t.loading,expression:"!loading"}],staticClass:"cropper-box-canvas",style:{width:t.trueWidth+"px",height:t.trueHeight+"px",transform:"scale("+t.scale+","+t.scale+") translate3d("+t.x/t.scale+"px,"+t.y/t.scale+"px,0)rotateZ("+90*t.rotate+"deg)"}},[o("img",{ref:"cropperImg",attrs:{src:t.imgs,alt:"cropper-img"}})])]):t._e(),t._v(" "),o("div",{staticClass:"cropper-drag-box",class:{"cropper-move":t.move&&!t.crop,"cropper-crop":t.crop,"cropper-modal":t.cropping},on:{mousedown:t.startMove,touchstart:t.startMove}}),t._v(" "),o("div",{directives:[{name:"show",rawName:"v-show",value:t.cropping,expression:"cropping"}],staticClass:"cropper-crop-box",style:{width:t.cropW+"px",height:t.cropH+"px",transform:"translate3d("+t.cropOffsertX+"px,"+t.cropOffsertY+"px,0)"}},[o("span",{staticClass:"cropper-view-box"},[o("img",{style:{width:t.trueWidth+"px",height:t.trueHeight+"px",transform:"scale("+t.scale+","+t.scale+") translate3d("+(t.x-t.cropOffsertX)/t.scale+"px,"+(t.y-t.cropOffsertY)/t.scale+"px,0)rotateZ("+90*t.rotate+"deg)"},attrs:{src:t.imgs,alt:"cropper-img"}})]),t._v(" "),o("span",{staticClass:"cropper-face cropper-move",on:{mousedown:t.cropMove,touchstart:t.cropMove}}),t._v(" "),t.info?o("span",{staticClass:"crop-info",style:{top:t.cropInfo.top}},[t._v(t._s(t.cropInfo.width)+" × "+t._s(t.cropInfo.height))]):t._e(),t._v(" "),t.fixedBox?t._e():o("span",[o("span",{staticClass:"crop-line line-w",on:{mousedown:function(e){t.changeCropSize(e,!1,!0,0,1);},touchstart:function(e){t.changeCropSize(e,!1,!0,0,1);}}}),t._v(" "),o("span",{staticClass:"crop-line line-a",on:{mousedown:function(e){t.changeCropSize(e,!0,!1,1,0);},touchstart:function(e){t.changeCropSize(e,!0,!1,1,0);}}}),t._v(" "),o("span",{staticClass:"crop-line line-s",on:{mousedown:function(e){t.changeCropSize(e,!1,!0,0,2);},touchstart:function(e){t.changeCropSize(e,!1,!0,0,2);}}}),t._v(" "),o("span",{staticClass:"crop-line line-d",on:{mousedown:function(e){t.changeCropSize(e,!0,!1,2,0);},touchstart:function(e){t.changeCropSize(e,!0,!1,2,0);}}}),t._v(" "),o("span",{staticClass:"crop-point point1",on:{mousedown:function(e){t.changeCropSize(e,!0,!0,1,1);},touchstart:function(e){t.changeCropSize(e,!0,!0,1,1);}}}),t._v(" "),o("span",{staticClass:"crop-point point2",on:{mousedown:function(e){t.changeCropSize(e,!1,!0,0,1);},touchstart:function(e){t.changeCropSize(e,!1,!0,0,1);}}}),t._v(" "),o("span",{staticClass:"crop-point point3",on:{mousedown:function(e){t.changeCropSize(e,!0,!0,2,1);},touchstart:function(e){t.changeCropSize(e,!0,!0,2,1);}}}),t._v(" "),o("span",{staticClass:"crop-point point4",on:{mousedown:function(e){t.changeCropSize(e,!0,!1,1,0);},touchstart:function(e){t.changeCropSize(e,!0,!1,1,0);}}}),t._v(" "),o("span",{staticClass:"crop-point point5",on:{mousedown:function(e){t.changeCropSize(e,!0,!1,2,0);},touchstart:function(e){t.changeCropSize(e,!0,!1,2,0);}}}),t._v(" "),o("span",{staticClass:"crop-point point6",on:{mousedown:function(e){t.changeCropSize(e,!0,!0,1,2);},touchstart:function(e){t.changeCropSize(e,!0,!0,1,2);}}}),t._v(" "),o("span",{staticClass:"crop-point point7",on:{mousedown:function(e){t.changeCropSize(e,!1,!0,0,2);},touchstart:function(e){t.changeCropSize(e,!1,!0,0,2);}}}),t._v(" "),o("span",{staticClass:"crop-point point8",on:{mousedown:function(e){t.changeCropSize(e,!0,!0,2,2);},touchstart:function(e){t.changeCropSize(e,!0,!0,2,2);}}})])])])};n._withStripped=!0;var r={};r.getData=function(t){return new Promise(function(e,o){var n={};(function(t){var e=null;return new Promise(function(o,n){if(t.src)if(/^data\:/i.test(t.src))e=function(t){t=t.replace(/^data\:([^\;]+)\;base64,/gim,"");for(var e=atob(t),o=e.length,n=new ArrayBuffer(o),r=new Uint8Array(n),i=0;i<o;i++)r[i]=e.charCodeAt(i);return n}(t.src),o(e);else if(/^blob\:/i.test(t.src)){var r=new FileReader;r.onload=function(t){e=t.target.result,o(e);},function(t,e){var o=new XMLHttpRequest;o.open("GET",t,!0),o.responseType="blob",o.onload=function(t){200!=this.status&&0!==this.status||e(this.response);},o.send();}(t.src,function(t){r.readAsArrayBuffer(t);});}else {var i=new XMLHttpRequest;i.onload=function(){if(200!=this.status&&0!==this.status)throw "Could not load image";e=i.response,o(e),i=null;},i.open("GET",t.src,!0),i.responseType="arraybuffer",i.send(null);}else n("img error");})})(t).then(function(t){n.arrayBuffer=t,n.orientation=function(t){var e,o,n,r,i,s,a,c,h,p=new DataView(t),u=p.byteLength;if(255===p.getUint8(0)&&216===p.getUint8(1))for(c=2;c<u;){if(255===p.getUint8(c)&&225===p.getUint8(c+1)){s=c;break}c++;}s&&(o=s+10,"Exif"===function(t,e,o){var n,r="";for(n=e,o+=e;n<o;n++)r+=String.fromCharCode(t.getUint8(n));return r}(p,s+4,4)&&(i=p.getUint16(o),((r=18761===i)||19789===i)&&42===p.getUint16(o+2,r)&&(n=p.getUint32(o+4,r))>=8&&(a=o+n)));if(a)for(u=p.getUint16(a,r),h=0;h<u;h++)if(c=a+12*h+2,274===p.getUint16(c,r)){c+=8,e=p.getUint16(c,r);break}return e}(t),e(n);}).catch(function(t){o(t);});})};var i=r,s={data:function(){return {w:0,h:0,scale:1,x:0,y:0,loading:!0,trueWidth:0,trueHeight:0,move:!0,moveX:0,moveY:0,crop:!1,cropping:!1,cropW:0,cropH:0,cropOldW:0,cropOldH:0,canChangeX:!1,canChangeY:!1,changeCropTypeX:1,changeCropTypeY:1,cropX:0,cropY:0,cropChangeX:0,cropChangeY:0,cropOffsertX:0,cropOffsertY:0,support:"",touches:[],touchNow:!1,rotate:0,isIos:!1,orientation:0,imgs:"",coe:.2,scaling:!1,scalingSet:"",coeStatus:"",isCanShow:!0}},props:{img:{type:[String,Blob,null,File],default:""},outputSize:{type:Number,default:1},outputType:{type:String,default:"jpeg"},info:{type:Boolean,default:!0},canScale:{type:Boolean,default:!0},autoCrop:{type:Boolean,default:!1},autoCropWidth:{type:[Number,String],default:0},autoCropHeight:{type:[Number,String],default:0},fixed:{type:Boolean,default:!1},fixedNumber:{type:Array,default:function(){return [1,1]}},fixedBox:{type:Boolean,default:!1},full:{type:Boolean,default:!1},canMove:{type:Boolean,default:!0},canMoveBox:{type:Boolean,default:!0},original:{type:Boolean,default:!1},centerBox:{type:Boolean,default:!1},high:{type:Boolean,default:!0},infoTrue:{type:Boolean,default:!1},maxImgSize:{type:[Number,String],default:2e3},enlarge:{type:[Number,String],default:1},preW:{type:[Number,String],default:0},mode:{type:String,default:"contain"},limitMinSize:{type:[Number,Array,String],default:function(){return 10}}},computed:{cropInfo:function(){var t={};if(t.top=this.cropOffsertY>21?"-21px":"0px",t.width=this.cropW>0?this.cropW:0,t.height=this.cropH>0?this.cropH:0,this.infoTrue){var e=1;this.high&&!this.full&&(e=window.devicePixelRatio),1!==this.enlarge&!this.full&&(e=Math.abs(Number(this.enlarge))),t.width=t.width*e,t.height=t.height*e,this.full&&(t.width=t.width/this.scale,t.height=t.height/this.scale);}return t.width=t.width.toFixed(0),t.height=t.height.toFixed(0),t},isIE:function(){var t=!!window.ActiveXObject||"ActiveXObject"in window;return t},passive:function(){return this.isIE?null:{passive:!1}}},watch:{img:function(){this.checkedImg();},imgs:function(t){""!==t&&this.reload();},cropW:function(){this.showPreview();},cropH:function(){this.showPreview();},cropOffsertX:function(){this.showPreview();},cropOffsertY:function(){this.showPreview();},scale:function(t,e){this.showPreview();},x:function(){this.showPreview();},y:function(){this.showPreview();},autoCrop:function(t){t&&this.goAutoCrop();},autoCropWidth:function(){this.autoCrop&&this.goAutoCrop();},autoCropHeight:function(){this.autoCrop&&this.goAutoCrop();},mode:function(){this.checkedImg();},rotate:function(){this.showPreview(),this.autoCrop?this.goAutoCrop(this.cropW,this.cropH):(this.cropW>0||this.cropH>0)&&this.goAutoCrop(this.cropW,this.cropH);}},methods:{getVersion:function(t){for(var e=navigator.userAgent.split(" "),o="",n=new RegExp(t,"i"),r=0;r<e.length;r++)n.test(e[r])&&(o=e[r]);return o?o.split("/")[1].split("."):["0","0","0"]},checkOrientationImage:function(t,e,o,n){var r=this;if(this.getVersion("chrome")[0]>=81)e=-1;else if(this.getVersion("safari")[0]>=605){var i=this.getVersion("version");i[0]>13&&i[1]>1&&(e=-1);}else {var s=navigator.userAgent.toLowerCase().match(/cpu iphone os (.*?) like mac os/);if(s){var a=s[1];((a=a.split("_"))[0]>13||a[0]>=13&&a[1]>=4)&&(e=-1);}}var c=document.createElement("canvas"),h=c.getContext("2d");switch(h.save(),e){case 2:c.width=o,c.height=n,h.translate(o,0),h.scale(-1,1);break;case 3:c.width=o,c.height=n,h.translate(o/2,n/2),h.rotate(180*Math.PI/180),h.translate(-o/2,-n/2);break;case 4:c.width=o,c.height=n,h.translate(0,n),h.scale(1,-1);break;case 5:c.height=o,c.width=n,h.rotate(.5*Math.PI),h.scale(1,-1);break;case 6:c.width=n,c.height=o,h.translate(n/2,o/2),h.rotate(90*Math.PI/180),h.translate(-o/2,-n/2);break;case 7:c.height=o,c.width=n,h.rotate(.5*Math.PI),h.translate(o,-n),h.scale(-1,1);break;case 8:c.height=o,c.width=n,h.translate(n/2,o/2),h.rotate(-90*Math.PI/180),h.translate(-o/2,-n/2);break;default:c.width=o,c.height=n;}h.drawImage(t,0,0,o,n),h.restore(),c.toBlob(function(t){var e=URL.createObjectURL(t);URL.revokeObjectURL(r.imgs),r.imgs=e;},"image/"+this.outputType,1);},checkedImg:function(){var t=this;if(null===this.img||""===this.img)return this.imgs="",void this.clearCrop();this.loading=!0,this.scale=1,this.rotate=0,this.clearCrop();var e=new Image;if(e.onload=function(){if(""===t.img)return t.$emit("imgLoad","error"),t.$emit("img-load","error"),!1;var o=e.width,n=e.height;i.getData(e).then(function(r){t.orientation=r.orientation||1;var i=Number(t.maxImgSize);!t.orientation&&o<i&n<i?t.imgs=t.img:(o>i&&(n=n/o*i,o=i),n>i&&(o=o/n*i,n=i),t.checkOrientationImage(e,t.orientation,o,n));});},e.onerror=function(){t.$emit("imgLoad","error"),t.$emit("img-load","error");},"data"!==this.img.substr(0,4)&&(e.crossOrigin=""),this.isIE){var o=new XMLHttpRequest;o.onload=function(){var t=URL.createObjectURL(this.response);e.src=t;},o.open("GET",this.img,!0),o.responseType="blob",o.send();}else e.src=this.img;},startMove:function(t){if(t.preventDefault(),this.move&&!this.crop){if(!this.canMove)return !1;this.moveX=("clientX"in t?t.clientX:t.touches[0].clientX)-this.x,this.moveY=("clientY"in t?t.clientY:t.touches[0].clientY)-this.y,t.touches?(window.addEventListener("touchmove",this.moveImg),window.addEventListener("touchend",this.leaveImg),2==t.touches.length&&(this.touches=t.touches,window.addEventListener("touchmove",this.touchScale),window.addEventListener("touchend",this.cancelTouchScale))):(window.addEventListener("mousemove",this.moveImg),window.addEventListener("mouseup",this.leaveImg)),this.$emit("imgMoving",{moving:!0,axis:this.getImgAxis()}),this.$emit("img-moving",{moving:!0,axis:this.getImgAxis()});}else this.cropping=!0,window.addEventListener("mousemove",this.createCrop),window.addEventListener("mouseup",this.endCrop),window.addEventListener("touchmove",this.createCrop),window.addEventListener("touchend",this.endCrop),this.cropOffsertX=t.offsetX?t.offsetX:t.touches[0].pageX-this.$refs.cropper.offsetLeft,this.cropOffsertY=t.offsetY?t.offsetY:t.touches[0].pageY-this.$refs.cropper.offsetTop,this.cropX="clientX"in t?t.clientX:t.touches[0].clientX,this.cropY="clientY"in t?t.clientY:t.touches[0].clientY,this.cropChangeX=this.cropOffsertX,this.cropChangeY=this.cropOffsertY,this.cropW=0,this.cropH=0;},touchScale:function(t){var e=this;t.preventDefault();var o=this.scale,n=this.touches[0].clientX,r=this.touches[0].clientY,i=t.touches[0].clientX,s=t.touches[0].clientY,a=this.touches[1].clientX,c=this.touches[1].clientY,h=t.touches[1].clientX,p=t.touches[1].clientY,u=Math.sqrt(Math.pow(n-a,2)+Math.pow(r-c,2)),l=Math.sqrt(Math.pow(i-h,2)+Math.pow(s-p,2))-u,d=1,f=(d=(d=d/this.trueWidth>d/this.trueHeight?d/this.trueHeight:d/this.trueWidth)>.1?.1:d)*l;if(!this.touchNow){if(this.touchNow=!0,l>0?o+=Math.abs(f):l<0&&o>Math.abs(f)&&(o-=Math.abs(f)),this.touches=t.touches,setTimeout(function(){e.touchNow=!1;},8),!this.checkoutImgAxis(this.x,this.y,o))return !1;this.scale=o;}},cancelTouchScale:function(t){window.removeEventListener("touchmove",this.touchScale);},moveImg:function(t){var e=this;if(t.preventDefault(),t.touches&&2===t.touches.length)return this.touches=t.touches,window.addEventListener("touchmove",this.touchScale),window.addEventListener("touchend",this.cancelTouchScale),window.removeEventListener("touchmove",this.moveImg),!1;var o,n,r="clientX"in t?t.clientX:t.touches[0].clientX,i="clientY"in t?t.clientY:t.touches[0].clientY;o=r-this.moveX,n=i-this.moveY,this.$nextTick(function(){if(e.centerBox){var t,r,i,s,a=e.getImgAxis(o,n,e.scale),c=e.getCropAxis(),h=e.trueHeight*e.scale,p=e.trueWidth*e.scale;switch(e.rotate){case 1:case-1:case 3:case-3:t=e.cropOffsertX-e.trueWidth*(1-e.scale)/2+(h-p)/2,r=e.cropOffsertY-e.trueHeight*(1-e.scale)/2+(p-h)/2,i=t-h+e.cropW,s=r-p+e.cropH;break;default:t=e.cropOffsertX-e.trueWidth*(1-e.scale)/2,r=e.cropOffsertY-e.trueHeight*(1-e.scale)/2,i=t-p+e.cropW,s=r-h+e.cropH;}a.x1>=c.x1&&(o=t),a.y1>=c.y1&&(n=r),a.x2<=c.x2&&(o=i),a.y2<=c.y2&&(n=s);}e.x=o,e.y=n,e.$emit("imgMoving",{moving:!0,axis:e.getImgAxis()}),e.$emit("img-moving",{moving:!0,axis:e.getImgAxis()});});},leaveImg:function(t){window.removeEventListener("mousemove",this.moveImg),window.removeEventListener("touchmove",this.moveImg),window.removeEventListener("mouseup",this.leaveImg),window.removeEventListener("touchend",this.leaveImg),this.$emit("imgMoving",{moving:!1,axis:this.getImgAxis()}),this.$emit("img-moving",{moving:!1,axis:this.getImgAxis()});},scaleImg:function(){this.canScale&&window.addEventListener(this.support,this.changeSize,this.passive);},cancelScale:function(){this.canScale&&window.removeEventListener(this.support,this.changeSize);},changeSize:function(t){var e=this;t.preventDefault();var o=this.scale,n=t.deltaY||t.wheelDelta;n=navigator.userAgent.indexOf("Firefox")>0?30*n:n,this.isIE&&(n=-n);var r=this.coe,i=(r=r/this.trueWidth>r/this.trueHeight?r/this.trueHeight:r/this.trueWidth)*n;i<0?o+=Math.abs(i):o>Math.abs(i)&&(o-=Math.abs(i));var s=i<0?"add":"reduce";if(s!==this.coeStatus&&(this.coeStatus=s,this.coe=.2),this.scaling||(this.scalingSet=setTimeout(function(){e.scaling=!1,e.coe=e.coe+=.01;},50)),this.scaling=!0,!this.checkoutImgAxis(this.x,this.y,o))return !1;this.scale=o;},changeScale:function(t){var e=this.scale;t=t||1;var o=20;if((t*=o=o/this.trueWidth>o/this.trueHeight?o/this.trueHeight:o/this.trueWidth)>0?e+=Math.abs(t):e>Math.abs(t)&&(e-=Math.abs(t)),!this.checkoutImgAxis(this.x,this.y,e))return !1;this.scale=e;},createCrop:function(t){var e=this;t.preventDefault();var o="clientX"in t?t.clientX:t.touches?t.touches[0].clientX:0,n="clientY"in t?t.clientY:t.touches?t.touches[0].clientY:0;this.$nextTick(function(){var t=o-e.cropX,r=n-e.cropY;if(t>0?(e.cropW=t+e.cropChangeX>e.w?e.w-e.cropChangeX:t,e.cropOffsertX=e.cropChangeX):(e.cropW=e.w-e.cropChangeX+Math.abs(t)>e.w?e.cropChangeX:Math.abs(t),e.cropOffsertX=e.cropChangeX+t>0?e.cropChangeX+t:0),e.fixed){var i=e.cropW/e.fixedNumber[0]*e.fixedNumber[1];i+e.cropOffsertY>e.h?(e.cropH=e.h-e.cropOffsertY,e.cropW=e.cropH/e.fixedNumber[1]*e.fixedNumber[0],e.cropOffsertX=t>0?e.cropChangeX:e.cropChangeX-e.cropW):e.cropH=i,e.cropOffsertY=e.cropOffsertY;}else r>0?(e.cropH=r+e.cropChangeY>e.h?e.h-e.cropChangeY:r,e.cropOffsertY=e.cropChangeY):(e.cropH=e.h-e.cropChangeY+Math.abs(r)>e.h?e.cropChangeY:Math.abs(r),e.cropOffsertY=e.cropChangeY+r>0?e.cropChangeY+r:0);});},changeCropSize:function(t,e,o,n,r){t.preventDefault(),window.addEventListener("mousemove",this.changeCropNow),window.addEventListener("mouseup",this.changeCropEnd),window.addEventListener("touchmove",this.changeCropNow),window.addEventListener("touchend",this.changeCropEnd),this.canChangeX=e,this.canChangeY=o,this.changeCropTypeX=n,this.changeCropTypeY=r,this.cropX="clientX"in t?t.clientX:t.touches[0].clientX,this.cropY="clientY"in t?t.clientY:t.touches[0].clientY,this.cropOldW=this.cropW,this.cropOldH=this.cropH,this.cropChangeX=this.cropOffsertX,this.cropChangeY=this.cropOffsertY,this.fixed&&this.canChangeX&&this.canChangeY&&(this.canChangeY=0),this.$emit("change-crop-size",{width:this.cropW,height:this.cropH});},changeCropNow:function(t){var e=this;t.preventDefault();var o="clientX"in t?t.clientX:t.touches?t.touches[0].clientX:0,n="clientY"in t?t.clientY:t.touches?t.touches[0].clientY:0,r=this.w,i=this.h,s=0,a=0;if(this.centerBox){var c=this.getImgAxis(),h=c.x2,p=c.y2;s=c.x1>0?c.x1:0,a=c.y1>0?c.y1:0,r>h&&(r=h),i>p&&(i=p);}this.$nextTick(function(){var t=o-e.cropX,c=n-e.cropY;if(e.canChangeX&&(1===e.changeCropTypeX?e.cropOldW-t>0?(e.cropW=r-e.cropChangeX-t<=r-s?e.cropOldW-t:e.cropOldW+e.cropChangeX-s,e.cropOffsertX=r-e.cropChangeX-t<=r-s?e.cropChangeX+t:s):(e.cropW=Math.abs(t)+e.cropChangeX<=r?Math.abs(t)-e.cropOldW:r-e.cropOldW-e.cropChangeX,e.cropOffsertX=e.cropChangeX+e.cropOldW):2===e.changeCropTypeX&&(e.cropOldW+t>0?(e.cropW=e.cropOldW+t+e.cropOffsertX<=r?e.cropOldW+t:r-e.cropOffsertX,e.cropOffsertX=e.cropChangeX):(e.cropW=r-e.cropChangeX+Math.abs(t+e.cropOldW)<=r-s?Math.abs(t+e.cropOldW):e.cropChangeX-s,e.cropOffsertX=r-e.cropChangeX+Math.abs(t+e.cropOldW)<=r-s?e.cropChangeX-Math.abs(t+e.cropOldW):s))),e.canChangeY&&(1===e.changeCropTypeY?e.cropOldH-c>0?(e.cropH=i-e.cropChangeY-c<=i-a?e.cropOldH-c:e.cropOldH+e.cropChangeY-a,e.cropOffsertY=i-e.cropChangeY-c<=i-a?e.cropChangeY+c:a):(e.cropH=Math.abs(c)+e.cropChangeY<=i?Math.abs(c)-e.cropOldH:i-e.cropOldH-e.cropChangeY,e.cropOffsertY=e.cropChangeY+e.cropOldH):2===e.changeCropTypeY&&(e.cropOldH+c>0?(e.cropH=e.cropOldH+c+e.cropOffsertY<=i?e.cropOldH+c:i-e.cropOffsertY,e.cropOffsertY=e.cropChangeY):(e.cropH=i-e.cropChangeY+Math.abs(c+e.cropOldH)<=i-a?Math.abs(c+e.cropOldH):e.cropChangeY-a,e.cropOffsertY=i-e.cropChangeY+Math.abs(c+e.cropOldH)<=i-a?e.cropChangeY-Math.abs(c+e.cropOldH):a))),e.canChangeX&&e.fixed){var h=e.cropW/e.fixedNumber[0]*e.fixedNumber[1];h+e.cropOffsertY>i?(e.cropH=i-e.cropOffsertY,e.cropW=e.cropH/e.fixedNumber[1]*e.fixedNumber[0]):e.cropH=h;}if(e.canChangeY&&e.fixed){var p=e.cropH/e.fixedNumber[1]*e.fixedNumber[0];p+e.cropOffsertX>r?(e.cropW=r-e.cropOffsertX,e.cropH=e.cropW/e.fixedNumber[0]*e.fixedNumber[1]):e.cropW=p;}e.$emit("crop-sizing",{cropW:e.cropW,cropH:e.cropH});});},checkCropLimitSize:function(){this.cropW,this.cropH;var t=this.limitMinSize,e=new Array;return e=Array.isArray[t]?t:[t,t],[parseFloat(e[0]),parseFloat(e[1])]},changeCropEnd:function(t){window.removeEventListener("mousemove",this.changeCropNow),window.removeEventListener("mouseup",this.changeCropEnd),window.removeEventListener("touchmove",this.changeCropNow),window.removeEventListener("touchend",this.changeCropEnd);},endCrop:function(){0===this.cropW&&0===this.cropH&&(this.cropping=!1),window.removeEventListener("mousemove",this.createCrop),window.removeEventListener("mouseup",this.endCrop),window.removeEventListener("touchmove",this.createCrop),window.removeEventListener("touchend",this.endCrop);},startCrop:function(){this.crop=!0;},stopCrop:function(){this.crop=!1;},clearCrop:function(){this.cropping=!1,this.cropW=0,this.cropH=0;},cropMove:function(t){if(t.preventDefault(),!this.canMoveBox)return this.crop=!1,this.startMove(t),!1;if(t.touches&&2===t.touches.length)return this.crop=!1,this.startMove(t),this.leaveCrop(),!1;window.addEventListener("mousemove",this.moveCrop),window.addEventListener("mouseup",this.leaveCrop),window.addEventListener("touchmove",this.moveCrop),window.addEventListener("touchend",this.leaveCrop);var e,o,n="clientX"in t?t.clientX:t.touches[0].clientX,r="clientY"in t?t.clientY:t.touches[0].clientY;e=n-this.cropOffsertX,o=r-this.cropOffsertY,this.cropX=e,this.cropY=o,this.$emit("cropMoving",{moving:!0,axis:this.getCropAxis()}),this.$emit("crop-moving",{moving:!0,axis:this.getCropAxis()});},moveCrop:function(t,e){var o=this,n=0,r=0;t&&(t.preventDefault(),n="clientX"in t?t.clientX:t.touches[0].clientX,r="clientY"in t?t.clientY:t.touches[0].clientY),this.$nextTick(function(){var t,i,s=n-o.cropX,a=r-o.cropY;if(e&&(s=o.cropOffsertX,a=o.cropOffsertY),t=s<=0?0:s+o.cropW>o.w?o.w-o.cropW:s,i=a<=0?0:a+o.cropH>o.h?o.h-o.cropH:a,o.centerBox){var c=o.getImgAxis();t<=c.x1&&(t=c.x1),t+o.cropW>c.x2&&(t=c.x2-o.cropW),i<=c.y1&&(i=c.y1),i+o.cropH>c.y2&&(i=c.y2-o.cropH);}o.cropOffsertX=t,o.cropOffsertY=i,o.$emit("cropMoving",{moving:!0,axis:o.getCropAxis()}),o.$emit("crop-moving",{moving:!0,axis:o.getCropAxis()});});},getImgAxis:function(t,e,o){t=t||this.x,e=e||this.y,o=o||this.scale;var n={x1:0,x2:0,y1:0,y2:0},r=this.trueWidth*o,i=this.trueHeight*o;switch(this.rotate){case 0:n.x1=t+this.trueWidth*(1-o)/2,n.x2=n.x1+this.trueWidth*o,n.y1=e+this.trueHeight*(1-o)/2,n.y2=n.y1+this.trueHeight*o;break;case 1:case-1:case 3:case-3:n.x1=t+this.trueWidth*(1-o)/2+(r-i)/2,n.x2=n.x1+this.trueHeight*o,n.y1=e+this.trueHeight*(1-o)/2+(i-r)/2,n.y2=n.y1+this.trueWidth*o;break;default:n.x1=t+this.trueWidth*(1-o)/2,n.x2=n.x1+this.trueWidth*o,n.y1=e+this.trueHeight*(1-o)/2,n.y2=n.y1+this.trueHeight*o;}return n},getCropAxis:function(){var t={x1:0,x2:0,y1:0,y2:0};return t.x1=this.cropOffsertX,t.x2=t.x1+this.cropW,t.y1=this.cropOffsertY,t.y2=t.y1+this.cropH,t},leaveCrop:function(t){window.removeEventListener("mousemove",this.moveCrop),window.removeEventListener("mouseup",this.leaveCrop),window.removeEventListener("touchmove",this.moveCrop),window.removeEventListener("touchend",this.leaveCrop),this.$emit("cropMoving",{moving:!1,axis:this.getCropAxis()}),this.$emit("crop-moving",{moving:!1,axis:this.getCropAxis()});},getCropChecked:function(t){var e=this,o=document.createElement("canvas"),n=new Image,r=this.rotate,i=this.trueWidth,s=this.trueHeight,a=this.cropOffsertX,c=this.cropOffsertY;function h(t,e){o.width=Math.round(t),o.height=Math.round(e);}n.onload=function(){if(0!==e.cropW){var p=o.getContext("2d"),u=1;e.high&!e.full&&(u=window.devicePixelRatio),1!==e.enlarge&!e.full&&(u=Math.abs(Number(e.enlarge)));var l=e.cropW*u,d=e.cropH*u,f=i*e.scale*u,g=s*e.scale*u,v=(e.x-a+e.trueWidth*(1-e.scale)/2)*u,m=(e.y-c+e.trueHeight*(1-e.scale)/2)*u;switch(h(l,d),p.save(),r){case 0:e.full?(h(l/e.scale,d/e.scale),p.drawImage(n,v/e.scale,m/e.scale,f/e.scale,g/e.scale)):p.drawImage(n,v,m,f,g);break;case 1:case-3:e.full?(h(l/e.scale,d/e.scale),v=v/e.scale+(f/e.scale-g/e.scale)/2,m=m/e.scale+(g/e.scale-f/e.scale)/2,p.rotate(90*r*Math.PI/180),p.drawImage(n,m,-v-g/e.scale,f/e.scale,g/e.scale)):(v+=(f-g)/2,m+=(g-f)/2,p.rotate(90*r*Math.PI/180),p.drawImage(n,m,-v-g,f,g));break;case 2:case-2:e.full?(h(l/e.scale,d/e.scale),p.rotate(90*r*Math.PI/180),v/=e.scale,m/=e.scale,p.drawImage(n,-v-f/e.scale,-m-g/e.scale,f/e.scale,g/e.scale)):(p.rotate(90*r*Math.PI/180),p.drawImage(n,-v-f,-m-g,f,g));break;case 3:case-1:e.full?(h(l/e.scale,d/e.scale),v=v/e.scale+(f/e.scale-g/e.scale)/2,m=m/e.scale+(g/e.scale-f/e.scale)/2,p.rotate(90*r*Math.PI/180),p.drawImage(n,-m-f/e.scale,v,f/e.scale,g/e.scale)):(v+=(f-g)/2,m+=(g-f)/2,p.rotate(90*r*Math.PI/180),p.drawImage(n,-m-f,v,f,g));break;default:e.full?(h(l/e.scale,d/e.scale),p.drawImage(n,v/e.scale,m/e.scale,f/e.scale,g/e.scale)):p.drawImage(n,v,m,f,g);}p.restore();}else {var w=i*e.scale,x=s*e.scale,C=o.getContext("2d");switch(C.save(),r){case 0:h(w,x),C.drawImage(n,0,0,w,x);break;case 1:case-3:h(x,w),C.rotate(90*r*Math.PI/180),C.drawImage(n,0,-x,w,x);break;case 2:case-2:h(w,x),C.rotate(90*r*Math.PI/180),C.drawImage(n,-w,-x,w,x);break;case 3:case-1:h(x,w),C.rotate(90*r*Math.PI/180),C.drawImage(n,-w,0,w,x);break;default:h(w,x),C.drawImage(n,0,0,w,x);}C.restore();}t(o);},"data"!==this.img.substr(0,4)&&(n.crossOrigin="Anonymous"),n.src=this.imgs;},getCropData:function(t){var e=this;this.getCropChecked(function(o){t(o.toDataURL("image/"+e.outputType,e.outputSize));});},getCropBlob:function(t){var e=this;this.getCropChecked(function(o){o.toBlob(function(e){return t(e)},"image/"+e.outputType,e.outputSize);});},showPreview:function(){var t=this;if(!this.isCanShow)return !1;this.isCanShow=!1,setTimeout(function(){t.isCanShow=!0;},16);var e=this.cropW,o=this.cropH,n=this.scale,r={};r.div={width:"".concat(e,"px"),height:"".concat(o,"px")};var i=(this.x-this.cropOffsertX)/n,s=(this.y-this.cropOffsertY)/n;r.w=e,r.h=o,r.url=this.imgs,r.img={width:"".concat(this.trueWidth,"px"),height:"".concat(this.trueHeight,"px"),transform:"scale(".concat(n,")translate3d(").concat(i,"px, ").concat(s,"px, ").concat(0,"px)rotateZ(").concat(90*this.rotate,"deg)")},r.html='\n      <div class="show-preview" style="width: '.concat(r.w,"px; height: ").concat(r.h,'px,; overflow: hidden">\n        <div style="width: ').concat(e,"px; height: ").concat(o,'px">\n          <img src=').concat(r.url,' style="width: ').concat(this.trueWidth,"px; height: ").concat(this.trueHeight,"px; transform:\n          scale(").concat(n,")translate3d(").concat(i,"px, ").concat(s,"px, ").concat(0,"px)rotateZ(").concat(90*this.rotate,'deg)">\n        </div>\n      </div>'),this.$emit("realTime",r),this.$emit("real-time",r);},reload:function(){var t=this,e=new Image;e.onload=function(){t.w=parseFloat(window.getComputedStyle(t.$refs.cropper).width),t.h=parseFloat(window.getComputedStyle(t.$refs.cropper).height),t.trueWidth=e.width,t.trueHeight=e.height,t.original?t.scale=1:t.scale=t.checkedMode(),t.$nextTick(function(){t.x=-(t.trueWidth-t.trueWidth*t.scale)/2+(t.w-t.trueWidth*t.scale)/2,t.y=-(t.trueHeight-t.trueHeight*t.scale)/2+(t.h-t.trueHeight*t.scale)/2,t.loading=!1,t.autoCrop&&t.goAutoCrop(),t.$emit("img-load","success"),t.$emit("imgLoad","success"),setTimeout(function(){t.showPreview();},20);});},e.onerror=function(){t.$emit("imgLoad","error"),t.$emit("img-load","error");},e.src=this.imgs;},checkedMode:function(){var t=1,e=(this.trueWidth,this.trueHeight),o=this.mode.split(" ");switch(o[0]){case"contain":this.trueWidth>this.w&&(t=this.w/this.trueWidth),this.trueHeight*t>this.h&&(t=this.h/this.trueHeight);break;case"cover":(e*=t=this.w/this.trueWidth)<this.h&&(t=(e=this.h)/this.trueHeight);break;default:try{var n=o[0];if(-1!==n.search("px")){n=n.replace("px","");var r=parseFloat(n)/this.trueWidth,i=1,s=o[1];-1!==s.search("px")&&(s=s.replace("px",""),i=(e=parseFloat(s))/this.trueHeight),t=Math.min(r,i);}if(-1!==n.search("%")&&(n=n.replace("%",""),t=parseFloat(n)/100*this.w/this.trueWidth),2===o.length&&"auto"===n){var a=o[1];-1!==a.search("px")&&(a=a.replace("px",""),t=(e=parseFloat(a))/this.trueHeight),-1!==a.search("%")&&(a=a.replace("%",""),t=(e=parseFloat(a)/100*this.h)/this.trueHeight);}}catch(e){t=1;}}return t},goAutoCrop:function(t,e){if(""!==this.imgs&&null!==this.imgs){this.clearCrop(),this.cropping=!0;var o=this.w,n=this.h;if(this.centerBox){var r=Math.abs(this.rotate)%2>0,i=(r?this.trueHeight:this.trueWidth)*this.scale,s=(r?this.trueWidth:this.trueHeight)*this.scale;o=i<o?i:o,n=s<n?s:n;}var a=t||parseFloat(this.autoCropWidth),c=e||parseFloat(this.autoCropHeight);0!==a&&0!==c||(a=.8*o,c=.8*n),a=a>o?o:a,c=c>n?n:c,this.fixed&&(c=a/this.fixedNumber[0]*this.fixedNumber[1]),c>this.h&&(a=(c=this.h)/this.fixedNumber[1]*this.fixedNumber[0]),this.changeCrop(a,c);}},changeCrop:function(t,e){var o=this;if(this.centerBox){var n=this.getImgAxis();t>n.x2-n.x1&&(e=(t=n.x2-n.x1)/this.fixedNumber[0]*this.fixedNumber[1]),e>n.y2-n.y1&&(t=(e=n.y2-n.y1)/this.fixedNumber[1]*this.fixedNumber[0]);}this.cropW=t,this.cropH=e,this.checkCropLimitSize(),this.$nextTick(function(){o.cropOffsertX=(o.w-o.cropW)/2,o.cropOffsertY=(o.h-o.cropH)/2,o.centerBox&&o.moveCrop(null,!0);});},refresh:function(){var t=this;this.img;this.imgs="",this.scale=1,this.crop=!1,this.rotate=0,this.w=0,this.h=0,this.trueWidth=0,this.trueHeight=0,this.clearCrop(),this.$nextTick(function(){t.checkedImg();});},rotateLeft:function(){this.rotate=this.rotate<=-3?0:this.rotate-1;},rotateRight:function(){this.rotate=this.rotate>=3?0:this.rotate+1;},rotateClear:function(){this.rotate=0;},checkoutImgAxis:function(t,e,o){t=t||this.x,e=e||this.y,o=o||this.scale;var n=!0;if(this.centerBox){var r=this.getImgAxis(t,e,o),i=this.getCropAxis();r.x1>=i.x1&&(n=!1),r.x2<=i.x2&&(n=!1),r.y1>=i.y1&&(n=!1),r.y2<=i.y2&&(n=!1);}return n}},mounted:function(){this.support="onwheel"in document.createElement("div")?"wheel":void 0!==document.onmousewheel?"mousewheel":"DOMMouseScroll";var t=this,e=navigator.userAgent;this.isIOS=!!e.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),HTMLCanvasElement.prototype.toBlob||Object.defineProperty(HTMLCanvasElement.prototype,"toBlob",{value:function(e,o,n){for(var r=atob(this.toDataURL(o,n).split(",")[1]),i=r.length,s=new Uint8Array(i),a=0;a<i;a++)s[a]=r.charCodeAt(a);e(new Blob([s],{type:t.type||"image/png"}));}}),this.showPreview(),this.checkedImg();},destroyed:function(){window.removeEventListener("mousemove",this.moveCrop),window.removeEventListener("mouseup",this.leaveCrop),window.removeEventListener("touchmove",this.moveCrop),window.removeEventListener("touchend",this.leaveCrop),this.cancelScale();}};o(1);var a=function(t,e,o,n,r,i,s,a){var c,h="function"==typeof t?t.options:t;if(e&&(h.render=e,h.staticRenderFns=o,h._compiled=!0),n&&(h.functional=!0),i&&(h._scopeId="data-v-"+i),s?(c=function(t){(t=t||this.$vnode&&this.$vnode.ssrContext||this.parent&&this.parent.$vnode&&this.parent.$vnode.ssrContext)||"undefined"==typeof __VUE_SSR_CONTEXT__||(t=__VUE_SSR_CONTEXT__),r&&r.call(this,t),t&&t._registeredComponents&&t._registeredComponents.add(s);},h._ssrRegister=c):r&&(c=a?function(){r.call(this,this.$root.$options.shadowRoot);}:r),c)if(h.functional){h._injectStyles=c;var p=h.render;h.render=function(t,e){return c.call(e),p(t,e)};}else {var u=h.beforeCreate;h.beforeCreate=u?[].concat(u,c):[c];}return {exports:t,options:h}}(s,n,[],!1,null,"6dae58fd",null);a.options.__file="src/vue-cropper.vue";var c=a.exports;o.d(e,"VueCropper",function(){return c});var h=function(t){t.component("VueCropper",c);};"undefined"!=typeof window&&window.Vue&&h(window.Vue);e.default={version:"0.5.8",install:h,VueCropper:c,vueCropper:c};}])});
-
-  });
-
-  unwrapExports(dist);
-  var dist_1 = dist.VueCropper;
-
   //
   var script$a = {
     name: 'cropper-upload',
@@ -4565,7 +4458,7 @@
       }
     },
     components: {
-      VueCropper: dist_1
+      VueCropper: vueCropper.VueCropper
     },
     data: function data() {
       return {
@@ -5163,7 +5056,7 @@
               type: _self.type,
               originalFilename: spark.end() + file.name
             };
-            getToken(params).then(function (response) {
+            window.qiniu.getToken(params).then(function (response) {
               var token = response.token,
                   fileKey = response.fileKey;
               _self.dataObj['token'] = token;
@@ -5421,7 +5314,7 @@
     /* style */
     const __vue_inject_styles__$9 = function (inject) {
       if (!inject) return
-      inject("data-v-f36dc738_0", { source: "\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["index.vue"],"names":[],"mappings":";;AAEA,oCAAoC","file":"index.vue","sourcesContent":["\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
+      inject("data-v-01a66ebe_0", { source: "\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["index.vue"],"names":[],"mappings":";;AAEA,oCAAoC","file":"index.vue","sourcesContent":["\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
@@ -6325,1193 +6218,6 @@
       undefined
     );
 
-  function getDevtoolsGlobalHook() {
-      return getTarget().__VUE_DEVTOOLS_GLOBAL_HOOK__;
-  }
-  function getTarget() {
-      // @ts-ignore
-      return (typeof navigator !== 'undefined' && typeof window !== 'undefined')
-          ? window
-          : typeof global !== 'undefined'
-              ? global
-              : {};
-  }
-  const isProxyAvailable = typeof Proxy === 'function';
-
-  const HOOK_SETUP = 'devtools-plugin:setup';
-  const HOOK_PLUGIN_SETTINGS_SET = 'plugin:settings:set';
-
-  let supported;
-  let perf;
-  function isPerformanceSupported() {
-      var _a;
-      if (supported !== undefined) {
-          return supported;
-      }
-      if (typeof window !== 'undefined' && window.performance) {
-          supported = true;
-          perf = window.performance;
-      }
-      else if (typeof global !== 'undefined' && ((_a = global.perf_hooks) === null || _a === void 0 ? void 0 : _a.performance)) {
-          supported = true;
-          perf = global.perf_hooks.performance;
-      }
-      else {
-          supported = false;
-      }
-      return supported;
-  }
-  function now() {
-      return isPerformanceSupported() ? perf.now() : Date.now();
-  }
-
-  class ApiProxy {
-      constructor(plugin, hook) {
-          this.target = null;
-          this.targetQueue = [];
-          this.onQueue = [];
-          this.plugin = plugin;
-          this.hook = hook;
-          const defaultSettings = {};
-          if (plugin.settings) {
-              for (const id in plugin.settings) {
-                  const item = plugin.settings[id];
-                  defaultSettings[id] = item.defaultValue;
-              }
-          }
-          const localSettingsSaveId = `__vue-devtools-plugin-settings__${plugin.id}`;
-          let currentSettings = Object.assign({}, defaultSettings);
-          try {
-              const raw = localStorage.getItem(localSettingsSaveId);
-              const data = JSON.parse(raw);
-              Object.assign(currentSettings, data);
-          }
-          catch (e) {
-              // noop
-          }
-          this.fallbacks = {
-              getSettings() {
-                  return currentSettings;
-              },
-              setSettings(value) {
-                  try {
-                      localStorage.setItem(localSettingsSaveId, JSON.stringify(value));
-                  }
-                  catch (e) {
-                      // noop
-                  }
-                  currentSettings = value;
-              },
-              now() {
-                  return now();
-              },
-          };
-          if (hook) {
-              hook.on(HOOK_PLUGIN_SETTINGS_SET, (pluginId, value) => {
-                  if (pluginId === this.plugin.id) {
-                      this.fallbacks.setSettings(value);
-                  }
-              });
-          }
-          this.proxiedOn = new Proxy({}, {
-              get: (_target, prop) => {
-                  if (this.target) {
-                      return this.target.on[prop];
-                  }
-                  else {
-                      return (...args) => {
-                          this.onQueue.push({
-                              method: prop,
-                              args,
-                          });
-                      };
-                  }
-              },
-          });
-          this.proxiedTarget = new Proxy({}, {
-              get: (_target, prop) => {
-                  if (this.target) {
-                      return this.target[prop];
-                  }
-                  else if (prop === 'on') {
-                      return this.proxiedOn;
-                  }
-                  else if (Object.keys(this.fallbacks).includes(prop)) {
-                      return (...args) => {
-                          this.targetQueue.push({
-                              method: prop,
-                              args,
-                              resolve: () => { },
-                          });
-                          return this.fallbacks[prop](...args);
-                      };
-                  }
-                  else {
-                      return (...args) => {
-                          return new Promise(resolve => {
-                              this.targetQueue.push({
-                                  method: prop,
-                                  args,
-                                  resolve,
-                              });
-                          });
-                      };
-                  }
-              },
-          });
-      }
-      async setRealTarget(target) {
-          this.target = target;
-          for (const item of this.onQueue) {
-              this.target.on[item.method](...item.args);
-          }
-          for (const item of this.targetQueue) {
-              item.resolve(await this.target[item.method](...item.args));
-          }
-      }
-  }
-
-  function setupDevtoolsPlugin(pluginDescriptor, setupFn) {
-      const descriptor = pluginDescriptor;
-      const target = getTarget();
-      const hook = getDevtoolsGlobalHook();
-      const enableProxy = isProxyAvailable && descriptor.enableEarlyProxy;
-      if (hook && (target.__VUE_DEVTOOLS_PLUGIN_API_AVAILABLE__ || !enableProxy)) {
-          hook.emit(HOOK_SETUP, pluginDescriptor, setupFn);
-      }
-      else {
-          const proxy = enableProxy ? new ApiProxy(descriptor, hook) : null;
-          const list = target.__VUE_DEVTOOLS_PLUGINS__ = target.__VUE_DEVTOOLS_PLUGINS__ || [];
-          list.push({
-              pluginDescriptor: descriptor,
-              setupFn,
-              proxy,
-          });
-          if (proxy)
-              setupFn(proxy.proxiedTarget);
-      }
-  }
-
-  /*!
-   * vuex v4.0.2
-   * (c) 2021 Evan You
-   * @license MIT
-   */
-
-  var storeKey = 'store';
-
-  /**
-   * forEach for object
-   */
-  function forEachValue (obj, fn) {
-    Object.keys(obj).forEach(function (key) { return fn(obj[key], key); });
-  }
-
-  function isObject (obj) {
-    return obj !== null && typeof obj === 'object'
-  }
-
-  function isPromise (val) {
-    return val && typeof val.then === 'function'
-  }
-
-  function partial (fn, arg) {
-    return function () {
-      return fn(arg)
-    }
-  }
-
-  function genericSubscribe (fn, subs, options) {
-    if (subs.indexOf(fn) < 0) {
-      options && options.prepend
-        ? subs.unshift(fn)
-        : subs.push(fn);
-    }
-    return function () {
-      var i = subs.indexOf(fn);
-      if (i > -1) {
-        subs.splice(i, 1);
-      }
-    }
-  }
-
-  function resetStore (store, hot) {
-    store._actions = Object.create(null);
-    store._mutations = Object.create(null);
-    store._wrappedGetters = Object.create(null);
-    store._modulesNamespaceMap = Object.create(null);
-    var state = store.state;
-    // init all modules
-    installModule(store, state, [], store._modules.root, true);
-    // reset state
-    resetStoreState(store, state, hot);
-  }
-
-  function resetStoreState (store, state, hot) {
-    var oldState = store._state;
-
-    // bind store public getters
-    store.getters = {};
-    // reset local getters cache
-    store._makeLocalGettersCache = Object.create(null);
-    var wrappedGetters = store._wrappedGetters;
-    var computedObj = {};
-    forEachValue(wrappedGetters, function (fn, key) {
-      // use computed to leverage its lazy-caching mechanism
-      // direct inline function use will lead to closure preserving oldState.
-      // using partial to return function with only arguments preserved in closure environment.
-      computedObj[key] = partial(fn, store);
-      Object.defineProperty(store.getters, key, {
-        // TODO: use `computed` when it's possible. at the moment we can't due to
-        // https://github.com/vuejs/vuex/pull/1883
-        get: function () { return computedObj[key](); },
-        enumerable: true // for local getters
-      });
-    });
-
-    store._state = Vue.reactive({
-      data: state
-    });
-
-    // enable strict mode for new state
-    if (store.strict) {
-      enableStrictMode(store);
-    }
-
-    if (oldState) {
-      if (hot) {
-        // dispatch changes in all subscribed watchers
-        // to force getter re-evaluation for hot reloading.
-        store._withCommit(function () {
-          oldState.data = null;
-        });
-      }
-    }
-  }
-
-  function installModule (store, rootState, path, module, hot) {
-    var isRoot = !path.length;
-    var namespace = store._modules.getNamespace(path);
-
-    // register in namespace map
-    if (module.namespaced) {
-      if (store._modulesNamespaceMap[namespace] && ("production" !== 'production')) {
-        console.error(("[vuex] duplicate namespace " + namespace + " for the namespaced module " + (path.join('/'))));
-      }
-      store._modulesNamespaceMap[namespace] = module;
-    }
-
-    // set state
-    if (!isRoot && !hot) {
-      var parentState = getNestedState(rootState, path.slice(0, -1));
-      var moduleName = path[path.length - 1];
-      store._withCommit(function () {
-        parentState[moduleName] = module.state;
-      });
-    }
-
-    var local = module.context = makeLocalContext(store, namespace, path);
-
-    module.forEachMutation(function (mutation, key) {
-      var namespacedType = namespace + key;
-      registerMutation(store, namespacedType, mutation, local);
-    });
-
-    module.forEachAction(function (action, key) {
-      var type = action.root ? key : namespace + key;
-      var handler = action.handler || action;
-      registerAction(store, type, handler, local);
-    });
-
-    module.forEachGetter(function (getter, key) {
-      var namespacedType = namespace + key;
-      registerGetter(store, namespacedType, getter, local);
-    });
-
-    module.forEachChild(function (child, key) {
-      installModule(store, rootState, path.concat(key), child, hot);
-    });
-  }
-
-  /**
-   * make localized dispatch, commit, getters and state
-   * if there is no namespace, just use root ones
-   */
-  function makeLocalContext (store, namespace, path) {
-    var noNamespace = namespace === '';
-
-    var local = {
-      dispatch: noNamespace ? store.dispatch : function (_type, _payload, _options) {
-        var args = unifyObjectStyle(_type, _payload, _options);
-        var payload = args.payload;
-        var options = args.options;
-        var type = args.type;
-
-        if (!options || !options.root) {
-          type = namespace + type;
-        }
-
-        return store.dispatch(type, payload)
-      },
-
-      commit: noNamespace ? store.commit : function (_type, _payload, _options) {
-        var args = unifyObjectStyle(_type, _payload, _options);
-        var payload = args.payload;
-        var options = args.options;
-        var type = args.type;
-
-        if (!options || !options.root) {
-          type = namespace + type;
-        }
-
-        store.commit(type, payload, options);
-      }
-    };
-
-    // getters and state object must be gotten lazily
-    // because they will be changed by state update
-    Object.defineProperties(local, {
-      getters: {
-        get: noNamespace
-          ? function () { return store.getters; }
-          : function () { return makeLocalGetters(store, namespace); }
-      },
-      state: {
-        get: function () { return getNestedState(store.state, path); }
-      }
-    });
-
-    return local
-  }
-
-  function makeLocalGetters (store, namespace) {
-    if (!store._makeLocalGettersCache[namespace]) {
-      var gettersProxy = {};
-      var splitPos = namespace.length;
-      Object.keys(store.getters).forEach(function (type) {
-        // skip if the target getter is not match this namespace
-        if (type.slice(0, splitPos) !== namespace) { return }
-
-        // extract local getter type
-        var localType = type.slice(splitPos);
-
-        // Add a port to the getters proxy.
-        // Define as getter property because
-        // we do not want to evaluate the getters in this time.
-        Object.defineProperty(gettersProxy, localType, {
-          get: function () { return store.getters[type]; },
-          enumerable: true
-        });
-      });
-      store._makeLocalGettersCache[namespace] = gettersProxy;
-    }
-
-    return store._makeLocalGettersCache[namespace]
-  }
-
-  function registerMutation (store, type, handler, local) {
-    var entry = store._mutations[type] || (store._mutations[type] = []);
-    entry.push(function wrappedMutationHandler (payload) {
-      handler.call(store, local.state, payload);
-    });
-  }
-
-  function registerAction (store, type, handler, local) {
-    var entry = store._actions[type] || (store._actions[type] = []);
-    entry.push(function wrappedActionHandler (payload) {
-      var res = handler.call(store, {
-        dispatch: local.dispatch,
-        commit: local.commit,
-        getters: local.getters,
-        state: local.state,
-        rootGetters: store.getters,
-        rootState: store.state
-      }, payload);
-      if (!isPromise(res)) {
-        res = Promise.resolve(res);
-      }
-      if (store._devtoolHook) {
-        return res.catch(function (err) {
-          store._devtoolHook.emit('vuex:error', err);
-          throw err
-        })
-      } else {
-        return res
-      }
-    });
-  }
-
-  function registerGetter (store, type, rawGetter, local) {
-    if (store._wrappedGetters[type]) {
-      return
-    }
-    store._wrappedGetters[type] = function wrappedGetter (store) {
-      return rawGetter(
-        local.state, // local state
-        local.getters, // local getters
-        store.state, // root state
-        store.getters // root getters
-      )
-    };
-  }
-
-  function enableStrictMode (store) {
-    Vue.watch(function () { return store._state.data; }, function () {
-    }, { deep: true, flush: 'sync' });
-  }
-
-  function getNestedState (state, path) {
-    return path.reduce(function (state, key) { return state[key]; }, state)
-  }
-
-  function unifyObjectStyle (type, payload, options) {
-    if (isObject(type) && type.type) {
-      options = payload;
-      payload = type;
-      type = type.type;
-    }
-
-    return { type: type, payload: payload, options: options }
-  }
-
-  var LABEL_VUEX_BINDINGS = 'vuex bindings';
-  var MUTATIONS_LAYER_ID = 'vuex:mutations';
-  var ACTIONS_LAYER_ID = 'vuex:actions';
-  var INSPECTOR_ID = 'vuex';
-
-  var actionId = 0;
-
-  function addDevtools (app, store) {
-    setupDevtoolsPlugin(
-      {
-        id: 'org.vuejs.vuex',
-        app: app,
-        label: 'Vuex',
-        homepage: 'https://next.vuex.vuejs.org/',
-        logo: 'https://vuejs.org/images/icons/favicon-96x96.png',
-        packageName: 'vuex',
-        componentStateTypes: [LABEL_VUEX_BINDINGS]
-      },
-      function (api) {
-        api.addTimelineLayer({
-          id: MUTATIONS_LAYER_ID,
-          label: 'Vuex Mutations',
-          color: COLOR_LIME_500
-        });
-
-        api.addTimelineLayer({
-          id: ACTIONS_LAYER_ID,
-          label: 'Vuex Actions',
-          color: COLOR_LIME_500
-        });
-
-        api.addInspector({
-          id: INSPECTOR_ID,
-          label: 'Vuex',
-          icon: 'storage',
-          treeFilterPlaceholder: 'Filter stores...'
-        });
-
-        api.on.getInspectorTree(function (payload) {
-          if (payload.app === app && payload.inspectorId === INSPECTOR_ID) {
-            if (payload.filter) {
-              var nodes = [];
-              flattenStoreForInspectorTree(nodes, store._modules.root, payload.filter, '');
-              payload.rootNodes = nodes;
-            } else {
-              payload.rootNodes = [
-                formatStoreForInspectorTree(store._modules.root, '')
-              ];
-            }
-          }
-        });
-
-        api.on.getInspectorState(function (payload) {
-          if (payload.app === app && payload.inspectorId === INSPECTOR_ID) {
-            var modulePath = payload.nodeId;
-            makeLocalGetters(store, modulePath);
-            payload.state = formatStoreForInspectorState(
-              getStoreModule(store._modules, modulePath),
-              modulePath === 'root' ? store.getters : store._makeLocalGettersCache,
-              modulePath
-            );
-          }
-        });
-
-        api.on.editInspectorState(function (payload) {
-          if (payload.app === app && payload.inspectorId === INSPECTOR_ID) {
-            var modulePath = payload.nodeId;
-            var path = payload.path;
-            if (modulePath !== 'root') {
-              path = modulePath.split('/').filter(Boolean).concat( path);
-            }
-            store._withCommit(function () {
-              payload.set(store._state.data, path, payload.state.value);
-            });
-          }
-        });
-
-        store.subscribe(function (mutation, state) {
-          var data = {};
-
-          if (mutation.payload) {
-            data.payload = mutation.payload;
-          }
-
-          data.state = state;
-
-          api.notifyComponentUpdate();
-          api.sendInspectorTree(INSPECTOR_ID);
-          api.sendInspectorState(INSPECTOR_ID);
-
-          api.addTimelineEvent({
-            layerId: MUTATIONS_LAYER_ID,
-            event: {
-              time: Date.now(),
-              title: mutation.type,
-              data: data
-            }
-          });
-        });
-
-        store.subscribeAction({
-          before: function (action, state) {
-            var data = {};
-            if (action.payload) {
-              data.payload = action.payload;
-            }
-            action._id = actionId++;
-            action._time = Date.now();
-            data.state = state;
-
-            api.addTimelineEvent({
-              layerId: ACTIONS_LAYER_ID,
-              event: {
-                time: action._time,
-                title: action.type,
-                groupId: action._id,
-                subtitle: 'start',
-                data: data
-              }
-            });
-          },
-          after: function (action, state) {
-            var data = {};
-            var duration = Date.now() - action._time;
-            data.duration = {
-              _custom: {
-                type: 'duration',
-                display: (duration + "ms"),
-                tooltip: 'Action duration',
-                value: duration
-              }
-            };
-            if (action.payload) {
-              data.payload = action.payload;
-            }
-            data.state = state;
-
-            api.addTimelineEvent({
-              layerId: ACTIONS_LAYER_ID,
-              event: {
-                time: Date.now(),
-                title: action.type,
-                groupId: action._id,
-                subtitle: 'end',
-                data: data
-              }
-            });
-          }
-        });
-      }
-    );
-  }
-
-  // extracted from tailwind palette
-  var COLOR_LIME_500 = 0x84cc16;
-  var COLOR_DARK = 0x666666;
-  var COLOR_WHITE = 0xffffff;
-
-  var TAG_NAMESPACED = {
-    label: 'namespaced',
-    textColor: COLOR_WHITE,
-    backgroundColor: COLOR_DARK
-  };
-
-  /**
-   * @param {string} path
-   */
-  function extractNameFromPath (path) {
-    return path && path !== 'root' ? path.split('/').slice(-2, -1)[0] : 'Root'
-  }
-
-  /**
-   * @param {*} module
-   * @return {import('@vue/devtools-api').CustomInspectorNode}
-   */
-  function formatStoreForInspectorTree (module, path) {
-    return {
-      id: path || 'root',
-      // all modules end with a `/`, we want the last segment only
-      // cart/ -> cart
-      // nested/cart/ -> cart
-      label: extractNameFromPath(path),
-      tags: module.namespaced ? [TAG_NAMESPACED] : [],
-      children: Object.keys(module._children).map(function (moduleName) { return formatStoreForInspectorTree(
-          module._children[moduleName],
-          path + moduleName + '/'
-        ); }
-      )
-    }
-  }
-
-  /**
-   * @param {import('@vue/devtools-api').CustomInspectorNode[]} result
-   * @param {*} module
-   * @param {string} filter
-   * @param {string} path
-   */
-  function flattenStoreForInspectorTree (result, module, filter, path) {
-    if (path.includes(filter)) {
-      result.push({
-        id: path || 'root',
-        label: path.endsWith('/') ? path.slice(0, path.length - 1) : path || 'Root',
-        tags: module.namespaced ? [TAG_NAMESPACED] : []
-      });
-    }
-    Object.keys(module._children).forEach(function (moduleName) {
-      flattenStoreForInspectorTree(result, module._children[moduleName], filter, path + moduleName + '/');
-    });
-  }
-
-  /**
-   * @param {*} module
-   * @return {import('@vue/devtools-api').CustomInspectorState}
-   */
-  function formatStoreForInspectorState (module, getters, path) {
-    getters = path === 'root' ? getters : getters[path];
-    var gettersKeys = Object.keys(getters);
-    var storeState = {
-      state: Object.keys(module.state).map(function (key) { return ({
-        key: key,
-        editable: true,
-        value: module.state[key]
-      }); })
-    };
-
-    if (gettersKeys.length) {
-      var tree = transformPathsToObjectTree(getters);
-      storeState.getters = Object.keys(tree).map(function (key) { return ({
-        key: key.endsWith('/') ? extractNameFromPath(key) : key,
-        editable: false,
-        value: canThrow(function () { return tree[key]; })
-      }); });
-    }
-
-    return storeState
-  }
-
-  function transformPathsToObjectTree (getters) {
-    var result = {};
-    Object.keys(getters).forEach(function (key) {
-      var path = key.split('/');
-      if (path.length > 1) {
-        var target = result;
-        var leafKey = path.pop();
-        path.forEach(function (p) {
-          if (!target[p]) {
-            target[p] = {
-              _custom: {
-                value: {},
-                display: p,
-                tooltip: 'Module',
-                abstract: true
-              }
-            };
-          }
-          target = target[p]._custom.value;
-        });
-        target[leafKey] = canThrow(function () { return getters[key]; });
-      } else {
-        result[key] = canThrow(function () { return getters[key]; });
-      }
-    });
-    return result
-  }
-
-  function getStoreModule (moduleMap, path) {
-    var names = path.split('/').filter(function (n) { return n; });
-    return names.reduce(
-      function (module, moduleName, i) {
-        var child = module[moduleName];
-        if (!child) {
-          throw new Error(("Missing module \"" + moduleName + "\" for path \"" + path + "\"."))
-        }
-        return i === names.length - 1 ? child : child._children
-      },
-      path === 'root' ? moduleMap : moduleMap.root._children
-    )
-  }
-
-  function canThrow (cb) {
-    try {
-      return cb()
-    } catch (e) {
-      return e
-    }
-  }
-
-  // Base data struct for store's module, package with some attribute and method
-  var Module = function Module (rawModule, runtime) {
-    this.runtime = runtime;
-    // Store some children item
-    this._children = Object.create(null);
-    // Store the origin module object which passed by programmer
-    this._rawModule = rawModule;
-    var rawState = rawModule.state;
-
-    // Store the origin module's state
-    this.state = (typeof rawState === 'function' ? rawState() : rawState) || {};
-  };
-
-  var prototypeAccessors$1 = { namespaced: { configurable: true } };
-
-  prototypeAccessors$1.namespaced.get = function () {
-    return !!this._rawModule.namespaced
-  };
-
-  Module.prototype.addChild = function addChild (key, module) {
-    this._children[key] = module;
-  };
-
-  Module.prototype.removeChild = function removeChild (key) {
-    delete this._children[key];
-  };
-
-  Module.prototype.getChild = function getChild (key) {
-    return this._children[key]
-  };
-
-  Module.prototype.hasChild = function hasChild (key) {
-    return key in this._children
-  };
-
-  Module.prototype.update = function update (rawModule) {
-    this._rawModule.namespaced = rawModule.namespaced;
-    if (rawModule.actions) {
-      this._rawModule.actions = rawModule.actions;
-    }
-    if (rawModule.mutations) {
-      this._rawModule.mutations = rawModule.mutations;
-    }
-    if (rawModule.getters) {
-      this._rawModule.getters = rawModule.getters;
-    }
-  };
-
-  Module.prototype.forEachChild = function forEachChild (fn) {
-    forEachValue(this._children, fn);
-  };
-
-  Module.prototype.forEachGetter = function forEachGetter (fn) {
-    if (this._rawModule.getters) {
-      forEachValue(this._rawModule.getters, fn);
-    }
-  };
-
-  Module.prototype.forEachAction = function forEachAction (fn) {
-    if (this._rawModule.actions) {
-      forEachValue(this._rawModule.actions, fn);
-    }
-  };
-
-  Module.prototype.forEachMutation = function forEachMutation (fn) {
-    if (this._rawModule.mutations) {
-      forEachValue(this._rawModule.mutations, fn);
-    }
-  };
-
-  Object.defineProperties( Module.prototype, prototypeAccessors$1 );
-
-  var ModuleCollection = function ModuleCollection (rawRootModule) {
-    // register root module (Vuex.Store options)
-    this.register([], rawRootModule, false);
-  };
-
-  ModuleCollection.prototype.get = function get (path) {
-    return path.reduce(function (module, key) {
-      return module.getChild(key)
-    }, this.root)
-  };
-
-  ModuleCollection.prototype.getNamespace = function getNamespace (path) {
-    var module = this.root;
-    return path.reduce(function (namespace, key) {
-      module = module.getChild(key);
-      return namespace + (module.namespaced ? key + '/' : '')
-    }, '')
-  };
-
-  ModuleCollection.prototype.update = function update$1 (rawRootModule) {
-    update([], this.root, rawRootModule);
-  };
-
-  ModuleCollection.prototype.register = function register (path, rawModule, runtime) {
-      var this$1$1 = this;
-      if ( runtime === void 0 ) runtime = true;
-
-    var newModule = new Module(rawModule, runtime);
-    if (path.length === 0) {
-      this.root = newModule;
-    } else {
-      var parent = this.get(path.slice(0, -1));
-      parent.addChild(path[path.length - 1], newModule);
-    }
-
-    // register nested modules
-    if (rawModule.modules) {
-      forEachValue(rawModule.modules, function (rawChildModule, key) {
-        this$1$1.register(path.concat(key), rawChildModule, runtime);
-      });
-    }
-  };
-
-  ModuleCollection.prototype.unregister = function unregister (path) {
-    var parent = this.get(path.slice(0, -1));
-    var key = path[path.length - 1];
-    var child = parent.getChild(key);
-
-    if (!child) {
-      return
-    }
-
-    if (!child.runtime) {
-      return
-    }
-
-    parent.removeChild(key);
-  };
-
-  ModuleCollection.prototype.isRegistered = function isRegistered (path) {
-    var parent = this.get(path.slice(0, -1));
-    var key = path[path.length - 1];
-
-    if (parent) {
-      return parent.hasChild(key)
-    }
-
-    return false
-  };
-
-  function update (path, targetModule, newModule) {
-
-    // update target module
-    targetModule.update(newModule);
-
-    // update nested modules
-    if (newModule.modules) {
-      for (var key in newModule.modules) {
-        if (!targetModule.getChild(key)) {
-          return
-        }
-        update(
-          path.concat(key),
-          targetModule.getChild(key),
-          newModule.modules[key]
-        );
-      }
-    }
-  }
-
-  var Store = function Store (options) {
-    var this$1$1 = this;
-    if ( options === void 0 ) options = {};
-
-    var plugins = options.plugins; if ( plugins === void 0 ) plugins = [];
-    var strict = options.strict; if ( strict === void 0 ) strict = false;
-    var devtools = options.devtools;
-
-    // store internal state
-    this._committing = false;
-    this._actions = Object.create(null);
-    this._actionSubscribers = [];
-    this._mutations = Object.create(null);
-    this._wrappedGetters = Object.create(null);
-    this._modules = new ModuleCollection(options);
-    this._modulesNamespaceMap = Object.create(null);
-    this._subscribers = [];
-    this._makeLocalGettersCache = Object.create(null);
-    this._devtools = devtools;
-
-    // bind commit and dispatch to self
-    var store = this;
-    var ref = this;
-    var dispatch = ref.dispatch;
-    var commit = ref.commit;
-    this.dispatch = function boundDispatch (type, payload) {
-      return dispatch.call(store, type, payload)
-    };
-    this.commit = function boundCommit (type, payload, options) {
-      return commit.call(store, type, payload, options)
-    };
-
-    // strict mode
-    this.strict = strict;
-
-    var state = this._modules.root.state;
-
-    // init root module.
-    // this also recursively registers all sub-modules
-    // and collects all module getters inside this._wrappedGetters
-    installModule(this, state, [], this._modules.root);
-
-    // initialize the store state, which is responsible for the reactivity
-    // (also registers _wrappedGetters as computed properties)
-    resetStoreState(this, state);
-
-    // apply plugins
-    plugins.forEach(function (plugin) { return plugin(this$1$1); });
-  };
-
-  var prototypeAccessors = { state: { configurable: true } };
-
-  Store.prototype.install = function install (app, injectKey) {
-    app.provide(injectKey || storeKey, this);
-    app.config.globalProperties.$store = this;
-
-    var useDevtools = this._devtools !== undefined
-      ? this._devtools
-      : __VUE_PROD_DEVTOOLS__;
-
-    if (useDevtools) {
-      addDevtools(app, this);
-    }
-  };
-
-  prototypeAccessors.state.get = function () {
-    return this._state.data
-  };
-
-  prototypeAccessors.state.set = function (v) {
-  };
-
-  Store.prototype.commit = function commit (_type, _payload, _options) {
-      var this$1$1 = this;
-
-    // check object-style commit
-    var ref = unifyObjectStyle(_type, _payload, _options);
-      var type = ref.type;
-      var payload = ref.payload;
-
-    var mutation = { type: type, payload: payload };
-    var entry = this._mutations[type];
-    if (!entry) {
-      return
-    }
-    this._withCommit(function () {
-      entry.forEach(function commitIterator (handler) {
-        handler(payload);
-      });
-    });
-
-    this._subscribers
-      .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
-      .forEach(function (sub) { return sub(mutation, this$1$1.state); });
-  };
-
-  Store.prototype.dispatch = function dispatch (_type, _payload) {
-      var this$1$1 = this;
-
-    // check object-style dispatch
-    var ref = unifyObjectStyle(_type, _payload);
-      var type = ref.type;
-      var payload = ref.payload;
-
-    var action = { type: type, payload: payload };
-    var entry = this._actions[type];
-    if (!entry) {
-      return
-    }
-
-    try {
-      this._actionSubscribers
-        .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
-        .filter(function (sub) { return sub.before; })
-        .forEach(function (sub) { return sub.before(action, this$1$1.state); });
-    } catch (e) {
-    }
-
-    var result = entry.length > 1
-      ? Promise.all(entry.map(function (handler) { return handler(payload); }))
-      : entry[0](payload);
-
-    return new Promise(function (resolve, reject) {
-      result.then(function (res) {
-        try {
-          this$1$1._actionSubscribers
-            .filter(function (sub) { return sub.after; })
-            .forEach(function (sub) { return sub.after(action, this$1$1.state); });
-        } catch (e) {
-        }
-        resolve(res);
-      }, function (error) {
-        try {
-          this$1$1._actionSubscribers
-            .filter(function (sub) { return sub.error; })
-            .forEach(function (sub) { return sub.error(action, this$1$1.state, error); });
-        } catch (e) {
-        }
-        reject(error);
-      });
-    })
-  };
-
-  Store.prototype.subscribe = function subscribe (fn, options) {
-    return genericSubscribe(fn, this._subscribers, options)
-  };
-
-  Store.prototype.subscribeAction = function subscribeAction (fn, options) {
-    var subs = typeof fn === 'function' ? { before: fn } : fn;
-    return genericSubscribe(subs, this._actionSubscribers, options)
-  };
-
-  Store.prototype.watch = function watch$1 (getter, cb, options) {
-      var this$1$1 = this;
-    return Vue.watch(function () { return getter(this$1$1.state, this$1$1.getters); }, cb, Object.assign({}, options))
-  };
-
-  Store.prototype.replaceState = function replaceState (state) {
-      var this$1$1 = this;
-
-    this._withCommit(function () {
-      this$1$1._state.data = state;
-    });
-  };
-
-  Store.prototype.registerModule = function registerModule (path, rawModule, options) {
-      if ( options === void 0 ) options = {};
-
-    if (typeof path === 'string') { path = [path]; }
-
-    this._modules.register(path, rawModule);
-    installModule(this, this.state, path, this._modules.get(path), options.preserveState);
-    // reset store to update getters...
-    resetStoreState(this, this.state);
-  };
-
-  Store.prototype.unregisterModule = function unregisterModule (path) {
-      var this$1$1 = this;
-
-    if (typeof path === 'string') { path = [path]; }
-
-    this._modules.unregister(path);
-    this._withCommit(function () {
-      var parentState = getNestedState(this$1$1.state, path.slice(0, -1));
-      delete parentState[path[path.length - 1]];
-    });
-    resetStore(this);
-  };
-
-  Store.prototype.hasModule = function hasModule (path) {
-    if (typeof path === 'string') { path = [path]; }
-
-    return this._modules.isRegistered(path)
-  };
-
-  Store.prototype.hotUpdate = function hotUpdate (newOptions) {
-    this._modules.update(newOptions);
-    resetStore(this, true);
-  };
-
-  Store.prototype._withCommit = function _withCommit (fn) {
-    var committing = this._committing;
-    this._committing = true;
-    fn();
-    this._committing = committing;
-  };
-
-  Object.defineProperties( Store.prototype, prototypeAccessors );
-
-  /**
-   * Reduce the code which written in Vue.js for getting the getters
-   * @param {String} [namespace] - Module's namespace
-   * @param {Object|Array} getters
-   * @return {Object}
-   */
-  var mapGetters = normalizeNamespace(function (namespace, getters) {
-    var res = {};
-    normalizeMap(getters).forEach(function (ref) {
-      var key = ref.key;
-      var val = ref.val;
-
-      // The namespace has been mutated by normalizeNamespace
-      val = namespace + val;
-      res[key] = function mappedGetter () {
-        if (namespace && !getModuleByNamespace(this.$store, 'mapGetters', namespace)) {
-          return
-        }
-        return this.$store.getters[val]
-      };
-      // mark vuex getter for devtools
-      res[key].vuex = true;
-    });
-    return res
-  });
-
-  /**
-   * Normalize the map
-   * normalizeMap([1, 2, 3]) => [ { key: 1, val: 1 }, { key: 2, val: 2 }, { key: 3, val: 3 } ]
-   * normalizeMap({a: 1, b: 2, c: 3}) => [ { key: 'a', val: 1 }, { key: 'b', val: 2 }, { key: 'c', val: 3 } ]
-   * @param {Array|Object} map
-   * @return {Object}
-   */
-  function normalizeMap (map) {
-    if (!isValidMap(map)) {
-      return []
-    }
-    return Array.isArray(map)
-      ? map.map(function (key) { return ({ key: key, val: key }); })
-      : Object.keys(map).map(function (key) { return ({ key: key, val: map[key] }); })
-  }
-
-  /**
-   * Validate whether given map is valid or not
-   * @param {*} map
-   * @return {Boolean}
-   */
-  function isValidMap (map) {
-    return Array.isArray(map) || isObject(map)
-  }
-
-  /**
-   * Return a function expect two param contains namespace and map. it will normalize the namespace and then the param's function will handle the new namespace and the map.
-   * @param {Function} fn
-   * @return {Function}
-   */
-  function normalizeNamespace (fn) {
-    return function (namespace, map) {
-      if (typeof namespace !== 'string') {
-        map = namespace;
-        namespace = '';
-      } else if (namespace.charAt(namespace.length - 1) !== '/') {
-        namespace += '/';
-      }
-      return fn(namespace, map)
-    }
-  }
-
-  /**
-   * Search a special module from store by namespace. if module not exist, print error message.
-   * @param {Object} store
-   * @param {String} helper
-   * @param {String} namespace
-   * @return {Object}
-   */
-  function getModuleByNamespace (store, helper, namespace) {
-    var module = store._modulesNamespaceMap[namespace];
-    return module
-  }
-
   var script$4 = {
     name: 'id2-name',
     props: {
@@ -7547,7 +6253,7 @@
         asyncOptions: this.options
       };
     },
-    computed: _objectSpread2(_objectSpread2({}, mapGetters(['enums'])), {}, {
+    computed: _objectSpread2(_objectSpread2({}, vuex.mapGetters(['enums'])), {}, {
       displayVal: function displayVal() {
         var curSet = this.enums[this.code] || this.asyncOptions;
         return this.matchValue(curSet) || '--';
@@ -8074,10 +6780,6 @@
   var components = [__vue_component__$s, __vue_component__$r, __vue_component__$d, __vue_component__$c, __vue_component__$b, __vue_component__$9, __vue_component__$8, __vue_component__$7, __vue_component__$6, __vue_component__$5, __vue_component__$1, __vue_component__$4, __vue_component__$3, __vue_component__$2, __vue_component__];
   var index = {
     install: function install(Vue) {
-      // Vue.use(Element, {
-      //   size: 'small', // set element-ui default size
-      //   // i18n: (key, value) => i18n.t(key, value)
-      // })
       Vue.use(register);
       components.forEach(function (component) {
         Vue.component(component.name, component);

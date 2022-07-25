@@ -15,9 +15,8 @@
   ],
   "scripts": {
     "bootstrap": "yarn || npm i",
-    "build:umd": "rollup -c --format umd --file dist/components.umd.js",
-    "dev": "cross-env NODE_ENV=dev rollup -c -w ",
-    "build": "cross-env NODE_ENV=prod rollup -c",
+    "dev": "cross-env NODE_ENV=dev rollup -c -w",
+    "build": "cross-env NODE_ENV=prod rollup -c && npm link",
     "clean": "rimraf lib",
     "dist": "npm run clean && npm run build"
   },

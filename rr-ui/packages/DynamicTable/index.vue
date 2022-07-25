@@ -187,7 +187,7 @@
 import { debounce, deepClone } from '@/utils/index'
 import Sortable from 'sortablejs'
 import async from 'async'
-import request from '@/utils/request'
+// import request from '@/utils/request'
 import { insertNodeAt, removeNode } from '@/utils/helper'
 import Settings from '@/settings'
 import Qs from 'qs'
@@ -394,7 +394,7 @@ export default {
         reqData['size'] = size
       }
       const dataKey = method && method.toLowerCase() == 'get' ? 'params' : 'data'
-      request({
+      window.request({
         baseURL,
         url,
         method,

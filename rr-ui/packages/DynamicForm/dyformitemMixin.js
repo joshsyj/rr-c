@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+// import request from '@/utils/request'
 
 const DyFormMixin = {
   props: {
@@ -19,7 +19,7 @@ const DyFormMixin = {
       const { requestOptions = {}, format = v => v } = this.item
       const { url, method, data = {} } = requestOptions
       url &&
-        request({ url, method: method.toLowerCase() || 'get', data })
+        window.request({ url, method: method.toLowerCase() || 'get', data })
           .then(res => {
             this.$set(this.item, 'options', format(res))
           })

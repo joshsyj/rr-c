@@ -1,4 +1,3 @@
-import Element from 'element-ui'
 import '../styles/element-variables.scss'
 
 import DynamicForm from './DynamicForm'
@@ -38,11 +37,7 @@ const components = [
 
 export default {
   install(Vue) {
-    // Vue.use(Element, {
-    //   size: 'small', // set element-ui default size
-    //   // i18n: (key, value) => i18n.t(key, value)
-    // })
-
+   
     Vue.use(register)
 
     components.forEach((component) => {

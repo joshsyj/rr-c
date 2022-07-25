@@ -1,5 +1,9 @@
 import axios from 'axios'
-// import { MessageBox, Message, Loading } from 'element-ui'
+import { MessageBox, Message, Loading } from 'element-ui'
+// import store from '@/store'
+// import { getToken } from '@/utils/auth'
+// import { isEmpty } from '@/utils'
+// import Qs from 'qs'
 import Vue from 'vue'
 
 let LoadingInstance = null
@@ -23,7 +27,12 @@ service.interceptors.request.use(config => {
       background: 'rgba(255, 255, 255, 0.1)'
     })
   }
- 
+  if (store.getters.token) {
+    // let each request carry token
+    // ['X-Token'] is a custom headers key
+    // please modify it according to the actual situation
+    config.headers['token'] = getToken()
+  }
   // if (config.method === 'get')
   //   config.params = Qs.stringify(config.params, { arrayFormat: 'comma' })
 
@@ -73,7 +82,9 @@ service.interceptors.response.use(
           cancelButtonText: 'Cancel',
           type: 'warning'
         }).then(() => {
-         
+          store.dispatch('user/resetToken').then(() => {
+            location.reload()
+          })
         })
       }
       return Promise.reject(new Error(res.msg || 'Error'))
