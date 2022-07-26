@@ -676,7 +676,7 @@
 
   var widgetRegistry = new WidgetRegistry();
 
-  var script$s = {
+  var script$t = {
     name: 'dynamic-form',
     componentName: 'dynamic-form',
     mixins: [Emitter],
@@ -952,10 +952,10 @@
   }
 
   /* script */
-  const __vue_script__$s = script$s;
+  const __vue_script__$t = script$t;
 
   /* template */
-  var __vue_render__$s = function () {
+  var __vue_render__$t = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1041,34 +1041,34 @@
       2
     )
   };
-  var __vue_staticRenderFns__$s = [];
-  __vue_render__$s._withStripped = true;
+  var __vue_staticRenderFns__$t = [];
+  __vue_render__$t._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$s = function (inject) {
+    const __vue_inject_styles__$t = function (inject) {
       if (!inject) return
       inject("data-v-612de86e_0", { source: ".dynamic-form[data-v-612de86e] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-start;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\DynamicForm\\index.vue","index.vue"],"names":[],"mappings":"AAuJA;EACA,aAAA;EACA,eAAA;EACA,uBAAA;ACtJA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <el-form\r\n    ref=\"dyForm\"\r\n    class=\"dynamic-form\"\r\n    :inline=\"formConfig.inline\"\r\n    :model=\"value\"\r\n    :label-position=\"formConfig.labelPosition\"\r\n    :label-width=\"formConfig.labelWidth\"\r\n    :size=\"formConfig.size\"\r\n    :rules=\"rules\"\r\n  >\r\n    <template v-if=\"formConfig.formItemList && formConfig.formItemList.length > 0\">\r\n      <component\r\n        :is=\"createWidgets(formitem)\"\r\n        v-for=\"(formitem, index) in formConfig.formItemList.filter((item) => !item.hidden)\"\r\n        :key=\"formitem.key + index\"\r\n        :item=\"formitem\"\r\n        :value=\"value[formitem.key]\"\r\n        @input=\"handleInput($event, formitem.key)\"\r\n        @change=\"handleChange($event, formitem.key)\"\r\n      />\r\n      <slot name=\"custom-form\"></slot>\r\n    </template>\r\n    <slot />\r\n    <el-row type=\"flex\" justify=\"end\" class=\"text-c\">\r\n      <el-button size=\"small\" @click=\"resetForm('dyForm')\">重置</el-button>\r\n      <el-button size=\"small\" type=\"primary\" @click=\"submitForm('dyForm')\"> 查询 </el-button>\r\n      <slot name=\"sf-btns\" />\r\n    </el-row>\r\n  </el-form>\r\n</template>\r\n\r\n<script>\r\nimport Emitter from 'element-ui/src/mixins/emitter'\r\nimport widgetRegistry from './WidgetRegistry'\r\nexport default {\r\n  name: 'dynamic-form',\r\n  componentName: 'dynamic-form',\r\n  mixins: [Emitter],\r\n  props: {\r\n    formConfig: {\r\n      type: Object,\r\n      required: true\r\n    },\r\n    value: {\r\n      type: Object,\r\n      required: true\r\n    }\r\n  },\r\n  computed: {\r\n    conditionLength() {\r\n      return (this.formConfig.formItemList || []).length\r\n    },\r\n    rules() {\r\n      const _rules = {}\r\n      const formItemList = this.formConfig.formItemList || []\r\n      for (const item of formItemList) {\r\n        const prop = item.key\r\n        const rule = item.rules || []\r\n        rule && rule.length && (_rules[prop] = rule)\r\n      }\r\n      return _rules\r\n    }\r\n  },\r\n  watch: {\r\n    conditionLength: {\r\n      handler() {\r\n        this.bindRelation()\r\n      },\r\n      immediate: true\r\n    }\r\n  },\r\n  mounted() {\r\n    this.setDefaultValue()\r\n    this.$on('keyup-enter', () => this.submitForm('dyForm'))\r\n  },\r\n  methods: {\r\n    createWidgets(formItem) {\r\n      const key = `df-${formItem.type}`\r\n      const comp = widgetRegistry.getType(key)\r\n      if (!comp) {\r\n        throw new Error('invalid formItem type')\r\n      }\r\n      return comp\r\n    },\r\n    handleChange(val, key) {\r\n      this.$emit('change', key, Object.assign({}, this.value, { [key]: val }))\r\n    },\r\n    handleInput(val, key) {\r\n      // if (typeof val === 'string') {\r\n      //   val = val.replace(/^\\s*|\\s*$/g, '')\r\n      // }\r\n      this.$emit('input', { ...this.value, [key]: val })\r\n    },\r\n    //初始值和formItemList的默认值\r\n    setDefaultValue() {\r\n      const formData = { ...this.value } // 设置默认值\r\n      this.formConfig.formItemList?.forEach(({ key, value, defaultValue }) => {\r\n        if (formData[key] === undefined || formData[key] === null) {\r\n          formData[key] = value\r\n        } else if (JSON.stringify(formData[key]) === '[null]') {\r\n          //hack cascader resetFields =>[null]\r\n          formData[key] = []\r\n        }\r\n        if (defaultValue) {\r\n          formData[key] = defaultValue\r\n        }\r\n      })\r\n      this.$emit('input', formData)\r\n      return formData\r\n    },\r\n    //针对关联widget  建立依赖关联\r\n    bindRelation() {\r\n      const formItemList = this.formConfig.formItemList || []\r\n      formItemList.forEach((item) => {\r\n        const { dependence, type } = item\r\n        dependence &&\r\n          this.$watch('value', function (newVal, oldVal) {\r\n            if (newVal[dependence] !== oldVal[dependence]) {\r\n              type === 'select' && this.broadcast('sfSelectWidget', `${dependence}-change`, newVal[dependence])\r\n              type === 'cascader' && this.broadcast('sfCascaderWidget', `${dependence}-change`, newVal[dependence])\r\n            }\r\n          })\r\n      })\r\n    },\r\n    submitForm(formName) {\r\n      this.$refs[formName].validate((valid) => {\r\n        if (valid) {\r\n          this.$emit('submit', this.value)\r\n        } else {\r\n          console.log('error submit!!')\r\n          return false\r\n        }\r\n      })\r\n    },\r\n    resetForm(formName) {\r\n      this.$refs[formName].resetFields()\r\n      this.$refs[formName].validate((valid) => {\r\n        if (valid) {\r\n          this.$emit('reset', this.setDefaultValue())\r\n        } else {\r\n          console.log('error submit!!')\r\n          return false\r\n        }\r\n      })\r\n    }\r\n  }\r\n}\r\n</script>\r\n\r\n<style lang=\"sass\" scoped>\r\n.dynamic-form\r\n  display: flex\r\n  flex-wrap: wrap\r\n  align-items: flex-start\r\n</style>\r\n",".dynamic-form {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-start;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$s = "data-v-612de86e";
+    const __vue_scope_id__$t = "data-v-612de86e";
     /* module identifier */
-    const __vue_module_identifier__$s = undefined;
+    const __vue_module_identifier__$t = undefined;
     /* functional template */
-    const __vue_is_functional_template__$s = false;
+    const __vue_is_functional_template__$t = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$s = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$s, staticRenderFns: __vue_staticRenderFns__$s },
-      __vue_inject_styles__$s,
-      __vue_script__$s,
-      __vue_scope_id__$s,
-      __vue_is_functional_template__$s,
-      __vue_module_identifier__$s,
+    const __vue_component__$t = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$t, staticRenderFns: __vue_staticRenderFns__$t },
+      __vue_inject_styles__$t,
+      __vue_script__$t,
+      __vue_scope_id__$t,
+      __vue_is_functional_template__$t,
+      __vue_module_identifier__$t,
       false,
       createInjector,
       undefined,
@@ -1093,7 +1093,7 @@
   //
   //
   //
-  var script$r = {
+  var script$s = {
     name: 'dy-item-wrap',
     props: {
       item: {
@@ -1106,10 +1106,10 @@
   };
 
   /* script */
-  const __vue_script__$r = script$r;
+  const __vue_script__$s = script$s;
 
   /* template */
-  var __vue_render__$r = function () {
+  var __vue_render__$s = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1150,34 +1150,34 @@
       2
     )
   };
-  var __vue_staticRenderFns__$r = [];
-  __vue_render__$r._withStripped = true;
+  var __vue_staticRenderFns__$s = [];
+  __vue_render__$s._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$r = function (inject) {
+    const __vue_inject_styles__$s = function (inject) {
       if (!inject) return
       inject("data-v-0e919826_0", { source: ".fi-wrap {\n  display: inline-flex;\n  margin-right: 30px;\n}\n\n/*# sourceMappingURL=DyFormitemWraper.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\DynamicForm\\DyFormitemWraper.vue","DyFormitemWraper.vue"],"names":[],"mappings":"AA+BA;EACA,oBAAA;EACA,kBAAA;AC9BA;;AAEA,+CAA+C","file":"DyFormitemWraper.vue","sourcesContent":["<template>\r\n  <el-form-item class=\"fi-wrap\" :prop=\"item.key\">\r\n    <template slot=\"label\">\r\n      <span v-if=\"item.popover && item.popover_text\">\r\n        {{ item.label }}\r\n        <el-popover trigger=\"hover\" placement=\"top\">\r\n          {{ item.popover_text }}\r\n          <span slot=\"reference\">\r\n            <i class=\"el-icon-info pointer\"></i>\r\n          </span>\r\n        </el-popover>\r\n      </span>\r\n      <span v-else>{{ item.label }}</span>\r\n    </template>\r\n    <slot />\r\n  </el-form-item>\r\n</template>\r\n\r\n<script>\r\nexport default {\r\n  name: 'dy-item-wrap',\r\n  props: {\r\n    item: {\r\n      type: Object,\r\n      default: () => ({})\r\n    }\r\n  }\r\n}\r\n</script>\r\n\r\n<style lang=\"sass\">\r\n.fi-wrap\r\n  display: inline-flex\r\n  margin-right: 30px\r\n</style>\r\n",".fi-wrap {\n  display: inline-flex;\n  margin-right: 30px;\n}\n\n/*# sourceMappingURL=DyFormitemWraper.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$r = undefined;
+    const __vue_scope_id__$s = undefined;
     /* module identifier */
-    const __vue_module_identifier__$r = undefined;
+    const __vue_module_identifier__$s = undefined;
     /* functional template */
-    const __vue_is_functional_template__$r = false;
+    const __vue_is_functional_template__$s = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$r = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$r, staticRenderFns: __vue_staticRenderFns__$r },
-      __vue_inject_styles__$r,
-      __vue_script__$r,
-      __vue_scope_id__$r,
-      __vue_is_functional_template__$r,
-      __vue_module_identifier__$r,
+    const __vue_component__$s = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$s, staticRenderFns: __vue_staticRenderFns__$s },
+      __vue_inject_styles__$s,
+      __vue_script__$s,
+      __vue_scope_id__$s,
+      __vue_is_functional_template__$s,
+      __vue_module_identifier__$s,
       false,
       createInjector,
       undefined,
@@ -1235,7 +1235,7 @@
   };
 
   //
-  var script$q = {
+  var script$r = {
     mixins: [DyFormMixin, Emitter],
     methods: {
       keyEvent: function keyEvent() {
@@ -1245,10 +1245,10 @@
   };
 
   /* script */
-  const __vue_script__$q = script$q;
+  const __vue_script__$r = script$r;
 
   /* template */
-  var __vue_render__$q = function () {
+  var __vue_render__$r = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1290,17 +1290,17 @@
       1
     )
   };
-  var __vue_staticRenderFns__$q = [];
-  __vue_render__$q._withStripped = true;
+  var __vue_staticRenderFns__$r = [];
+  __vue_render__$r._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$q = undefined;
+    const __vue_inject_styles__$r = undefined;
     /* scoped */
-    const __vue_scope_id__$q = undefined;
+    const __vue_scope_id__$r = undefined;
     /* module identifier */
-    const __vue_module_identifier__$q = undefined;
+    const __vue_module_identifier__$r = undefined;
     /* functional template */
-    const __vue_is_functional_template__$q = false;
+    const __vue_is_functional_template__$r = false;
     /* style inject */
     
     /* style inject SSR */
@@ -1309,13 +1309,13 @@
     
 
     
-    const __vue_component__$q = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$q, staticRenderFns: __vue_staticRenderFns__$q },
-      __vue_inject_styles__$q,
-      __vue_script__$q,
-      __vue_scope_id__$q,
-      __vue_is_functional_template__$q,
-      __vue_module_identifier__$q,
+    const __vue_component__$r = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$r, staticRenderFns: __vue_staticRenderFns__$r },
+      __vue_inject_styles__$r,
+      __vue_script__$r,
+      __vue_scope_id__$r,
+      __vue_is_functional_template__$r,
+      __vue_module_identifier__$r,
       false,
       undefined,
       undefined,
@@ -1323,15 +1323,15 @@
     );
 
   //
-  var script$p = {
+  var script$q = {
     mixins: [DyFormMixin]
   };
 
   /* script */
-  const __vue_script__$p = script$p;
+  const __vue_script__$q = script$q;
 
   /* template */
-  var __vue_render__$p = function () {
+  var __vue_render__$q = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1365,34 +1365,34 @@
       1
     )
   };
-  var __vue_staticRenderFns__$p = [];
-  __vue_render__$p._withStripped = true;
+  var __vue_staticRenderFns__$q = [];
+  __vue_render__$q._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$p = function (inject) {
+    const __vue_inject_styles__$q = function (inject) {
       if (!inject) return
       inject("data-v-2c22a754_0", { source: ".date-separator[data-v-2c22a754]  .el-range-separator {\n  width: 18px;\n}\n\n/*# sourceMappingURL=DateRangeWidget.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\DynamicForm\\widgets\\DateRangeWidget.vue","DateRangeWidget.vue"],"names":[],"mappings":"AAuBA;EACA,WAAA;ACtBA;;AAEA,8CAA8C","file":"DateRangeWidget.vue","sourcesContent":["<template>\r\n  <dy-item-wrap :item=\"item\">\r\n    <el-date-picker\r\n      class=\"date-separator\"\r\n      :type=\"item.subtype\"\r\n      :format=\"item.viewFormat || item.valueFormat\"\r\n      v-bind=\"$attrs\"\r\n      range-separator=\"至\"\r\n      start-placeholder=\"开始时间\"\r\n      end-placeholder=\"结束时间\"\r\n      :default-time=\"['00:00:00', '23:59:59']\"\r\n      v-on=\"$listeners\"\r\n    />\r\n  </dy-item-wrap>\r\n</template>\r\n\r\n<script>\r\nimport DyFormMixin from '../dyformitemMixin'\r\nexport default {\r\n  mixins: [DyFormMixin]\r\n}\r\n</script>\r\n<style lang=\"scss\" scoped>\r\n.date-separator ::v-deep .el-range-separator {\r\n  width: 18px;\r\n}\r\n</style>\r\n",".date-separator ::v-deep .el-range-separator {\n  width: 18px;\n}\n\n/*# sourceMappingURL=DateRangeWidget.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$p = "data-v-2c22a754";
+    const __vue_scope_id__$q = "data-v-2c22a754";
     /* module identifier */
-    const __vue_module_identifier__$p = undefined;
+    const __vue_module_identifier__$q = undefined;
     /* functional template */
-    const __vue_is_functional_template__$p = false;
+    const __vue_is_functional_template__$q = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$p = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$p, staticRenderFns: __vue_staticRenderFns__$p },
-      __vue_inject_styles__$p,
-      __vue_script__$p,
-      __vue_scope_id__$p,
-      __vue_is_functional_template__$p,
-      __vue_module_identifier__$p,
+    const __vue_component__$q = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$q, staticRenderFns: __vue_staticRenderFns__$q },
+      __vue_inject_styles__$q,
+      __vue_script__$q,
+      __vue_scope_id__$q,
+      __vue_is_functional_template__$q,
+      __vue_module_identifier__$q,
       false,
       createInjector,
       undefined,
@@ -1400,15 +1400,15 @@
     );
 
   //
-  var script$o = {
+  var script$p = {
     mixins: [DyFormMixin]
   };
 
   /* script */
-  const __vue_script__$o = script$o;
+  const __vue_script__$p = script$p;
 
   /* template */
-  var __vue_render__$o = function () {
+  var __vue_render__$p = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1439,17 +1439,17 @@
       1
     )
   };
-  var __vue_staticRenderFns__$o = [];
-  __vue_render__$o._withStripped = true;
+  var __vue_staticRenderFns__$p = [];
+  __vue_render__$p._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$o = undefined;
+    const __vue_inject_styles__$p = undefined;
     /* scoped */
-    const __vue_scope_id__$o = undefined;
+    const __vue_scope_id__$p = undefined;
     /* module identifier */
-    const __vue_module_identifier__$o = undefined;
+    const __vue_module_identifier__$p = undefined;
     /* functional template */
-    const __vue_is_functional_template__$o = false;
+    const __vue_is_functional_template__$p = false;
     /* style inject */
     
     /* style inject SSR */
@@ -1458,13 +1458,13 @@
     
 
     
-    const __vue_component__$o = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$o, staticRenderFns: __vue_staticRenderFns__$o },
-      __vue_inject_styles__$o,
-      __vue_script__$o,
-      __vue_scope_id__$o,
-      __vue_is_functional_template__$o,
-      __vue_module_identifier__$o,
+    const __vue_component__$p = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$p, staticRenderFns: __vue_staticRenderFns__$p },
+      __vue_inject_styles__$p,
+      __vue_script__$p,
+      __vue_scope_id__$p,
+      __vue_is_functional_template__$p,
+      __vue_module_identifier__$p,
       false,
       undefined,
       undefined,
@@ -1472,15 +1472,15 @@
     );
 
   //
-  var script$n = {
+  var script$o = {
     mixins: [DyFormMixin]
   };
 
   /* script */
-  const __vue_script__$n = script$n;
+  const __vue_script__$o = script$o;
 
   /* template */
-  var __vue_render__$n = function () {
+  var __vue_render__$o = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1515,34 +1515,34 @@
       1
     )
   };
-  var __vue_staticRenderFns__$n = [];
-  __vue_render__$n._withStripped = true;
+  var __vue_staticRenderFns__$o = [];
+  __vue_render__$o._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$n = function (inject) {
+    const __vue_inject_styles__$o = function (inject) {
       if (!inject) return
       inject("data-v-7de6ac94_0", { source: ".date-separator[data-v-7de6ac94]  .el-range-separator {\n  width: 18px;\n}\n\n/*# sourceMappingURL=DateTimeWidget.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\DynamicForm\\widgets\\DateTimeWidget.vue","DateTimeWidget.vue"],"names":[],"mappings":"AAwBA;EACA,WAAA;ACvBA;;AAEA,6CAA6C","file":"DateTimeWidget.vue","sourcesContent":["<template>\r\n  <dy-item-wrap :item=\"item\">\r\n    <el-date-picker\r\n      class=\"date-separator\"\r\n      :type=\"item.subtype\"\r\n      :format=\"item.viewFormat\"\r\n      :value-format=\"item.valueFormat\"\r\n      :clearable=\"item.clearable\"\r\n      v-bind=\"$attrs\"\r\n      :placeholder=\"item.placeholder || '选择日期时间'\"\r\n      :picker-options=\"item.pickerOptions\"\r\n      default-time=\"00:00:00\"\r\n      v-on=\"$listeners\"\r\n    />\r\n  </dy-item-wrap>\r\n</template>\r\n\r\n<script>\r\nimport DyFormMixin from '../dyformitemMixin'\r\nexport default {\r\n  mixins: [DyFormMixin]\r\n}\r\n</script>\r\n<style lang=\"scss\" scoped>\r\n.date-separator ::v-deep .el-range-separator {\r\n  width: 18px;\r\n}\r\n</style>\r\n",".date-separator ::v-deep .el-range-separator {\n  width: 18px;\n}\n\n/*# sourceMappingURL=DateTimeWidget.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$n = "data-v-7de6ac94";
+    const __vue_scope_id__$o = "data-v-7de6ac94";
     /* module identifier */
-    const __vue_module_identifier__$n = undefined;
+    const __vue_module_identifier__$o = undefined;
     /* functional template */
-    const __vue_is_functional_template__$n = false;
+    const __vue_is_functional_template__$o = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$n = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$n, staticRenderFns: __vue_staticRenderFns__$n },
-      __vue_inject_styles__$n,
-      __vue_script__$n,
-      __vue_scope_id__$n,
-      __vue_is_functional_template__$n,
-      __vue_module_identifier__$n,
+    const __vue_component__$o = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$o, staticRenderFns: __vue_staticRenderFns__$o },
+      __vue_inject_styles__$o,
+      __vue_script__$o,
+      __vue_scope_id__$o,
+      __vue_is_functional_template__$o,
+      __vue_module_identifier__$o,
       false,
       createInjector,
       undefined,
@@ -1550,15 +1550,15 @@
     );
 
   //
-  var script$m = {
+  var script$n = {
     mixins: [DyFormMixin]
   };
 
   /* script */
-  const __vue_script__$m = script$m;
+  const __vue_script__$n = script$n;
 
   /* template */
-  var __vue_render__$m = function () {
+  var __vue_render__$n = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1586,6 +1586,63 @@
             ),
             _vm.$listeners
           )
+        ),
+      ],
+      1
+    )
+  };
+  var __vue_staticRenderFns__$n = [];
+  __vue_render__$n._withStripped = true;
+
+    /* style */
+    const __vue_inject_styles__$n = undefined;
+    /* scoped */
+    const __vue_scope_id__$n = undefined;
+    /* module identifier */
+    const __vue_module_identifier__$n = undefined;
+    /* functional template */
+    const __vue_is_functional_template__$n = false;
+    /* style inject */
+    
+    /* style inject SSR */
+    
+    /* style inject shadow dom */
+    
+
+    
+    const __vue_component__$n = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$n, staticRenderFns: __vue_staticRenderFns__$n },
+      __vue_inject_styles__$n,
+      __vue_script__$n,
+      __vue_scope_id__$n,
+      __vue_is_functional_template__$n,
+      __vue_module_identifier__$n,
+      false,
+      undefined,
+      undefined,
+      undefined
+    );
+
+  //
+  var script$m = {
+    mixins: [DyFormMixin]
+  };
+
+  /* script */
+  const __vue_script__$m = script$m;
+
+  /* template */
+  var __vue_render__$m = function () {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c(
+      "dy-item-wrap",
+      { attrs: { item: _vm.item } },
+      [
+        _c(
+          "el-switch",
+          _vm._g(_vm._b({}, "el-switch", _vm.$attrs, false), _vm.$listeners)
         ),
       ],
       1
@@ -1641,8 +1698,16 @@
       { attrs: { item: _vm.item } },
       [
         _c(
-          "el-switch",
-          _vm._g(_vm._b({}, "el-switch", _vm.$attrs, false), _vm.$listeners)
+          "el-slider",
+          _vm._g(
+            _vm._b(
+              { attrs: { range: _vm.item.isRange } },
+              "el-slider",
+              _vm.$attrs,
+              false
+            ),
+            _vm.$listeners
+          )
         ),
       ],
       1
@@ -1698,11 +1763,16 @@
       { attrs: { item: _vm.item } },
       [
         _c(
-          "el-slider",
+          "el-rate",
           _vm._g(
             _vm._b(
-              { attrs: { range: _vm.item.isRange } },
-              "el-slider",
+              {
+                attrs: {
+                  colors: ["#99A9BF", "#F7BA2A", "#FF9900"],
+                  "text-color": "#ff9900",
+                },
+              },
+              "el-rate",
               _vm.$attrs,
               false
             ),
@@ -1745,77 +1815,7 @@
       undefined
     );
 
-  //
   var script$j = {
-    mixins: [DyFormMixin]
-  };
-
-  /* script */
-  const __vue_script__$j = script$j;
-
-  /* template */
-  var __vue_render__$j = function () {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return _c(
-      "dy-item-wrap",
-      { attrs: { item: _vm.item } },
-      [
-        _c(
-          "el-rate",
-          _vm._g(
-            _vm._b(
-              {
-                attrs: {
-                  colors: ["#99A9BF", "#F7BA2A", "#FF9900"],
-                  "text-color": "#ff9900",
-                },
-              },
-              "el-rate",
-              _vm.$attrs,
-              false
-            ),
-            _vm.$listeners
-          )
-        ),
-      ],
-      1
-    )
-  };
-  var __vue_staticRenderFns__$j = [];
-  __vue_render__$j._withStripped = true;
-
-    /* style */
-    const __vue_inject_styles__$j = undefined;
-    /* scoped */
-    const __vue_scope_id__$j = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$j = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$j = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$j = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$j, staticRenderFns: __vue_staticRenderFns__$j },
-      __vue_inject_styles__$j,
-      __vue_script__$j,
-      __vue_scope_id__$j,
-      __vue_is_functional_template__$j,
-      __vue_module_identifier__$j,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  var script$i = {
     componentName: 'sfSelectWidget',
     mixins: [DyFormMixin, Emitter],
     created: function created() {
@@ -1949,10 +1949,10 @@
   };
 
   /* script */
-  const __vue_script__$i = script$i;
+  const __vue_script__$j = script$j;
 
   /* template */
-  var __vue_render__$i = function () {
+  var __vue_render__$j = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1993,6 +1993,87 @@
               key: o.id,
               attrs: { label: o.name, value: o.id, disabled: o.disabled },
             })
+          }),
+          1
+        ),
+      ],
+      1
+    )
+  };
+  var __vue_staticRenderFns__$j = [];
+  __vue_render__$j._withStripped = true;
+
+    /* style */
+    const __vue_inject_styles__$j = undefined;
+    /* scoped */
+    const __vue_scope_id__$j = undefined;
+    /* module identifier */
+    const __vue_module_identifier__$j = undefined;
+    /* functional template */
+    const __vue_is_functional_template__$j = false;
+    /* style inject */
+    
+    /* style inject SSR */
+    
+    /* style inject shadow dom */
+    
+
+    
+    const __vue_component__$j = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$j, staticRenderFns: __vue_staticRenderFns__$j },
+      __vue_inject_styles__$j,
+      __vue_script__$j,
+      __vue_scope_id__$j,
+      __vue_is_functional_template__$j,
+      __vue_module_identifier__$j,
+      false,
+      undefined,
+      undefined,
+      undefined
+    );
+
+  //
+  var script$i = {
+    mixins: [DyFormMixin]
+  };
+
+  /* script */
+  const __vue_script__$i = script$i;
+
+  /* template */
+  var __vue_render__$i = function () {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c(
+      "dy-item-wrap",
+      { attrs: { item: _vm.item } },
+      [
+        _c(
+          "el-radio-group",
+          _vm._g(
+            _vm._b(
+              { attrs: { disabled: _vm.item.disabled } },
+              "el-radio-group",
+              _vm.$attrs,
+              false
+            ),
+            _vm.$listeners
+          ),
+          _vm._l(_vm.item.options, function (o) {
+            return _c(
+              _vm.item.button ? "el-radio-button" : "el-radio",
+              {
+                key: o.value,
+                tag: "component",
+                attrs: {
+                  label: o.value,
+                  disabled: o.disabled,
+                  border: _vm.item.border,
+                },
+              },
+              [_vm._v(_vm._s(o.label))]
+            )
           }),
           1
         ),
@@ -2050,25 +2131,20 @@
       { attrs: { item: _vm.item } },
       [
         _c(
-          "el-radio-group",
+          "el-checkbox-group",
           _vm._g(
-            _vm._b(
-              { attrs: { disabled: _vm.item.disabled } },
-              "el-radio-group",
-              _vm.$attrs,
-              false
-            ),
+            _vm._b({}, "el-checkbox-group", _vm.$attrs, false),
             _vm.$listeners
           ),
           _vm._l(_vm.item.options, function (o) {
             return _c(
-              _vm.item.button ? "el-radio-button" : "el-radio",
+              _vm.item.button ? "el-checkbox-button" : "el-checkbox",
               {
                 key: o.value,
                 tag: "component",
                 attrs: {
-                  label: o.value,
                   disabled: o.disabled,
+                  label: o.value,
                   border: _vm.item.border,
                 },
               },
@@ -2115,82 +2191,6 @@
 
   //
   var script$g = {
-    mixins: [DyFormMixin]
-  };
-
-  /* script */
-  const __vue_script__$g = script$g;
-
-  /* template */
-  var __vue_render__$g = function () {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return _c(
-      "dy-item-wrap",
-      { attrs: { item: _vm.item } },
-      [
-        _c(
-          "el-checkbox-group",
-          _vm._g(
-            _vm._b({}, "el-checkbox-group", _vm.$attrs, false),
-            _vm.$listeners
-          ),
-          _vm._l(_vm.item.options, function (o) {
-            return _c(
-              _vm.item.button ? "el-checkbox-button" : "el-checkbox",
-              {
-                key: o.value,
-                tag: "component",
-                attrs: {
-                  disabled: o.disabled,
-                  label: o.value,
-                  border: _vm.item.border,
-                },
-              },
-              [_vm._v(_vm._s(o.label))]
-            )
-          }),
-          1
-        ),
-      ],
-      1
-    )
-  };
-  var __vue_staticRenderFns__$g = [];
-  __vue_render__$g._withStripped = true;
-
-    /* style */
-    const __vue_inject_styles__$g = undefined;
-    /* scoped */
-    const __vue_scope_id__$g = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$g = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$g = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    const __vue_component__$g = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$g, staticRenderFns: __vue_staticRenderFns__$g },
-      __vue_inject_styles__$g,
-      __vue_script__$g,
-      __vue_scope_id__$g,
-      __vue_is_functional_template__$g,
-      __vue_module_identifier__$g,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-  var script$f = {
     componentName: 'sfCascaderWidget',
     mixins: [DyFormMixin],
     watch: {
@@ -2246,10 +2246,10 @@
   };
 
   /* script */
-  const __vue_script__$f = script$f;
+  const __vue_script__$g = script$g;
 
   /* template */
-  var __vue_render__$f = function () {
+  var __vue_render__$g = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -2286,17 +2286,17 @@
       1
     )
   };
-  var __vue_staticRenderFns__$f = [];
-  __vue_render__$f._withStripped = true;
+  var __vue_staticRenderFns__$g = [];
+  __vue_render__$g._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$f = undefined;
+    const __vue_inject_styles__$g = undefined;
     /* scoped */
-    const __vue_scope_id__$f = undefined;
+    const __vue_scope_id__$g = undefined;
     /* module identifier */
-    const __vue_module_identifier__$f = undefined;
+    const __vue_module_identifier__$g = undefined;
     /* functional template */
-    const __vue_is_functional_template__$f = false;
+    const __vue_is_functional_template__$g = false;
     /* style inject */
     
     /* style inject SSR */
@@ -2305,13 +2305,13 @@
     
 
     
-    const __vue_component__$f = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$f, staticRenderFns: __vue_staticRenderFns__$f },
-      __vue_inject_styles__$f,
-      __vue_script__$f,
-      __vue_scope_id__$f,
-      __vue_is_functional_template__$f,
-      __vue_module_identifier__$f,
+    const __vue_component__$g = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$g, staticRenderFns: __vue_staticRenderFns__$g },
+      __vue_inject_styles__$g,
+      __vue_script__$g,
+      __vue_scope_id__$g,
+      __vue_is_functional_template__$g,
+      __vue_module_identifier__$g,
       false,
       undefined,
       undefined,
@@ -2319,15 +2319,15 @@
     );
 
   //
-  var script$e = {
+  var script$f = {
     mixins: [DyFormMixin]
   };
 
   /* script */
-  const __vue_script__$e = script$e;
+  const __vue_script__$f = script$f;
 
   /* template */
-  var __vue_render__$e = function () {
+  var __vue_render__$f = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -2360,17 +2360,17 @@
         )
       : _vm._e()
   };
-  var __vue_staticRenderFns__$e = [];
-  __vue_render__$e._withStripped = true;
+  var __vue_staticRenderFns__$f = [];
+  __vue_render__$f._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$e = undefined;
+    const __vue_inject_styles__$f = undefined;
     /* scoped */
-    const __vue_scope_id__$e = undefined;
+    const __vue_scope_id__$f = undefined;
     /* module identifier */
-    const __vue_module_identifier__$e = undefined;
+    const __vue_module_identifier__$f = undefined;
     /* functional template */
-    const __vue_is_functional_template__$e = false;
+    const __vue_is_functional_template__$f = false;
     /* style inject */
     
     /* style inject SSR */
@@ -2379,13 +2379,13 @@
     
 
     
-    const __vue_component__$e = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$e, staticRenderFns: __vue_staticRenderFns__$e },
-      __vue_inject_styles__$e,
-      __vue_script__$e,
-      __vue_scope_id__$e,
-      __vue_is_functional_template__$e,
-      __vue_module_identifier__$e,
+    const __vue_component__$f = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$f, staticRenderFns: __vue_staticRenderFns__$f },
+      __vue_inject_styles__$f,
+      __vue_script__$f,
+      __vue_scope_id__$f,
+      __vue_is_functional_template__$f,
+      __vue_module_identifier__$f,
       false,
       undefined,
       undefined,
@@ -2395,30 +2395,30 @@
   var register = {
     install: function install() {
       // 文本框
-      widgetRegistry.register('df-string', __vue_component__$q); // 数字输入框
+      widgetRegistry.register('df-string', __vue_component__$r); // 数字输入框
 
-      widgetRegistry.register('df-number', __vue_component__$m); // 日期范围
+      widgetRegistry.register('df-number', __vue_component__$n); // 日期范围
 
-      widgetRegistry.register('df-daterange', __vue_component__$p);
-      widgetRegistry.register('df-timerang', __vue_component__$o); // 日期
+      widgetRegistry.register('df-daterange', __vue_component__$q);
+      widgetRegistry.register('df-timerang', __vue_component__$p); // 日期
 
-      widgetRegistry.register('df-datetime', __vue_component__$n); // 开关
+      widgetRegistry.register('df-datetime', __vue_component__$o); // 开关
 
-      widgetRegistry.register('df-switch', __vue_component__$l); // 拖动条
+      widgetRegistry.register('df-switch', __vue_component__$m); // 拖动条
 
-      widgetRegistry.register('df-slider', __vue_component__$k); // 星打分
+      widgetRegistry.register('df-slider', __vue_component__$l); // 星打分
 
-      widgetRegistry.register('df-rate', __vue_component__$j); // 下拉框
+      widgetRegistry.register('df-rate', __vue_component__$k); // 下拉框
 
-      widgetRegistry.register('df-select', __vue_component__$i); // 单选框
+      widgetRegistry.register('df-select', __vue_component__$j); // 单选框
 
-      widgetRegistry.register('df-radio', __vue_component__$h); // 多选框
+      widgetRegistry.register('df-radio', __vue_component__$i); // 多选框
 
-      widgetRegistry.register('df-checkbox', __vue_component__$g); //多级联动
+      widgetRegistry.register('df-checkbox', __vue_component__$h); //多级联动
 
-      widgetRegistry.register('df-cascader', __vue_component__$f); //boolean
+      widgetRegistry.register('df-cascader', __vue_component__$g); //boolean
 
-      widgetRegistry.register('df-boolean', __vue_component__$e);
+      widgetRegistry.register('df-boolean', __vue_component__$f);
     }
   };
 
@@ -2428,7 +2428,6 @@
    * @param {boolean} immediate
    * @return {*}
    */
-
   function debounce(func, wait, immediate) {
     var timeout, args, context, timestamp, result;
 
@@ -2505,7 +2504,7 @@
     }
   }
 
-  var script$d = {
+  var script$e = {
     name: 'dynamic-table',
     props: {
       // 自定义类名
@@ -2982,10 +2981,10 @@
   };
 
   /* script */
-  const __vue_script__$d = script$d;
+  const __vue_script__$e = script$e;
 
   /* template */
-  var __vue_render__$d = function () {
+  var __vue_render__$e = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -3651,34 +3650,34 @@
       2
     )
   };
-  var __vue_staticRenderFns__$d = [];
-  __vue_render__$d._withStripped = true;
+  var __vue_staticRenderFns__$e = [];
+  __vue_render__$e._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$d = function (inject) {
+    const __vue_inject_styles__$e = function (inject) {
       if (!inject) return
       inject("data-v-1587315e_0", { source: ".page-table {\n  margin-top: 10px;\n}\n.page-table .popconfirm + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .el-button + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .popconfirm + .el-button {\n  margin-left: 10px;\n}\n.st__table .el-table__expanded-cell {\n  padding: 10px 50px;\n}\n.dy-table-popover {\n  display: block;\n  margin: auto;\n  width: 120px;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.pagination-flex {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\DynamicTable\\index.vue","index.vue"],"names":[],"mappings":"AAqlBA;EACA,gBAAA;ACplBA;ADslBA;EACA,iBAAA;ACplBA;ADslBA;EACA,iBAAA;ACplBA;ADslBA;EACA,iBAAA;ACplBA;ADwlBA;EACA,kBAAA;ACrlBA;ADulBA;EACA,cAAA;EACA,YAAA;EACA,YAAA;EACA,kBAAA;EACA,mBAAA;EACA,gBAAA;EACA,uBAAA;ACplBA;ADulBA;EACA,aAAA;EACA,8BAAA;EACA,mBAAA;ACplBA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <div class=\"page-table\" :class=\"className\">\r\n    <el-table\r\n      ref=\"elTable\"\r\n      v-loading=\"loading\"\r\n      class=\"st__table\"\r\n      stripe\r\n      v-bind=\"$attrs\"\r\n      style=\"width: 100%\"\r\n      :max-height=\"maxHeight\"\r\n      border\r\n      :data=\"data\"\r\n      :row-key=\"rowKey\"\r\n      :header-row-style=\"{ height: '50px', color: '#606266' }\"\r\n      v-on=\"$listeners\"\r\n    >\r\n      <!--多选-->\r\n      <el-table-column v-if=\"checkBox\" :key=\"'selection'\" type=\"selection\" width=\"55px\" v-bind=\"$attrs\" />\r\n      <!--单选-->\r\n      <el-table-column v-if=\"radioCheck\" label=\"选择\" width=\"55\" header-align=\"center\" align=\"center\" :fixed=\"columns.some((item) => item.fixed)\">\r\n        <template slot-scope=\"scope\">\r\n          <el-radio v-model=\"radio\" class=\"radio\" :label=\"scope.$index\"> &nbsp; </el-radio>\r\n        </template>\r\n      </el-table-column>\r\n      <!-- tabIndex -->\r\n      <el-table-column v-if=\"tabIndex\" :key=\"'index'\" align=\"center\" label=\"序号\" :width=\"columns.length === 0 ? '' : 80\" :fixed=\"columns.some((item) => item.fixed)\">\r\n        <template v-slot=\"scope\">\r\n          <slot v-if=\"tabIndexSlot\" name=\"sort-by-index\" :row=\"scope.row\" :$index=\"scope.$index\" />\r\n          <span v-else>{{ scope.$index + 1 }}</span>\r\n        </template>\r\n      </el-table-column>\r\n      <!-- handle -->\r\n      <el-table-column v-if=\"handle\" :key=\"'handle'\" :fixed=\"handle.fixed\" align=\"center\" :label=\"handle.label\" :width=\"handle.width\">\r\n        <template v-slot=\"scope\">\r\n          <template v-for=\"(item, index) in handle.btns || []\">\r\n            <!-- 自定义操作类型 -->\r\n            <slot v-if=\"item.slot\" :name=\"'bt-' + item.event\" :data=\"{ item, row: scope.row, $index: scope.$index }\" />\r\n            <!-- -->\r\n            <slot v-if=\"item.slot\" name=\"dy-query-btn\" :data=\"{ item, row: scope.row, $index: scope.$index }\" />\r\n            <!--  -->\r\n\r\n            <el-popconfirm\r\n              v-if=\"!item.slot && item.popconfirm && (!item.ifRender || item.ifRender(scope.row))\"\r\n              class=\"popconfirm\"\r\n              v-permission=\"item.permission\"\r\n              :key=\"index\"\r\n              :icon=\"item.icon\"\r\n              :title=\"item.popTitle || '确定删除吗？'\"\r\n              @confirm=\"handleClick(item.event, scope.row, scope.$index)\"\r\n            >\r\n              <el-button slot=\"reference\" size=\"mini\" :type=\"item.type\" :disabled=\"item.disabled\" :class=\"item.class\">\r\n                {{ item.label }}\r\n              </el-button>\r\n            </el-popconfirm>\r\n            <!--  -->\r\n            <el-button\r\n              v-if=\"!item.slot && !item.popconfirm && (!item.ifRender || item.ifRender(scope.row))\"\r\n              v-permission=\"item.permission\"\r\n              :key=\"index\"\r\n              size=\"mini\"\r\n              :type=\"item.type\"\r\n              :icon=\"item.icon\"\r\n              :disabled=\"item.disabled\"\r\n              :class=\"item.class\"\r\n              @click.stop=\"handleClick(item.event, scope.row, scope.$index)\"\r\n            >\r\n              {{ item.label }}\r\n            </el-button>\r\n          </template>\r\n        </template>\r\n      </el-table-column>\r\n      <el-table-column\r\n        v-for=\"item in columns.filter((item) => !item.hidden)\"\r\n        :key=\"item.label\"\r\n        header-align=\"center\"\r\n        :prop=\"item.value\"\r\n        :label=\"item.label\"\r\n        :fixed=\"item.fixed\"\r\n        :align=\"item.align || 'center'\"\r\n        :width=\"item.width\"\r\n        :min-width=\"item.minWidth || '100px'\"\r\n        :show-overflow-tooltip=\"item.showOverflowTooltip || false\"\r\n        :sortable=\"item.sortable || false\"\r\n      >\r\n        <!-- header 自定义气泡 -->\r\n        <template slot=\"header\">\r\n          <template v-if=\"item.headerType === 'slot'\">\r\n            <slot :name=\"'header-' + item.value\" :item=\"item\" />\r\n            <slot name=\"dy-query-header\" :data=\"{ item: item }\" />\r\n          </template>\r\n          <el-popover v-else-if=\"item.header_bubble\" trigger=\"hover\" placement=\"top\" :width=\"300\">\r\n            <span slot=\"reference\">\r\n              {{ item.label }}\r\n              <i class=\"el-icon-warning\"></i>\r\n            </span>\r\n            <span>{{ item.header_bubble_text }}</span>\r\n          </el-popover>\r\n          <template v-else>{{ item.label }}</template>\r\n        </template>\r\n        <!-- col -->\r\n        <template #default=\"scope\">\r\n          <!-- 父级指定模板 自定义 -->\r\n          <template v-if=\"item.type === 'slot'\">\r\n            <slot :name=\"'col-' + item.value\" :row=\"scope.row\" :item=\"item\" :$index=\"scope.$index\" />\r\n            <slot name=\"dy-query-col\" :data=\"{ row: scope.row, item: item, $index: scope.$index }\" />\r\n          </template>\r\n          <!-- pipe -->\r\n          <span v-else-if=\"item.type === 'pipe'\" :style=\"calcuRowColor(item.color)\">\r\n            {{ $options.filters[item.pipe](scope.row[item.value], item.pipeArg || '') }}\r\n          </span>\r\n          <!-- popover-->\r\n          <el-popover v-else-if=\"item.type === 'popover'\" trigger=\"hover\" placement=\"top\">\r\n            <p class=\"text-c\">{{ scope.row[item.value] }}</p>\r\n            <span slot=\"reference\" class=\"dy-table-popover\">\r\n              {{ scope.row[item.value] }}\r\n            </span>\r\n          </el-popover>\r\n          <!-- image -->\r\n          <el-image\r\n            v-else-if=\"item.type === 'image' && scope.row[item.value]\"\r\n            fit=\"contain\"\r\n            style=\"width: 60px; height: 60px\"\r\n            :src=\"formatImg(scope.row[item.value])\"\r\n            :preview-src-list=\"[scope.row[item.value]]\"\r\n          />\r\n          <!-- tag -->\r\n          <el-tag v-else-if=\"item.type === 'tag'\">\r\n            {{ scope.row[item.value] }}\r\n          </el-tag>\r\n          <!-- link -->\r\n          <el-link v-else-if=\"item.type === 'link'\" type=\"primary\" :href=\"scope.row[item.value]\" target=\"_blank\">\r\n            {{ scope.row[item.value] }}\r\n          </el-link>\r\n          <span v-else-if=\"item.type === 'id2name'\">\r\n            <el-tag v-if=\"item.subtype === 'tag'\" :type=\"item.tagType || ''\">\r\n              {{ scope.row[item.value + '_id2name'] }}\r\n            </el-tag>\r\n            <el-image\r\n              v-else-if=\"item.subtype === 'image' && scope.row[item.value + '_id2name']\"\r\n              fit=\"contain\"\r\n              style=\"width: 60px; height: 60px\"\r\n              :src=\"scope.row[item.value + '_id2name']\"\r\n              :preview-src-list=\"[scope.row[item.value + '_id2name']]\"\r\n            />\r\n            <template v-else>{{ scope.row[item.value + '_id2name'] }}</template>\r\n          </span>\r\n          <!-- time -->\r\n          <span v-else-if=\"item.type === 'time'\">\r\n            {{ scope.row[item.value] | parseTime }}\r\n          </span>\r\n          <!-- boolean -->\r\n          <span v-else-if=\"item.type === 'boolean'\" :style=\"calcuRowColor(item.color)\">\r\n            {{ scope.row[item.value] ? '是' : '否' }}\r\n          </span>\r\n          <!-- doubleClick -->\r\n          <div v-else-if=\"item.type === 'dbEdit'\" @dblclick=\"handleDbClick(scope.row, item)\">\r\n            <el-input v-if=\"!!scope.row.nameFlag\" v-focus v-model=\"scope.row[item.value]\" placeholder=\"请输入内容\" @blur=\"handleClick(item.value, scope.row, scope.$index)\"></el-input>\r\n            <span v-else>{{ scope.row[item.value] }}</span>\r\n          </div>\r\n          <!-- default -->\r\n          <span v-else :style=\"calcuRowColor(item.color)\">\r\n            {{ scope.row[item.value] }}\r\n          </span>\r\n        </template>\r\n      </el-table-column>\r\n    </el-table>\r\n    <!--  -->\r\n    <template v-if=\"pager\">\r\n      <div v-show=\"data.length\" style=\"margin-top: 20px\" :class=\"['text-c', paginationLeft ? 'pagination-flex' : '']\">\r\n        <slot name=\"pagination-left\"></slot>\r\n        <el-pagination\r\n          class=\"flex\"\r\n          :current-page.sync=\"pagerConfig.query.page\"\r\n          :page-size.sync=\"pagerConfig.query.size\"\r\n          layout=\"total,prev, pager, next, sizes, jumper\"\r\n          :total=\"pagerConfig.totalElements\"\r\n          :page-sizes=\"[10, 20, 50, 100]\"\r\n          @current-change=\"handleCurrentChange\"\r\n          @size-change=\"handleSizeChange\"\r\n        />\r\n      </div>\r\n    </template>\r\n  </div>\r\n</template>\r\n\r\n<script>\r\nimport { debounce, deepClone } from '@/utils/index'\r\nimport Sortable from 'sortablejs'\r\nimport async from 'async'\r\n// import request from '@/utils/request'\r\nimport { insertNodeAt, removeNode } from '@/utils/helper'\r\n// import Settings from '@/settings'\r\nimport Qs from 'qs'\r\n\r\nexport default {\r\n  name: 'dynamic-table',\r\n  props: {\r\n    // 自定义类名\r\n    className: {\r\n      type: String,\r\n      default: ''\r\n    },\r\n    // 表格字段配置\r\n    columns: {\r\n      type: Array,\r\n      default: () => []\r\n    },\r\n    // 列表数据\r\n    data: {\r\n      type: Array,\r\n      default: () => []\r\n    },\r\n    // 是否显示序号\r\n    tabIndex: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    // 是否有选择框\r\n    checkBox: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //是否单选radio\r\n    radioCheck: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    // 操作栏配置\r\n    handle: {\r\n      type: Object,\r\n      default: null\r\n    },\r\n    /** *分页 */\r\n    pager: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //格式化data\r\n    formatData: {\r\n      type: Function,\r\n      default: (v) => v\r\n    },\r\n    //行数据的 Key，用来优化 Table 的渲染；显示树形数据时，该属性是必填的。\r\n    rowKey: {\r\n      type: String,\r\n      default: 'id'\r\n    },\r\n    // 是否支持拖拽\r\n    draggable: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    // 限制表格高度\r\n    limitMaxHeight: {\r\n      type: Boolean,\r\n      default: true\r\n    },\r\n    pagination: {\r\n      type: Object,\r\n      default: () => ({})\r\n    },\r\n    // 默认init查询 当有校验条件时 必填等 默认查询\r\n    initQuery: {\r\n      type: Boolean,\r\n      default: true\r\n    },\r\n    requestOptions: {\r\n      type: Object,\r\n      default: null\r\n    },\r\n    initialFormValue: {\r\n      type: Function,\r\n      default: (v) => v\r\n    },\r\n    queryParams: {\r\n      type: Function,\r\n      default: (v) => v\r\n    },\r\n    tabIndexSlot: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //该表格数据是否是数据字典格式\r\n    dataIsDicType: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //缓存未筛选情况下totalElements总条数，在某种场景下，当有筛选情况时需要用到未筛选总条数\r\n    cacheTotal: {\r\n      type: Boolean,\r\n      default: false\r\n    },\r\n    //配合cacheTotal\r\n    cacheKeys: {\r\n      type: Array,\r\n      default: () => []\r\n    },\r\n    //是否开启左边分页插槽\r\n    paginationLeft: {\r\n      type: Boolean,\r\n      default: false\r\n    }\r\n  },\r\n  data() {\r\n    return {\r\n      loading: false,\r\n      TIMES: 0,\r\n      radio: null,\r\n      maxHeight: null,\r\n      pagerConfig: {\r\n        _totalElements: 0, //未筛选情况下的总条数，需要做缓存\r\n        totalElements: 0, // 总条数\r\n        //pageSizes: [10, 20, 50, 100], // 分页数量列表\r\n        query: {\r\n          // 查询条件\r\n          page: 1, // 当前页\r\n          size: 10 // 每页条数\r\n        }\r\n      }\r\n    }\r\n  },\r\n  computed: {\r\n    data_length() {\r\n      return this.data.length\r\n    }\r\n  },\r\n  watch: {\r\n    // 'data.length': {\r\n    //   handler(newVal, oldVal) {\r\n    // if (this.draggable && newVal !== oldVal) {\r\n    // if (this.draggable) {\r\n    //   this.$nextTick(() => {\r\n    //     this.setSort()\r\n    //   })\r\n    // }\r\n    // if (newVal) {\r\n    //   const _data = this.formatData(this.data)\r\n    //   this.batchId2nameForTableData(_data, this.columns, false, (data) => {\r\n    //     this.afterUpdateTableData()\r\n    //   })\r\n    //   this.$refs.elTable && this.$refs.elTable.doLayout()\r\n    // }\r\n    //   },\r\n    //   immediate: true,\r\n    //   deep: false,\r\n    // },\r\n    // draggable(value) {\r\n    //   if (!value) {\r\n    //     return this.sortable.destroy()\r\n    //   }\r\n    //   return value && this.data.length && this.setSort()\r\n    // },\r\n  },\r\n  mounted() {\r\n    if (this.limitMaxHeight) {\r\n      this.calculateMaxHeight()\r\n      this.__resizeHandler = debounce(this.calculateMaxHeight, 100)\r\n      window.addEventListener('resize', this.__resizeHandler)\r\n    }\r\n    this.initQuery && this.query()\r\n    this.draggable && this.setSort()\r\n  },\r\n  beforeDestroy() {\r\n    this.$emit('update:data', [])\r\n    this.limitMaxHeight && window.removeEventListener('resize', this.__resizeHandler)\r\n  },\r\n  updated() {\r\n    this.batchId2nameForTableData(this.data, this.columns, false)\r\n  },\r\n  methods: {\r\n    handleSizeChange(val) {\r\n      this.pagerConfig.query.size = val // 每页条数\r\n      this.pagerConfig.query.page = 1 // 每页条数切换，重置当前页\r\n      this.query()\r\n    },\r\n    reset() {\r\n      this.pagerConfig.query.page = 1\r\n      this.query()\r\n    },\r\n    query() {\r\n      if (!this.requestOptions) {\r\n        return false\r\n      }\r\n      this.loading = true\r\n      let { url, method, params = {}, baseURL,withCredentials=true } = this.requestOptions\r\n      const { page, size } = this.pagerConfig.query\r\n      const reqParams = this.handleParams(this.initialFormValue())\r\n      // debugger\r\n      const reqData = Object.assign({}, reqParams, {\r\n        ...params\r\n      })\r\n      if (this.pager) {\r\n        reqData['page'] = page - 1\r\n        reqData['size'] = size\r\n      }\r\n      const dataKey = method && method.toLowerCase() == 'get' ? 'params' : 'data'\r\n      window.request({\r\n        baseURL,\r\n        url,\r\n        method,\r\n        withCredentials,\r\n        [dataKey]: reqData,\r\n        paramsSerializer: function (params) {\r\n          return Qs.stringify(params, {\r\n            arrayFormat: 'indices',\r\n            allowDots: true\r\n          })\r\n        }\r\n      })\r\n        .then((data) => {\r\n          let { content, totalElements } = this.dataIsDicType\r\n            ? {\r\n                content: data,\r\n                totalElements: 0\r\n              }\r\n            : data\r\n\r\n          if (this.cacheTotal) {\r\n            let status = this.cacheKeys.every((item) => reqData[item.key] == item.init)\r\n            if (status) {\r\n              this.pagerConfig._totalElements = totalElements\r\n            }\r\n          }\r\n\r\n          this.$emit('update:data', this.formatData(content))\r\n\r\n          if (this.pager && totalElements > 0) {\r\n            this.pagerConfig.totalElements = totalElements\r\n            //this.pagerConfig.query.page++\r\n          }\r\n        })\r\n        .finally(() => {\r\n          this.loading = false\r\n        })\r\n    },\r\n    calculateMaxHeight() {\r\n      this.maxHeight = (document.body.clientHeight || document.documentElement.clientHeight) - 80 - 52 - 50\r\n      this.$nextTick(() => {\r\n        this.$refs.elTable && this.$refs.elTable.doLayout()\r\n      })\r\n    },\r\n    // 派发按钮点击事件\r\n    handleClick(event, row, $index) {\r\n      let name = ''\r\n      if (row.nameFlag) {\r\n        name = row.nameFlag\r\n        row.nameFlag = ''\r\n        if (name == row.name) return false\r\n      }\r\n      this.$emit('handleClick', event, row, $index)\r\n    },\r\n    // 跳转某一页\r\n    handleCurrentChange(val) {\r\n      this.pagerConfig.query.page = val // 当前页\r\n      this.query()\r\n    },\r\n    // 为default-row添加色值\r\n    calcuRowColor(colorType) {\r\n      const colrMap = {\r\n        success: '#67C23A',\r\n        warning: '#E6A23C',\r\n        danger: '#F56C6C',\r\n        theme: '#FF4240'\r\n      }\r\n      return { color: colrMap[colorType] || 'inherit' }\r\n    },\r\n    // draggable\r\n    setSort() {\r\n      const _self = this\r\n      const el = this.$refs.elTable.$el.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]\r\n      this.sortable = Sortable.create(el, {\r\n        ghostClass: 'sortable-ghost',\r\n        sort: true,\r\n        setData: function (dataTransfer) {\r\n          //console.log(dataTransfer)\r\n          dataTransfer.setData('Text', '')\r\n        },\r\n        onUpdate: function (/**Event*/ evt) {\r\n          // same properties as onEnd\r\n          console.log(evt)\r\n          removeNode(evt.item)\r\n          insertNodeAt(evt.from, evt.item, evt.oldIndex)\r\n          const updatePosition = (list) => list.splice(evt.newIndex, 0, list.splice(evt.oldIndex, 1)[0])\r\n          const newList = [..._self.data]\r\n          const oldRow = newList[evt.oldIndex]\r\n          const targetRow = newList[evt.newIndex]\r\n          updatePosition(newList)\r\n          console.log(newList)\r\n          _self.$emit('update:data', newList)\r\n          _self.$emit('onSort', oldRow, targetRow)\r\n        },\r\n        onEnd: (evt) => {\r\n          console.log(evt)\r\n          // if (this.tabIndexSlot) {\r\n          //   console.log(evt)\r\n          //   //this.$emit('onSort', evt.oldIndex, evt.newIndex)\r\n          // } else {\r\n          //   const temp = this.data.slice()\r\n          //   const targetRow = temp.splice(evt.oldIndex, 1)[0]\r\n          //   temp.splice(evt.newIndex, 0, targetRow)\r\n          //   this.$emit('onSort', temp)\r\n          // }\r\n          // this.$nextTick(() => {\r\n          //   //this.$set(this.data, 0, targetRow)\r\n          //   this.$emit('update:data', temp)\r\n          // })\r\n          //this.$set(this.data,evt.newIndex, )\r\n          // const targetRow = this.data.splice(evt.oldIndex, 1)[0]\r\n          // this.data.splice(evt.newIndex, 0, targetRow)\r\n          // const temp = JSON.parse(JSON.stringify(this.data))\r\n          // const targetRow = temp.splice(evt.oldIndex, 1)[0]\r\n          // temp.splice(evt.newIndex, 0, targetRow)\r\n          // this.$emit('onSort', temp)\r\n          //const targetRow = this.data.splice(evt.oldIndex, 1)[0]\r\n          //this.data.splice(evt.newIndex, 0, targetRow)\r\n          //this.$refs.elTable.doLayout()\r\n          // const temp = this.data.slice()\r\n          // const targetRow = temp.splice(evt.oldIndex, 1)[0]\r\n          // temp.splice(evt.newIndex, 0, targetRow)\r\n          // this.$emit('onSort', temp)\r\n        }\r\n      })\r\n    },\r\n    etVmIndex(domIndex) {\r\n      const indexes = this.visibleIndexes\r\n      const numberIndexes = indexes.length\r\n      return domIndex > numberIndexes - 1 ? numberIndexes : indexes[domIndex]\r\n    },\r\n    batchId2nameForTableData(tableData, columns, forExcel, cb) {\r\n      const _tableData = forExcel ? deepClone(tableData) : tableData // 导出的 直接赋值\r\n      const id2name_items = columns\r\n        .map((item) => {\r\n          if (item.type === 'id2name') {\r\n            return {\r\n              rowKey: item.value,\r\n              id2name_code: item.id2name_code,\r\n              instance: item.instance\r\n            }\r\n          }\r\n          return null\r\n        })\r\n        .filter(Boolean)\r\n      const tasks = []\r\n      id2name_items.forEach((obj) => {\r\n        const { rowKey, id2name_code, instance } = obj\r\n        const options = instance ? this[id2name_code] : this.$store.getters.enums[id2name_code]\r\n        if (options && Array.isArray(options)) {\r\n          for (const rows of _tableData) {\r\n            const row = rows[rowKey]\r\n            if (Array.isArray(row)) {\r\n              const arr = row.filter((v) => {\r\n                const obj = options.find((o) => o.id === v)\r\n                return obj && obj.name\r\n              })\r\n              arr.length > 0 && this.$set(rows, rowKey + '_id2name', arr.join(','))\r\n            } else {\r\n              const obj = options.find((o) => {\r\n                return o.id === row\r\n              })\r\n              obj && this.$set(rows, rowKey + '_id2name', obj.name)\r\n            }\r\n          }\r\n        }\r\n        typeof cb === 'function' && cb(null)\r\n      })\r\n      async.parallel(tasks, () => {\r\n        //console.log(err)\r\n        typeof cb === 'function' && cb(_tableData)\r\n      })\r\n    },\r\n    afterUpdateTableData() {\r\n      //hack  alreadyCheckedList\r\n      console.log('afterUpdateTableData')\r\n      this.draggable &&\r\n        this.$nextTick(() => {\r\n          this.setSort()\r\n        })\r\n    },\r\n    handleParams(initialVal) {\r\n      return Object.assign({}, initialVal, this.queryParams())\r\n    },\r\n    handleDbClick(row, item) {\r\n      if (item.permission && !this.$hasPermission(item.permission)) return false\r\n      if (!item.ifEdit || item.ifEdit(row)) {\r\n        this.$set(row, 'nameFlag', item.value)\r\n      }\r\n    },\r\n    formatImg(url) {\r\n      let index = url.lastIndexOf('.')\r\n      let ext = url.substr(index + 1)\r\n      return window.Settings.qiniuNotSupportExt.includes(ext) ? url : url + '?imageView2/1/w/60/h/60'\r\n    }\r\n  }\r\n}\r\n</script>\r\n\r\n<style lang=\"scss\">\r\n.page-table {\r\n  margin-top: 10px;\r\n\r\n  .popconfirm + .popconfirm {\r\n    margin-left: 10px;\r\n  }\r\n  .el-button + .popconfirm {\r\n    margin-left: 10px;\r\n  }\r\n  .popconfirm + .el-button {\r\n    margin-left: 10px;\r\n  }\r\n}\r\n\r\n.st__table .el-table__expanded-cell {\r\n  padding: 10px 50px;\r\n}\r\n.dy-table-popover {\r\n  display: block;\r\n  margin: auto;\r\n  width: 120px;\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n}\r\n\r\n.pagination-flex {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n}\r\n</style>\r\n",".page-table {\n  margin-top: 10px;\n}\n.page-table .popconfirm + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .el-button + .popconfirm {\n  margin-left: 10px;\n}\n.page-table .popconfirm + .el-button {\n  margin-left: 10px;\n}\n\n.st__table .el-table__expanded-cell {\n  padding: 10px 50px;\n}\n\n.dy-table-popover {\n  display: block;\n  margin: auto;\n  width: 120px;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.pagination-flex {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$d = undefined;
+    const __vue_scope_id__$e = undefined;
     /* module identifier */
-    const __vue_module_identifier__$d = undefined;
+    const __vue_module_identifier__$e = undefined;
     /* functional template */
-    const __vue_is_functional_template__$d = false;
+    const __vue_is_functional_template__$e = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$d = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$d, staticRenderFns: __vue_staticRenderFns__$d },
-      __vue_inject_styles__$d,
-      __vue_script__$d,
-      __vue_scope_id__$d,
-      __vue_is_functional_template__$d,
-      __vue_module_identifier__$d,
+    const __vue_component__$e = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$e, staticRenderFns: __vue_staticRenderFns__$e },
+      __vue_inject_styles__$e,
+      __vue_script__$e,
+      __vue_scope_id__$e,
+      __vue_is_functional_template__$e,
+      __vue_module_identifier__$e,
       false,
       createInjector,
       undefined,
@@ -3780,7 +3779,7 @@
   //
   //
   // import { isLegalKey } from '@/utils/index'
-  var script$c = {
+  var script$d = {
     name: 'dynamic-page',
     props: {
       pageConfig: {
@@ -3988,10 +3987,10 @@
   };
 
   /* script */
-  const __vue_script__$c = script$c;
+  const __vue_script__$d = script$d;
 
   /* template */
-  var __vue_render__$c = function () {
+  var __vue_render__$d = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -4177,34 +4176,34 @@
       2
     )
   };
-  var __vue_staticRenderFns__$c = [];
-  __vue_render__$c._withStripped = true;
+  var __vue_staticRenderFns__$d = [];
+  __vue_render__$d._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$c = function (inject) {
+    const __vue_inject_styles__$d = function (inject) {
       if (!inject) return
       inject("data-v-5e9e5b89_0", { source: ".dynamic-query-container[data-v-5e9e5b89] {\n  padding: 20px;\n  height: 100%;\n  overflow-y: auto;\n}\n.page-table .el-table__body-wrapper[data-v-5e9e5b89] {\n  min-height: 600px;\n}\n.mt0[data-v-5e9e5b89] {\n  margin-top: 0;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\DynamicPage\\index.vue","index.vue"],"names":[],"mappings":"AA8QA;EACA,aAAA;EACA,YAAA;EACA,gBAAA;AC7QA;AD+QA;EACA,iBAAA;AC5QA;AD8QA;EACA,aAAA;AC3QA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <div class=\"dynamic-query-container\">\r\n    <slot name=\"dy-query-top\" />\r\n    <dynamic-form\r\n      v-if=\"formSchema.formItemList && formSchema.formItemList.length\"\r\n      ref=\"sf\"\r\n      v-model=\"form\"\r\n      :form-config=\"formSchema\"\r\n      @change=\"handleChange(arguments)\"\r\n      @submit=\"sfSubmit($event)\"\r\n      @reset=\"reset($event)\"\r\n    >\r\n      <template slot=\"sf-btns\">\r\n        <slot name=\"dy-query-sf-btns\" />\r\n      </template>\r\n\r\n      <!-- 自定义 form 查询选项 -->\r\n      <template slot=\"custom-form\">\r\n        <slot name=\"dy-query-custom-form\"></slot>\r\n      </template>\r\n    </dynamic-form>\r\n    <el-form v-if=\"$slots['dy-query-middle']\">\r\n      <el-form-item>\r\n        <slot name=\"dy-query-middle\" />\r\n      </el-form-item>\r\n    </el-form>\r\n    <dynamic-table\r\n      v-if=\"tableSchema.columns && tableSchema.columns.length\"\r\n      ref=\"st\"\r\n      v-bind=\"$attrs\"\r\n      :columns=\"tableSchema.columns\"\r\n      :expand-columns=\"tableSchema.expandColumns\"\r\n      :expand-handle=\"tableSchema.expandHandle\"\r\n      :check-box=\"tableSchema.checkBox\"\r\n      :record-view=\"tableSchema.recordView\"\r\n      :selected-record-count=\"checkList.length\"\r\n      :record-view-schema=\"!!recordViewSchema\"\r\n      :row-key=\"tableSchema.rowKey\"\r\n      :radio-check=\"tableSchema.radioCheck\"\r\n      :tab-index=\"tableSchema.tabIndex\"\r\n      :data.sync=\"tableSchema.data\"\r\n      :format-data=\"tableSchema.formatData\"\r\n      :handle=\"tableSchema.handle\"\r\n      :pager=\"tableSchema.pager\"\r\n      :request-options=\"requestOptions\"\r\n      :query-params=\"formatedFormValue\"\r\n      :already-checked-list=\"tableSchema.alreadyCheckedList\"\r\n      :initial-form-value=\"initialFormValue\"\r\n      :height=\"tableSchema.height\"\r\n      :limit-max-height=\"tableSchema.limitMaxHeight\"\r\n      :draggable=\"tableSchema.draggable\"\r\n      :export-excel=\"tableSchema.exportExcel\"\r\n      :class=\"{ mt0: !(formSchema.formItemList && formSchema.formItemList.length) }\"\r\n      :span-method=\"tableSchema.spanMethod\"\r\n      :selectable=\"tableSchema.selectable\"\r\n      :init-query=\"tableSchema.initQuery\"\r\n      :pipe=\"tableSchema.pipe\"\r\n      :tab-index-slot=\"tableSchema.tabIndexSlot\"\r\n      :reserve-selection=\"!!tableSchema.reserveSelection\"\r\n      :cacheTotal=\"tableSchema.cacheTotal\"\r\n      :cacheKeys=\"tableSchema.cacheKeys\"\r\n      :paginationLeft=\"tableSchema.paginationLeft\"\r\n      @handleEvent=\"handleEvent\"\r\n      @viewSelectedRows=\"viewSelectedRows\"\r\n      v-on=\"$listeners\"\r\n    >\r\n      <!-- 接受自定义header-xxx -->\r\n      <template #dy-query-header=\"{ data: scope }\">\r\n        <slot :name=\"'header-' + scope.item.value\" :row=\"scope.item\" />\r\n      </template>\r\n\r\n      <!-- 接受自定义col-xxx -->\r\n      <template #dy-query-col=\"{ data: scope }\">\r\n        <slot :name=\"'col-' + scope.item.value\" :row=\"scope.row\" :index=\"scope.$index\"/>\r\n      </template>\r\n\r\n      <!-- 接受自定义 btns -->\r\n      <template #dy-query-btn=\"{ data: scope }\">\r\n        <slot :name=\"'bt-' + scope.item.event\" :data=\"scope\" />\r\n      </template>\r\n\r\n      <!-- 接受自定义 index -->\r\n      <template #sort-by-index=\"{ row, $index }\">\r\n        <slot name=\"sort-by-index\" :row=\"row\" :$index=\"$index\" />\r\n      </template>\r\n\r\n      <template #pagination-left>\r\n        <slot name=\"pagination-left\"></slot>\r\n      </template>\r\n    </dynamic-table>\r\n    <el-backtop target=\".app-main\"></el-backtop>\r\n  </div>\r\n</template>\r\n\r\n<script>\r\n// import { isLegalKey } from '@/utils/index'\r\n\r\nexport default {\r\n  name: 'dynamic-page',\r\n  props: {\r\n    pageConfig: {\r\n      type: Object,\r\n      default: () => ({})\r\n    },\r\n    isCustomSubmit: {\r\n      type: Boolean,\r\n      default: false\r\n    }\r\n  },\r\n  data() {\r\n    return {\r\n      form: {},\r\n      checkList: [], //多选行\r\n      currentRow: [] //单选行\r\n    }\r\n  },\r\n  computed: {\r\n    formSchema() {\r\n      return this.pageConfig.formSchema || { formItemList: [] }\r\n    },\r\n    tableSchema() {\r\n      return this.pageConfig.tableSchema || {}\r\n    },\r\n    requestOptions() {\r\n      return this.pageConfig.requestOptions || {}\r\n    },\r\n    recordViewSchema() {\r\n      return this.pageConfig.recordViewSchema || null\r\n    }\r\n  },\r\n  methods: {\r\n    //hack 第一次 请求带入初始参数\r\n    //场景 模态框query页面 有初始值. sf的初始化value 在st调用query之后\r\n    initialFormValue() {\r\n      const obj = {}\r\n      const { formItemList = [], formatFormValue = v => v } = this.formSchema\r\n      formItemList.forEach(item => {\r\n        const { key, value } = item\r\n        obj[key] = value\r\n      })\r\n      return formatFormValue(obj)\r\n      //return obj\r\n    },\r\n    formatedFormValue() {\r\n      const { formatFormValue = v => v } = this.formSchema\r\n      return formatFormValue(this.form)\r\n    },\r\n    // 表格拖拽排序事件\r\n    // onSort(data) {\r\n    //   // console.log('11', data)\r\n    //   this.$emit('onSort', data)\r\n    // },\r\n    //刷新 供调用(当前pageIndex)\r\n    refresh() {\r\n      this.$refs.st.query()\r\n    },\r\n    //handle sf submit\r\n    sfSubmit(value) {\r\n      console.log(value, 'hi')\r\n      this.$emit('submit', value)\r\n      if (!this.isCustomSubmit) {\r\n        this.$refs.st.reset()\r\n      }\r\n    },\r\n\r\n    //handle sf reset\r\n    reset() {\r\n      this.$nextTick(() => {\r\n        this.$refs.st.reset()\r\n      })\r\n    },\r\n    handleChange(value) {\r\n      this.$emit('change', value)\r\n    },\r\n    //st check\r\n    handleEvent(evtName, data, flag) {\r\n      switch (evtName) {\r\n        case 'singleSelectRow':\r\n          this.currentRow = [data]\r\n          break\r\n        case 'tableCheck':\r\n          this.checkList = data\r\n          break\r\n        case 'rowToggle':\r\n          this.handleRowToggle(data)\r\n          break\r\n        case 'allToggleInRecordView':\r\n          this.handleAllToggleInRecordView(data, flag)\r\n          break\r\n        default:\r\n          break\r\n      }\r\n    },\r\n    //recordView模式下，处理某一行选择\r\n    handleRowToggle(row) {\r\n      const rowKey = this.tableSchema.rowKey\r\n      const matchIndex = this.checkList.findIndex(item => item[rowKey] === row[rowKey])\r\n      if (matchIndex === -1) {\r\n        this.checkList.push(row)\r\n      } else {\r\n        this.checkList.splice(matchIndex, 1)\r\n      }\r\n    },\r\n    //recordView模式下，处理某一页全选\r\n    handleAllToggleInRecordView(selection, selected) {\r\n      const rowKey = this.tableSchema.rowKey\r\n      let matchIndex = -1\r\n      selection.forEach(row => {\r\n        matchIndex = this.checkList.findIndex(item => item[rowKey] === row[rowKey])\r\n        if (selected && matchIndex === -1) {\r\n          this.checkList.push(row)\r\n        }\r\n        if (!selected && matchIndex >= 0) {\r\n          this.checkList.splice(matchIndex, 1)\r\n        }\r\n      })\r\n    },\r\n    // tableSchema 跨分页  查看已选项\r\n    viewSelectedRows() {\r\n      const { checkList, recordViewSchema: shema } = this\r\n      if (!shema) {\r\n        return this.$message.error('没有配置可用的recordViewSchema')\r\n      }\r\n      shema.data = checkList.slice()\r\n      this.$createModalViewCheckedRows(shema, {\r\n        remove: this.remove,\r\n        batchRemove: this.batchRemove\r\n      })\r\n    },\r\n    remove(curRow) {\r\n      const rowKey = this.tableSchema.rowKey\r\n      //移除缓存中的curRow\r\n      const _index = this.checkList.findIndex(item => item[rowKey] === curRow[rowKey])\r\n      if (_index >= 0) {\r\n        this.checkList.splice(_index, 1)\r\n        this.changeRowCheckStatus(rowKey, curRow[rowKey])\r\n      }\r\n    },\r\n    batchRemove(selectRows) {\r\n      const list = this.checkList\r\n      const rowKey = this.tableSchema.rowKey\r\n\r\n      for (var j = selectRows.length - 1; j >= 0; j--) {\r\n        for (var i = list.length - 1; i >= 0; i--) {\r\n          if (selectRows[j][rowKey] === list[i][rowKey]) {\r\n            this.changeRowCheckStatus(rowKey, selectRows[j][rowKey])\r\n            list.splice(i, 1)\r\n          }\r\n        }\r\n      }\r\n    },\r\n    //当前st的data  匹配curRow行变更其选中状态   st.toggleRowSelection(row, selected)\r\n    //可能第一页curTableData不存在第二页的row.id\r\n    changeRowCheckStatus(rowKey, id) {\r\n      const elTable = this.elTable || this.$refs.st.$children[0]\r\n      const curTableData = elTable.data || []\r\n\r\n      const matchItem = curTableData.find(item => item[rowKey] === id)\r\n      matchItem && elTable && elTable.toggleRowSelection(matchItem, false)\r\n    },\r\n    getTotalElements(type) {\r\n      if (type === 'cache') {\r\n        return this.$refs.st.pagerConfig._totalElements\r\n      }\r\n      return this.$refs.st.pagerConfig.totalElements\r\n    }\r\n  }\r\n}\r\n</script>\r\n<style lang=\"scss\" scoped>\r\n.dynamic-query-container {\r\n  padding: 20px;\r\n  height: 100%;\r\n  overflow-y: auto;\r\n}\r\n.page-table .el-table__body-wrapper {\r\n  min-height: 600px;\r\n}\r\n.mt0 {\r\n  margin-top: 0;\r\n}\r\n</style>\r\n",".dynamic-query-container {\n  padding: 20px;\n  height: 100%;\n  overflow-y: auto;\n}\n\n.page-table .el-table__body-wrapper {\n  min-height: 600px;\n}\n\n.mt0 {\n  margin-top: 0;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$c = "data-v-5e9e5b89";
+    const __vue_scope_id__$d = "data-v-5e9e5b89";
     /* module identifier */
-    const __vue_module_identifier__$c = undefined;
+    const __vue_module_identifier__$d = undefined;
     /* functional template */
-    const __vue_is_functional_template__$c = false;
+    const __vue_is_functional_template__$d = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$c = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$c, staticRenderFns: __vue_staticRenderFns__$c },
-      __vue_inject_styles__$c,
-      __vue_script__$c,
-      __vue_scope_id__$c,
-      __vue_is_functional_template__$c,
-      __vue_module_identifier__$c,
+    const __vue_component__$d = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$d, staticRenderFns: __vue_staticRenderFns__$d },
+      __vue_inject_styles__$d,
+      __vue_script__$d,
+      __vue_scope_id__$d,
+      __vue_is_functional_template__$d,
+      __vue_module_identifier__$d,
       false,
       createInjector,
       undefined,
@@ -4219,7 +4218,7 @@
   //
   //
   //
-  var script$b = {
+  var script$c = {
     name: 'rr-checkbox',
     props: {
       options: {
@@ -4234,10 +4233,10 @@
   };
 
   /* script */
-  const __vue_script__$b = script$b;
+  const __vue_script__$c = script$c;
 
   /* template */
-  var __vue_render__$b = function () {
+  var __vue_render__$c = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -4252,17 +4251,17 @@
       1
     )
   };
-  var __vue_staticRenderFns__$b = [];
-  __vue_render__$b._withStripped = true;
+  var __vue_staticRenderFns__$c = [];
+  __vue_render__$c._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$b = undefined;
+    const __vue_inject_styles__$c = undefined;
     /* scoped */
-    const __vue_scope_id__$b = undefined;
+    const __vue_scope_id__$c = undefined;
     /* module identifier */
-    const __vue_module_identifier__$b = undefined;
+    const __vue_module_identifier__$c = undefined;
     /* functional template */
-    const __vue_is_functional_template__$b = false;
+    const __vue_is_functional_template__$c = false;
     /* style inject */
     
     /* style inject SSR */
@@ -4271,13 +4270,13 @@
     
 
     
-    const __vue_component__$b = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$b, staticRenderFns: __vue_staticRenderFns__$b },
-      __vue_inject_styles__$b,
-      __vue_script__$b,
-      __vue_scope_id__$b,
-      __vue_is_functional_template__$b,
-      __vue_module_identifier__$b,
+    const __vue_component__$c = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$c, staticRenderFns: __vue_staticRenderFns__$c },
+      __vue_inject_styles__$c,
+      __vue_script__$c,
+      __vue_scope_id__$c,
+      __vue_is_functional_template__$c,
+      __vue_module_identifier__$c,
       false,
       undefined,
       undefined,
@@ -4285,7 +4284,7 @@
     );
 
   //
-  var script$a = {
+  var script$b = {
     name: 'cropper-upload',
     props: {
       fixedNumber: {
@@ -4409,10 +4408,10 @@
   };
 
   /* script */
-  const __vue_script__$a = script$a;
+  const __vue_script__$b = script$b;
 
   /* template */
-  var __vue_render__$a = function () {
+  var __vue_render__$b = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -4586,34 +4585,34 @@
       1
     )
   };
-  var __vue_staticRenderFns__$a = [];
-  __vue_render__$a._withStripped = true;
+  var __vue_staticRenderFns__$b = [];
+  __vue_render__$b._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$a = function (inject) {
+    const __vue_inject_styles__$b = function (inject) {
       if (!inject) return
       inject("data-v-54dfb56a_0", { source: ".crop-container[data-v-54dfb56a] {\n  display: flex;\n  align-items: center;\n}\n.crop-box[data-v-54dfb56a] {\n  margin: 0 auto;\n  width: 700px;\n  height: 600px;\n}\n.crop-preview[data-v-54dfb56a] {\n  margin: auto;\n  border: 1px dotted #e4e4e4;\n  overflow: hidden;\n}\n.crop-action[data-v-54dfb56a] {\n  width: 100px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.el-button[data-v-54dfb56a] {\n  width: 98px;\n  margin-bottom: 20px;\n  margin-left: 10px;\n}\n\n/*# sourceMappingURL=cropper.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\UploadFile\\cropper.vue","cropper.vue"],"names":[],"mappings":"AAgIA;EACA,aAAA;EACA,mBAAA;AC/HA;ADkIA;EACA,cAAA;EACA,YAAA;EACA,aAAA;AC/HA;ADkIA;EACA,YAAA;EACA,0BAAA;EACA,gBAAA;AC/HA;ADkIA;EACA,YAAA;EACA,aAAA;EACA,sBAAA;EACA,mBAAA;AC/HA;ADkIA;EACA,WAAA;EACA,mBAAA;EACA,iBAAA;AC/HA;;AAEA,sCAAsC","file":"cropper.vue","sourcesContent":["<!--cropper.vue-->\r\n<template>\r\n  <div>\r\n    <el-dialog :visible.sync=\"visible\" :modal=\"false\" title=\"图片裁剪\" width=\"800px\" :close-on-press-escape=\"false\" :close-on-click-modal=\"false\" :show-close=\"false\">\r\n      <div class=\"crop-container\" v-show=\"!showPreview\">\r\n        <div class=\"crop-box\">\r\n          <vue-cropper ref=\"cropper\" :autoCrop=\"cropperOption.autoCrop\" :autoCropHeight=\"cropperOption.autoCropHeight\" :autoCropWidth=\"cropperOption.autoCropWidth\" :canMove=\"cropperOption.canMove\" :canMoveBox=\"cropperOption.canMoveBox\" :canScale=\"cropperOption.canScale\" :centerBox=\"cropperOption.centerBox\" :enlarge=\"cropperOption.enlarge\" :fixedBox=\"cropperOption.fixedBox\" :fixed=\"cropperOption.fixed\" :full=\"cropperOption.full\" :high=\"cropperOption.high\" :img=\"cropperOption.img\" :info=\"true\" :infoTrue=\"cropperOption.infoTrue\" :limitMinSize=\"cropperOption.limitMinSize\" :maxImgSize=\"cropperOption.maxImgSize\" :mode=\"cropperOption.mode\" :original=\"cropperOption.original\" :outputSize=\"cropperOption.size\" :outputType=\"cropperOption.outputType\" :fixedNumber=\"cropperOption.fixedNumber\" @cropMoving=\"onCropMoving\" @imgLoad=\"onImgLoad\" @realTime=\"onRealTime\" />\r\n        </div>\r\n        <div class=\"crop-action\">\r\n          <el-button @click=\"onConfirm\" type=\"primary\">确 定</el-button>\r\n          <el-button @click=\"showPreview = true\">预 览</el-button>\r\n          <el-button @click=\"onCancel\">取 消</el-button>\r\n        </div>\r\n      </div>\r\n      <div class=\"crop-container\" v-show=\"showPreview\">\r\n        <div :style=\"previews.div\" class=\"crop-preview\">\r\n          <img :src=\"previews.url\" :style=\"previews.img\" alt />\r\n        </div>\r\n        <div class=\"crop-action\">\r\n          <el-button @click=\"onConfirm\" type=\"primary\">确 定</el-button>\r\n          <el-button @click=\"showPreview = false\">取消预览</el-button>\r\n        </div>\r\n      </div>\r\n    </el-dialog>\r\n  </div>\r\n</template>\r\n\r\n<script>\r\nimport { VueCropper } from 'vue-cropper'\r\nexport default {\r\n  name: 'cropper-upload',\r\n  props: {\r\n    fixedNumber: {\r\n      type: Array,\r\n      default: () => [1, 1],\r\n    },\r\n  },\r\n  components: {\r\n    VueCropper,\r\n  },\r\n  data() {\r\n    return {\r\n      visible: false,\r\n      previews: {},\r\n      showPreview: false,\r\n      crap: false,\r\n      cropperOption: {\r\n        img: '',\r\n        size: 1, // 输出图片压缩比, 默认 1\r\n        fixedNumber: this.fixedNumber,\r\n        full: true, // 是否输出原图比例的截图\r\n        infoTrue: true, // 截图信息展示是否时真实的输出宽高\r\n        outputType: 'png',\r\n        canScale: false, // 是否开启滚轮缩放大小\r\n        canMove: false, // 能否拖动图片\r\n        canMoveBox: true, // 能否拖动截图框\r\n        fixed: true, // 固定宽高比\r\n        fixedBox: false, // 截图框固定大小\r\n        original: false, // 上传图片时，是否显示原始宽高\r\n        autoCrop: true, // 是否自动生成截图框\r\n        // 只有自动截图开启 宽度高度才生效\r\n        autoCropWidth: 200,\r\n        autoCropHeight: 200,\r\n        centerBox: true, // 截图框是否限制在图片里(只有在自动生成截图框时才生效)\r\n        high: false, // 是否根据 dpr 生成适合屏幕的高清图片\r\n        cropData: {},\r\n        enlarge: 1, // 按照截图框比例输出，默认 1\r\n        mode: 'contain', // 图片的默认渲染方式\r\n        maxImgSize: 2000, // 上传图片时图片最大大小(默认会压缩尺寸到这个大小)\r\n        limitMinSize: [200, 200], // 截图框最小限制\r\n        name: '',\r\n        type: '',\r\n      },\r\n    }\r\n  },\r\n  computed: {\r\n    cropper() {\r\n      return this.$refs.cropper\r\n    },\r\n  },\r\n  methods: {\r\n    show(file) {\r\n      console.log(file)\r\n      this.cropperOption.img = file.url\r\n      this.cropperOption.name = file.name\r\n      this.cropperOption.type = file.raw.type\r\n      this.$nextTick(() => {\r\n        this.visible = true\r\n      })\r\n    },\r\n    hide() {\r\n      this.visible = false\r\n    },\r\n    // 实时预览函数\r\n    // data 中保存了需要预览的样式及 url，直接用就行了\r\n    onRealTime(data) {\r\n      // console.log('onRealTime -> data', data);\r\n      this.previews = data\r\n    },\r\n    onImgLoad(msg) {\r\n      console.log('onImgLoad -> msg', msg)\r\n      // 图片加载完成后，获取图片的真实宽高\r\n      // 以最小的那个值作为裁剪框默认大小\r\n      const { trueWidth, trueHeight } = this.cropper\r\n      const width = Math.min(trueWidth, trueHeight)\r\n      this.cropperOption.autoCropWidth = width\r\n      this.cropperOption.autoCropHeight = width\r\n    },\r\n    onCropMoving(data) {\r\n      this.cropperOption.cropData = data\r\n    },\r\n    onConfirm() {\r\n      // 获取裁剪后的 blob 数据，传递到外部\r\n      this.$refs.cropper.getCropBlob((blob) => {\r\n        console.log('crop onConfirm -> blob', blob)\r\n        this.hide()\r\n        this.$emit('on-finish', blob, this.cropperOption)\r\n      })\r\n    },\r\n    onCancel() {\r\n      this.hide()\r\n      this.$emit('on-cancel', this.cropperOption)\r\n    },\r\n  },\r\n}\r\n</script>\r\n\r\n<style lang=\"scss\" scoped>\r\n.crop-container {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.crop-box {\r\n  margin: 0 auto;\r\n  width: 700px;\r\n  height: 600px;\r\n}\r\n\r\n.crop-preview {\r\n  margin: auto;\r\n  border: 1px dotted #e4e4e4;\r\n  overflow: hidden;\r\n}\r\n\r\n.crop-action {\r\n  width: 100px;\r\n  display: flex;\r\n  flex-direction: column;\r\n  align-items: center;\r\n}\r\n\r\n.el-button {\r\n  width: 98px;\r\n  margin-bottom: 20px;\r\n  margin-left: 10px;\r\n}\r\n</style>",".crop-container {\n  display: flex;\n  align-items: center;\n}\n\n.crop-box {\n  margin: 0 auto;\n  width: 700px;\n  height: 600px;\n}\n\n.crop-preview {\n  margin: auto;\n  border: 1px dotted #e4e4e4;\n  overflow: hidden;\n}\n\n.crop-action {\n  width: 100px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n\n.el-button {\n  width: 98px;\n  margin-bottom: 20px;\n  margin-left: 10px;\n}\n\n/*# sourceMappingURL=cropper.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$a = "data-v-54dfb56a";
+    const __vue_scope_id__$b = "data-v-54dfb56a";
     /* module identifier */
-    const __vue_module_identifier__$a = undefined;
+    const __vue_module_identifier__$b = undefined;
     /* functional template */
-    const __vue_is_functional_template__$a = false;
+    const __vue_is_functional_template__$b = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$a = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$a, staticRenderFns: __vue_staticRenderFns__$a },
-      __vue_inject_styles__$a,
-      __vue_script__$a,
-      __vue_scope_id__$a,
-      __vue_is_functional_template__$a,
-      __vue_module_identifier__$a,
+    const __vue_component__$b = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$b, staticRenderFns: __vue_staticRenderFns__$b },
+      __vue_inject_styles__$b,
+      __vue_script__$b,
+      __vue_scope_id__$b,
+      __vue_is_functional_template__$b,
+      __vue_module_identifier__$b,
       false,
       createInjector,
       undefined,
@@ -4715,10 +4714,10 @@
     return xhr;
   }
 
-  var script$9 = {
+  var script$a = {
     name: 'upload-file',
     components: {
-      Cropper: __vue_component__$a
+      Cropper: __vue_component__$b
     },
     props: {
       size: {
@@ -5005,10 +5004,10 @@
   };
 
   /* script */
-  const __vue_script__$9 = script$9;
+  const __vue_script__$a = script$a;
 
   /* template */
-  var __vue_render__$9 = function () {
+  var __vue_render__$a = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -5146,34 +5145,34 @@
       1
     )
   };
-  var __vue_staticRenderFns__$9 = [];
-  __vue_render__$9._withStripped = true;
+  var __vue_staticRenderFns__$a = [];
+  __vue_render__$a._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$9 = function (inject) {
+    const __vue_inject_styles__$a = function (inject) {
       if (!inject) return
       inject("data-v-67fa3442_0", { source: "\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["index.vue"],"names":[],"mappings":";;AAEA,oCAAoC","file":"index.vue","sourcesContent":["\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$9 = undefined;
+    const __vue_scope_id__$a = undefined;
     /* module identifier */
-    const __vue_module_identifier__$9 = undefined;
+    const __vue_module_identifier__$a = undefined;
     /* functional template */
-    const __vue_is_functional_template__$9 = false;
+    const __vue_is_functional_template__$a = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$9 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$9, staticRenderFns: __vue_staticRenderFns__$9 },
-      __vue_inject_styles__$9,
-      __vue_script__$9,
-      __vue_scope_id__$9,
-      __vue_is_functional_template__$9,
-      __vue_module_identifier__$9,
+    const __vue_component__$a = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$a, staticRenderFns: __vue_staticRenderFns__$a },
+      __vue_inject_styles__$a,
+      __vue_script__$a,
+      __vue_scope_id__$a,
+      __vue_is_functional_template__$a,
+      __vue_module_identifier__$a,
       false,
       createInjector,
       undefined,
@@ -5199,7 +5198,7 @@
   //
   //
   //
-  var script$8 = {
+  var script$9 = {
     name: 'rr-select',
     props: {
       options: {
@@ -5459,10 +5458,10 @@
   };
 
   /* script */
-  const __vue_script__$8 = script$8;
+  const __vue_script__$9 = script$9;
 
   /* template */
-  var __vue_render__$8 = function () {
+  var __vue_render__$9 = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -5539,17 +5538,17 @@
       1
     )
   };
-  var __vue_staticRenderFns__$8 = [];
-  __vue_render__$8._withStripped = true;
+  var __vue_staticRenderFns__$9 = [];
+  __vue_render__$9._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$8 = undefined;
+    const __vue_inject_styles__$9 = undefined;
     /* scoped */
-    const __vue_scope_id__$8 = undefined;
+    const __vue_scope_id__$9 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$8 = undefined;
+    const __vue_module_identifier__$9 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$8 = false;
+    const __vue_is_functional_template__$9 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -5558,13 +5557,13 @@
     
 
     
-    const __vue_component__$8 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
-      __vue_inject_styles__$8,
-      __vue_script__$8,
-      __vue_scope_id__$8,
-      __vue_is_functional_template__$8,
-      __vue_module_identifier__$8,
+    const __vue_component__$9 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$9, staticRenderFns: __vue_staticRenderFns__$9 },
+      __vue_inject_styles__$9,
+      __vue_script__$9,
+      __vue_scope_id__$9,
+      __vue_is_functional_template__$9,
+      __vue_module_identifier__$9,
       false,
       undefined,
       undefined,
@@ -5592,7 +5591,7 @@
   //
   //
   //
-  var script$7 = {
+  var script$8 = {
     name: 'template-dialog-wraper',
     props: {
       title: {
@@ -5612,10 +5611,10 @@
   };
 
   /* script */
-  const __vue_script__$7 = script$7;
+  const __vue_script__$8 = script$8;
 
   /* template */
-  var __vue_render__$7 = function () {
+  var __vue_render__$8 = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -5697,34 +5696,34 @@
       ]
     )
   };
-  var __vue_staticRenderFns__$7 = [];
-  __vue_render__$7._withStripped = true;
+  var __vue_staticRenderFns__$8 = [];
+  __vue_render__$8._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$7 = function (inject) {
+    const __vue_inject_styles__$8 = function (inject) {
       if (!inject) return
       inject("data-v-ddcf56d2_0", { source: ".the-height {\n  height: calc(100% - 120px);\n  position: relative;\n  overflow: auto;\n}\n\n/*# sourceMappingURL=TemplateDialogWraper.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\Dialog\\TemplateDialogWraper.vue","TemplateDialogWraper.vue"],"names":[],"mappings":"AA0CA;EACA,0BAAA;EACA,kBAAA;EACA,cAAA;ACzCA;;AAEA,mDAAmD","file":"TemplateDialogWraper.vue","sourcesContent":["<template>\r\n  <div style=\"height: 100%;\" class=\"el-dialog--center\">\r\n    <div class=\"el-dialog__header\">\r\n      <slot name=\"title\">\r\n        <span class=\"el-dialog__title\">{{ title }}</span>\r\n      </slot>\r\n      <button type=\"button\" class=\"el-dialog__headerbtn\" @click=\"$parent.$emit('close')\">\r\n        <i class=\"el-dialog__close el-icon el-icon-close\"></i>\r\n      </button>\r\n    </div>\r\n    <div class=\"the-height el-dialog__body\">\r\n      <slot></slot>\r\n    </div>\r\n    <div class=\"el-dialog__footer\">\r\n      <slot name=\"footer\">\r\n        <el-button @click=\"$parent.$emit('close')\">取 消</el-button>\r\n        <el-button type=\"primary\" @click=\"$emit('submit')\" :disabled=\"disabled\">确 定</el-button>\r\n      </slot>\r\n    </div>\r\n  </div>\r\n</template>\r\n<script>\r\nexport default {\r\n  name: 'template-dialog-wraper',\r\n  props: {\r\n    title: {\r\n      type: String,\r\n      default: '提示',\r\n    },\r\n    disabled: {\r\n      type: Boolean,\r\n      default: false,\r\n    }\r\n  },\r\n  data() {\r\n    return {}\r\n  },\r\n  created() { },\r\n  methods: {},\r\n}\r\n</script>\r\n<style lang=\"scss\">\r\n.the-height {\r\n  height: calc(100% - 120px);\r\n  position: relative;\r\n  overflow: auto;\r\n}\r\n</style>\r\n",".the-height {\n  height: calc(100% - 120px);\n  position: relative;\n  overflow: auto;\n}\n\n/*# sourceMappingURL=TemplateDialogWraper.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$7 = undefined;
+    const __vue_scope_id__$8 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$7 = undefined;
+    const __vue_module_identifier__$8 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$7 = false;
+    const __vue_is_functional_template__$8 = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$7 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
-      __vue_inject_styles__$7,
-      __vue_script__$7,
-      __vue_scope_id__$7,
-      __vue_is_functional_template__$7,
-      __vue_module_identifier__$7,
+    const __vue_component__$8 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
+      __vue_inject_styles__$8,
+      __vue_script__$8,
+      __vue_scope_id__$8,
+      __vue_is_functional_template__$8,
+      __vue_module_identifier__$8,
       false,
       createInjector,
       undefined,
@@ -5778,7 +5777,7 @@
     text: 'webpack',
     done: true
   }];
-  var script$6 = {
+  var script$7 = {
     name: 'rr-card',
     props: {
       todos: {
@@ -5813,10 +5812,10 @@
   };
 
   /* script */
-  const __vue_script__$6 = script$6;
+  const __vue_script__$7 = script$7;
 
   /* template */
-  var __vue_render__$6 = function () {
+  var __vue_render__$7 = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -5884,7 +5883,7 @@
       ),
     ])
   };
-  var __vue_staticRenderFns__$6 = [
+  var __vue_staticRenderFns__$7 = [
     function () {
       var _vm = this;
       var _h = _vm.$createElement;
@@ -5902,33 +5901,33 @@
       ])
     },
   ];
-  __vue_render__$6._withStripped = true;
+  __vue_render__$7._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$6 = function (inject) {
+    const __vue_inject_styles__$7 = function (inject) {
       if (!inject) return
       inject("data-v-2222209e_0", { source: "@charset \"UTF-8\";\n.todoapp {\n  font: 14px \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  line-height: 1.4em;\n  color: #4d4d4d;\n  min-width: 230px;\n  max-width: 550px;\n  margin: 0 auto;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  font-weight: 300;\n  background: #fff;\n  z-index: 1;\n  position: relative;\n  /*\n    Hack to remove background from Mobile Safari.\n    Can't use it globally since it destroys checkboxes in Firefox\n  */\n}\n.todoapp button {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  background: none;\n  font-size: 100%;\n  vertical-align: baseline;\n  font-family: inherit;\n  font-weight: inherit;\n  color: inherit;\n  -webkit-appearance: none;\n  appearance: none;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n.todoapp :focus {\n  outline: 0;\n}\n.todoapp .hidden {\n  display: none;\n}\n.todoapp .todoapp {\n  background: #fff;\n  margin: 130px 0 40px 0;\n  position: relative;\n  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);\n}\n.todoapp .todoapp input::-webkit-input-placeholder {\n  font-style: italic;\n  font-weight: 300;\n  color: #e6e6e6;\n}\n.todoapp .todoapp input::-moz-placeholder {\n  font-style: italic;\n  font-weight: 300;\n  color: #e6e6e6;\n}\n.todoapp .todoapp input::input-placeholder {\n  font-style: italic;\n  font-weight: 300;\n  color: #e6e6e6;\n}\n.todoapp .todoapp h1 {\n  position: absolute;\n  top: -155px;\n  width: 100%;\n  font-size: 100px;\n  font-weight: 100;\n  text-align: center;\n  color: rgba(175, 47, 47, 0.15);\n  -webkit-text-rendering: optimizeLegibility;\n  -moz-text-rendering: optimizeLegibility;\n  text-rendering: optimizeLegibility;\n}\n.todoapp .new-todo,\n.todoapp .edit {\n  position: relative;\n  margin: 0;\n  width: 100%;\n  font-size: 18px;\n  font-family: inherit;\n  font-weight: inherit;\n  line-height: 1.4em;\n  border: 0;\n  color: inherit;\n  padding: 6px;\n  border: 1px solid #999;\n  box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);\n  box-sizing: border-box;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n.todoapp .new-todo {\n  padding: 10px 16px 16px 60px;\n  border: none;\n  background: rgba(0, 0, 0, 0.003);\n  box-shadow: inset 0 -2px 1px rgba(0, 0, 0, 0.03);\n}\n.todoapp .main {\n  position: relative;\n  z-index: 2;\n  border-top: 1px solid #e6e6e6;\n}\n.todoapp .toggle-all {\n  text-align: center;\n  border: none;\n  /* Mobile Safari */\n  opacity: 0;\n  position: absolute;\n}\n.todoapp .toggle-all + label {\n  width: 60px;\n  height: 34px;\n  font-size: 0;\n  position: absolute;\n  top: -52px;\n  left: -13px;\n  -webkit-transform: rotate(90deg);\n  transform: rotate(90deg);\n}\n.todoapp .toggle-all + label:before {\n  content: \"❯\";\n  font-size: 22px;\n  color: #e6e6e6;\n  padding: 10px 27px 10px 27px;\n}\n.todoapp .toggle-all:checked + label:before {\n  color: #737373;\n}\n.todoapp .todo-list {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n}\n.todoapp .todo-list li {\n  position: relative;\n  font-size: 24px;\n  border-bottom: 1px solid #ededed;\n}\n.todoapp .todo-list li:last-child {\n  border-bottom: none;\n}\n.todoapp .todo-list li.editing {\n  border-bottom: none;\n  padding: 0;\n}\n.todoapp .todo-list li.editing .edit {\n  display: block;\n  width: 506px;\n  padding: 12px 16px;\n  margin: 0 0 0 43px;\n}\n.todoapp .todo-list li.editing .view {\n  display: none;\n}\n.todoapp .todo-list li .toggle {\n  text-align: center;\n  width: 40px;\n  /* auto, since non-WebKit browsers doesn't support input styling */\n  height: auto;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  border: none;\n  /* Mobile Safari */\n  -webkit-appearance: none;\n  appearance: none;\n}\n.todoapp .todo-list li .toggle {\n  opacity: 0;\n}\n.todoapp .todo-list li .toggle + label {\n  /*\n    Firefox requires `#` to be escaped - https://bugzilla.mozilla.org/show_bug.cgi?id=922433\n    IE and Edge requires *everything* to be escaped to render, so we do that instead of just the `#` - https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7157459/\n  */\n  background-image: url(\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%22-10%20-18%20100%20135%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%23ededed%22%20stroke-width%3D%223%22/%3E%3C/svg%3E\");\n  background-repeat: no-repeat;\n  background-position: center left;\n  background-size: 36px;\n}\n.todoapp .todo-list li .toggle:checked + label {\n  background-size: 36px;\n  background-image: url(\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%22-10%20-18%20100%20135%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%23bddad5%22%20stroke-width%3D%223%22/%3E%3Cpath%20fill%3D%22%235dc2af%22%20d%3D%22M72%2025L42%2071%2027%2056l-4%204%2020%2020%2034-52z%22/%3E%3C/svg%3E\");\n}\n.todoapp .todo-list li label {\n  word-break: break-all;\n  padding: 15px 15px 15px 50px;\n  display: block;\n  line-height: 1;\n  font-size: 14px;\n  transition: color 0.4s;\n}\n.todoapp .todo-list li.completed label {\n  color: #d9d9d9;\n  text-decoration: line-through;\n}\n.todoapp .todo-list li .destroy {\n  display: none;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  bottom: 0;\n  width: 40px;\n  height: 40px;\n  margin: auto 0;\n  font-size: 30px;\n  color: #cc9a9a;\n  transition: color 0.2s ease-out;\n  cursor: pointer;\n}\n.todoapp .todo-list li .destroy:hover {\n  color: #af5b5e;\n}\n.todoapp .todo-list li .destroy:after {\n  content: \"×\";\n}\n.todoapp .todo-list li:hover .destroy {\n  display: block;\n}\n.todoapp .todo-list li .edit {\n  display: none;\n}\n.todoapp .todo-list li.editing:last-child {\n  margin-bottom: -1px;\n}\n.todoapp .footer {\n  color: #777;\n  position: relative;\n  padding: 10px 15px;\n  height: 40px;\n  text-align: center;\n  border-top: 1px solid #e6e6e6;\n}\n.todoapp .footer:before {\n  content: \"\";\n  position: absolute;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  height: 40px;\n  overflow: hidden;\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 8px 0 -3px #f6f6f6, 0 9px 1px -3px rgba(0, 0, 0, 0.2), 0 16px 0 -6px #f6f6f6, 0 17px 2px -6px rgba(0, 0, 0, 0.2);\n}\n.todoapp .todo-count {\n  float: left;\n  text-align: left;\n}\n.todoapp .todo-count strong {\n  font-weight: 300;\n}\n.todoapp .filters {\n  margin: 0;\n  padding: 0;\n  position: relative;\n  z-index: 1;\n  list-style: none;\n}\n.todoapp .filters li {\n  display: inline;\n}\n.todoapp .filters li a {\n  color: inherit;\n  font-size: 12px;\n  padding: 3px 7px;\n  text-decoration: none;\n  border: 1px solid transparent;\n  border-radius: 3px;\n}\n.todoapp .filters li a:hover {\n  border-color: rgba(175, 47, 47, 0.1);\n}\n.todoapp .filters li a.selected {\n  border-color: rgba(175, 47, 47, 0.2);\n}\n.todoapp .clear-completed,\n.todoapp html .clear-completed:active {\n  float: right;\n  position: relative;\n  line-height: 20px;\n  text-decoration: none;\n  cursor: pointer;\n}\n.todoapp .clear-completed:hover {\n  text-decoration: underline;\n}\n.todoapp .info {\n  margin: 65px auto 0;\n  color: #bfbfbf;\n  font-size: 10px;\n  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);\n  text-align: center;\n}\n.todoapp .info p {\n  line-height: 1;\n}\n.todoapp .info a {\n  color: inherit;\n  text-decoration: none;\n  font-weight: 400;\n}\n.todoapp .info a:hover {\n  text-decoration: underline;\n}\n@media screen and (-webkit-min-device-pixel-ratio: 0) {\n.todoapp .toggle-all,\n.todoapp .todo-list li .toggle {\n    background: none;\n}\n.todoapp .todo-list li .toggle {\n    height: 40px;\n}\n}\n@media (max-width: 430px) {\n.todoapp .footer {\n    height: 50px;\n}\n.todoapp .filters {\n    bottom: 10px;\n}\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["index.vue"],"names":[],"mappings":"AAAA,gBAAgB;AAChB;EACE,yDAAyD;EACzD,kBAAkB;EAClB,cAAc;EACd,gBAAgB;EAChB,gBAAgB;EAChB,cAAc;EACd,mCAAmC;EACnC,kCAAkC;EAClC,gBAAgB;EAChB,gBAAgB;EAChB,UAAU;EACV,kBAAkB;EAClB;;;GAGC;AACH;AACA;EACE,SAAS;EACT,UAAU;EACV,SAAS;EACT,gBAAgB;EAChB,eAAe;EACf,wBAAwB;EACxB,oBAAoB;EACpB,oBAAoB;EACpB,cAAc;EACd,wBAAwB;EACxB,gBAAgB;EAChB,mCAAmC;EACnC,kCAAkC;AACpC;AACA;EACE,UAAU;AACZ;AACA;EACE,aAAa;AACf;AACA;EACE,gBAAgB;EAChB,sBAAsB;EACtB,kBAAkB;EAClB,4EAA4E;AAC9E;AACA;EACE,kBAAkB;EAClB,gBAAgB;EAChB,cAAc;AAChB;AACA;EACE,kBAAkB;EAClB,gBAAgB;EAChB,cAAc;AAChB;AACA;EACE,kBAAkB;EAClB,gBAAgB;EAChB,cAAc;AAChB;AACA;EACE,kBAAkB;EAClB,WAAW;EACX,WAAW;EACX,gBAAgB;EAChB,gBAAgB;EAChB,kBAAkB;EAClB,8BAA8B;EAC9B,0CAA0C;EAC1C,uCAAuC;EACvC,kCAAkC;AACpC;AACA;;EAEE,kBAAkB;EAClB,SAAS;EACT,WAAW;EACX,eAAe;EACf,oBAAoB;EACpB,oBAAoB;EACpB,kBAAkB;EAClB,SAAS;EACT,cAAc;EACd,YAAY;EACZ,sBAAsB;EACtB,iDAAiD;EACjD,sBAAsB;EACtB,mCAAmC;EACnC,kCAAkC;AACpC;AACA;EACE,4BAA4B;EAC5B,YAAY;EACZ,gCAAgC;EAChC,gDAAgD;AAClD;AACA;EACE,kBAAkB;EAClB,UAAU;EACV,6BAA6B;AAC/B;AACA;EACE,kBAAkB;EAClB,YAAY;EACZ,kBAAkB;EAClB,UAAU;EACV,kBAAkB;AACpB;AACA;EACE,WAAW;EACX,YAAY;EACZ,YAAY;EACZ,kBAAkB;EAClB,UAAU;EACV,WAAW;EACX,gCAAgC;EAChC,wBAAwB;AAC1B;AACA;EACE,YAAY;EACZ,eAAe;EACf,cAAc;EACd,4BAA4B;AAC9B;AACA;EACE,cAAc;AAChB;AACA;EACE,SAAS;EACT,UAAU;EACV,gBAAgB;AAClB;AACA;EACE,kBAAkB;EAClB,eAAe;EACf,gCAAgC;AAClC;AACA;EACE,mBAAmB;AACrB;AACA;EACE,mBAAmB;EACnB,UAAU;AACZ;AACA;EACE,cAAc;EACd,YAAY;EACZ,kBAAkB;EAClB,kBAAkB;AACpB;AACA;EACE,aAAa;AACf;AACA;EACE,kBAAkB;EAClB,WAAW;EACX,kEAAkE;EAClE,YAAY;EACZ,kBAAkB;EAClB,MAAM;EACN,SAAS;EACT,cAAc;EACd,YAAY;EACZ,kBAAkB;EAClB,wBAAwB;EACxB,gBAAgB;AAClB;AACA;EACE,UAAU;AACZ;AACA;EACE;;;GAGC;EACD,oUAAoU;EACpU,4BAA4B;EAC5B,gCAAgC;EAChC,qBAAqB;AACvB;AACA;EACE,qBAAqB;EACrB,yaAAya;AAC3a;AACA;EACE,qBAAqB;EACrB,4BAA4B;EAC5B,cAAc;EACd,cAAc;EACd,eAAe;EACf,sBAAsB;AACxB;AACA;EACE,cAAc;EACd,6BAA6B;AAC/B;AACA;EACE,aAAa;EACb,kBAAkB;EAClB,MAAM;EACN,WAAW;EACX,SAAS;EACT,WAAW;EACX,YAAY;EACZ,cAAc;EACd,eAAe;EACf,cAAc;EACd,+BAA+B;EAC/B,eAAe;AACjB;AACA;EACE,cAAc;AAChB;AACA;EACE,YAAY;AACd;AACA;EACE,cAAc;AAChB;AACA;EACE,aAAa;AACf;AACA;EACE,mBAAmB;AACrB;AACA;EACE,WAAW;EACX,kBAAkB;EAClB,kBAAkB;EAClB,YAAY;EACZ,kBAAkB;EAClB,6BAA6B;AAC/B;AACA;EACE,WAAW;EACX,kBAAkB;EAClB,QAAQ;EACR,SAAS;EACT,OAAO;EACP,YAAY;EACZ,gBAAgB;EAChB,4JAA4J;AAC9J;AACA;EACE,WAAW;EACX,gBAAgB;AAClB;AACA;EACE,gBAAgB;AAClB;AACA;EACE,SAAS;EACT,UAAU;EACV,kBAAkB;EAClB,UAAU;EACV,gBAAgB;AAClB;AACA;EACE,eAAe;AACjB;AACA;EACE,cAAc;EACd,eAAe;EACf,gBAAgB;EAChB,qBAAqB;EACrB,6BAA6B;EAC7B,kBAAkB;AACpB;AACA;EACE,oCAAoC;AACtC;AACA;EACE,oCAAoC;AACtC;AACA;;EAEE,YAAY;EACZ,kBAAkB;EAClB,iBAAiB;EACjB,qBAAqB;EACrB,eAAe;AACjB;AACA;EACE,0BAA0B;AAC5B;AACA;EACE,mBAAmB;EACnB,cAAc;EACd,eAAe;EACf,6CAA6C;EAC7C,kBAAkB;AACpB;AACA;EACE,cAAc;AAChB;AACA;EACE,cAAc;EACd,qBAAqB;EACrB,gBAAgB;AAClB;AACA;EACE,0BAA0B;AAC5B;AACA;AACE;;IAEE,gBAAgB;AAClB;AACA;IACE,YAAY;AACd;AACF;AACA;AACE;IACE,YAAY;AACd;AACA;IACE,YAAY;AACd;AACF;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["@charset \"UTF-8\";\n.todoapp {\n  font: 14px \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  line-height: 1.4em;\n  color: #4d4d4d;\n  min-width: 230px;\n  max-width: 550px;\n  margin: 0 auto;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  font-weight: 300;\n  background: #fff;\n  z-index: 1;\n  position: relative;\n  /*\n    Hack to remove background from Mobile Safari.\n    Can't use it globally since it destroys checkboxes in Firefox\n  */\n}\n.todoapp button {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  background: none;\n  font-size: 100%;\n  vertical-align: baseline;\n  font-family: inherit;\n  font-weight: inherit;\n  color: inherit;\n  -webkit-appearance: none;\n  appearance: none;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n.todoapp :focus {\n  outline: 0;\n}\n.todoapp .hidden {\n  display: none;\n}\n.todoapp .todoapp {\n  background: #fff;\n  margin: 130px 0 40px 0;\n  position: relative;\n  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);\n}\n.todoapp .todoapp input::-webkit-input-placeholder {\n  font-style: italic;\n  font-weight: 300;\n  color: #e6e6e6;\n}\n.todoapp .todoapp input::-moz-placeholder {\n  font-style: italic;\n  font-weight: 300;\n  color: #e6e6e6;\n}\n.todoapp .todoapp input::input-placeholder {\n  font-style: italic;\n  font-weight: 300;\n  color: #e6e6e6;\n}\n.todoapp .todoapp h1 {\n  position: absolute;\n  top: -155px;\n  width: 100%;\n  font-size: 100px;\n  font-weight: 100;\n  text-align: center;\n  color: rgba(175, 47, 47, 0.15);\n  -webkit-text-rendering: optimizeLegibility;\n  -moz-text-rendering: optimizeLegibility;\n  text-rendering: optimizeLegibility;\n}\n.todoapp .new-todo,\n.todoapp .edit {\n  position: relative;\n  margin: 0;\n  width: 100%;\n  font-size: 18px;\n  font-family: inherit;\n  font-weight: inherit;\n  line-height: 1.4em;\n  border: 0;\n  color: inherit;\n  padding: 6px;\n  border: 1px solid #999;\n  box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);\n  box-sizing: border-box;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n.todoapp .new-todo {\n  padding: 10px 16px 16px 60px;\n  border: none;\n  background: rgba(0, 0, 0, 0.003);\n  box-shadow: inset 0 -2px 1px rgba(0, 0, 0, 0.03);\n}\n.todoapp .main {\n  position: relative;\n  z-index: 2;\n  border-top: 1px solid #e6e6e6;\n}\n.todoapp .toggle-all {\n  text-align: center;\n  border: none;\n  /* Mobile Safari */\n  opacity: 0;\n  position: absolute;\n}\n.todoapp .toggle-all + label {\n  width: 60px;\n  height: 34px;\n  font-size: 0;\n  position: absolute;\n  top: -52px;\n  left: -13px;\n  -webkit-transform: rotate(90deg);\n  transform: rotate(90deg);\n}\n.todoapp .toggle-all + label:before {\n  content: \"❯\";\n  font-size: 22px;\n  color: #e6e6e6;\n  padding: 10px 27px 10px 27px;\n}\n.todoapp .toggle-all:checked + label:before {\n  color: #737373;\n}\n.todoapp .todo-list {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n}\n.todoapp .todo-list li {\n  position: relative;\n  font-size: 24px;\n  border-bottom: 1px solid #ededed;\n}\n.todoapp .todo-list li:last-child {\n  border-bottom: none;\n}\n.todoapp .todo-list li.editing {\n  border-bottom: none;\n  padding: 0;\n}\n.todoapp .todo-list li.editing .edit {\n  display: block;\n  width: 506px;\n  padding: 12px 16px;\n  margin: 0 0 0 43px;\n}\n.todoapp .todo-list li.editing .view {\n  display: none;\n}\n.todoapp .todo-list li .toggle {\n  text-align: center;\n  width: 40px;\n  /* auto, since non-WebKit browsers doesn't support input styling */\n  height: auto;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  border: none;\n  /* Mobile Safari */\n  -webkit-appearance: none;\n  appearance: none;\n}\n.todoapp .todo-list li .toggle {\n  opacity: 0;\n}\n.todoapp .todo-list li .toggle + label {\n  /*\n    Firefox requires `#` to be escaped - https://bugzilla.mozilla.org/show_bug.cgi?id=922433\n    IE and Edge requires *everything* to be escaped to render, so we do that instead of just the `#` - https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7157459/\n  */\n  background-image: url(\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%22-10%20-18%20100%20135%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%23ededed%22%20stroke-width%3D%223%22/%3E%3C/svg%3E\");\n  background-repeat: no-repeat;\n  background-position: center left;\n  background-size: 36px;\n}\n.todoapp .todo-list li .toggle:checked + label {\n  background-size: 36px;\n  background-image: url(\"data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%22-10%20-18%20100%20135%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%23bddad5%22%20stroke-width%3D%223%22/%3E%3Cpath%20fill%3D%22%235dc2af%22%20d%3D%22M72%2025L42%2071%2027%2056l-4%204%2020%2020%2034-52z%22/%3E%3C/svg%3E\");\n}\n.todoapp .todo-list li label {\n  word-break: break-all;\n  padding: 15px 15px 15px 50px;\n  display: block;\n  line-height: 1;\n  font-size: 14px;\n  transition: color 0.4s;\n}\n.todoapp .todo-list li.completed label {\n  color: #d9d9d9;\n  text-decoration: line-through;\n}\n.todoapp .todo-list li .destroy {\n  display: none;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  bottom: 0;\n  width: 40px;\n  height: 40px;\n  margin: auto 0;\n  font-size: 30px;\n  color: #cc9a9a;\n  transition: color 0.2s ease-out;\n  cursor: pointer;\n}\n.todoapp .todo-list li .destroy:hover {\n  color: #af5b5e;\n}\n.todoapp .todo-list li .destroy:after {\n  content: \"×\";\n}\n.todoapp .todo-list li:hover .destroy {\n  display: block;\n}\n.todoapp .todo-list li .edit {\n  display: none;\n}\n.todoapp .todo-list li.editing:last-child {\n  margin-bottom: -1px;\n}\n.todoapp .footer {\n  color: #777;\n  position: relative;\n  padding: 10px 15px;\n  height: 40px;\n  text-align: center;\n  border-top: 1px solid #e6e6e6;\n}\n.todoapp .footer:before {\n  content: \"\";\n  position: absolute;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  height: 40px;\n  overflow: hidden;\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 8px 0 -3px #f6f6f6, 0 9px 1px -3px rgba(0, 0, 0, 0.2), 0 16px 0 -6px #f6f6f6, 0 17px 2px -6px rgba(0, 0, 0, 0.2);\n}\n.todoapp .todo-count {\n  float: left;\n  text-align: left;\n}\n.todoapp .todo-count strong {\n  font-weight: 300;\n}\n.todoapp .filters {\n  margin: 0;\n  padding: 0;\n  position: relative;\n  z-index: 1;\n  list-style: none;\n}\n.todoapp .filters li {\n  display: inline;\n}\n.todoapp .filters li a {\n  color: inherit;\n  font-size: 12px;\n  padding: 3px 7px;\n  text-decoration: none;\n  border: 1px solid transparent;\n  border-radius: 3px;\n}\n.todoapp .filters li a:hover {\n  border-color: rgba(175, 47, 47, 0.1);\n}\n.todoapp .filters li a.selected {\n  border-color: rgba(175, 47, 47, 0.2);\n}\n.todoapp .clear-completed,\n.todoapp html .clear-completed:active {\n  float: right;\n  position: relative;\n  line-height: 20px;\n  text-decoration: none;\n  cursor: pointer;\n}\n.todoapp .clear-completed:hover {\n  text-decoration: underline;\n}\n.todoapp .info {\n  margin: 65px auto 0;\n  color: #bfbfbf;\n  font-size: 10px;\n  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);\n  text-align: center;\n}\n.todoapp .info p {\n  line-height: 1;\n}\n.todoapp .info a {\n  color: inherit;\n  text-decoration: none;\n  font-weight: 400;\n}\n.todoapp .info a:hover {\n  text-decoration: underline;\n}\n@media screen and (-webkit-min-device-pixel-ratio: 0) {\n  .todoapp .toggle-all,\n.todoapp .todo-list li .toggle {\n    background: none;\n  }\n  .todoapp .todo-list li .toggle {\n    height: 40px;\n  }\n}\n@media (max-width: 430px) {\n  .todoapp .footer {\n    height: 50px;\n  }\n  .todoapp .filters {\n    bottom: 10px;\n  }\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$6 = undefined;
+    const __vue_scope_id__$7 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$6 = undefined;
+    const __vue_module_identifier__$7 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$6 = false;
+    const __vue_is_functional_template__$7 = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$6 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
-      __vue_inject_styles__$6,
-      __vue_script__$6,
-      __vue_scope_id__$6,
-      __vue_is_functional_template__$6,
-      __vue_module_identifier__$6,
+    const __vue_component__$7 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
+      __vue_inject_styles__$7,
+      __vue_script__$7,
+      __vue_scope_id__$7,
+      __vue_is_functional_template__$7,
+      __vue_module_identifier__$7,
       false,
       createInjector,
       undefined,
@@ -5946,7 +5945,7 @@
   //
   //
   //
-  var script$5 = {
+  var script$6 = {
     name: 'rr-checkradio',
     props: {
       options: {
@@ -5980,10 +5979,10 @@
   };
 
   /* script */
-  const __vue_script__$5 = script$5;
+  const __vue_script__$6 = script$6;
 
   /* template */
-  var __vue_render__$5 = function () {
+  var __vue_render__$6 = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -6022,41 +6021,41 @@
       0
     )
   };
-  var __vue_staticRenderFns__$5 = [];
-  __vue_render__$5._withStripped = true;
+  var __vue_staticRenderFns__$6 = [];
+  __vue_render__$6._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$5 = function (inject) {
+    const __vue_inject_styles__$6 = function (inject) {
       if (!inject) return
       inject("data-v-0faba680_0", { source: ".rg-wrap[data-v-0faba680] {\n  line-height: 36px;\n  font-size: 14px;\n}\n.rg-wrap .radio-wrap[data-v-0faba680] {\n  display: inline-block;\n  margin-right: 40px;\n}\n.rg-wrap .radio-wrap[data-v-0faba680]:last-child {\n  margin-right: 0;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\RrCheckRadio\\index.vue","index.vue"],"names":[],"mappings":"AAgDA;EACA,iBAAA;EACA,eAAA;AC/CA;ADgDA;EACA,qBAAA;EACA,kBAAA;AC9CA;AD+CA;EACA,eAAA;AC7CA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <el-radio-group class=\"rg-wrap\" v-bind=\"$attrs\" v-on=\"$listeners\">\r\n    <div class=\"radio-wrap\" v-for=\"(item, index) in watchOptions\" :key=\"index\">\r\n      <el-image class=\"radio-img\" v-if=\"item.imgUrl\" :src=\"item.imgUrl\"></el-image>\r\n      <el-radio :label=\"item.id\" :disabled=\"item.disabled\" v-bind=\"$attrs\">\r\n        {{ item.name }}\r\n      </el-radio>\r\n    </div>\r\n  </el-radio-group>\r\n</template>\r\n\r\n<script>\r\nexport default {\r\n  name: 'rr-checkradio',\r\n  props: {\r\n    options: {\r\n      type: Array,\r\n      require: true\r\n    },\r\n    disabled: {\r\n      type: Boolean,\r\n      default: false\r\n    }\r\n  },\r\n  data() {\r\n    return {}\r\n  },\r\n  computed: {\r\n    watchOptions() {\r\n      return this.disabled\r\n        ? this.options.map((option) => {\r\n            option.disabled = true\r\n            return option\r\n          })\r\n        : this.options.map((option) => {\r\n            // eslint-disable-next-line\r\n            if (option.hasOwnProperty('disabled')) {\r\n              delete option.disabled\r\n            }\r\n            return option\r\n          })\r\n    }\r\n  },\r\n  methods: {}\r\n}\r\n</script>\r\n\r\n<style lang=\"scss\" scoped>\r\n.rg-wrap {\r\n  line-height: 36px;\r\n  font-size: 14px;\r\n  .radio-wrap {\r\n    display: inline-block;\r\n    margin-right: 40px;\r\n    &:last-child {\r\n      margin-right: 0;\r\n    }\r\n  }\r\n}\r\n</style>\r\n",".rg-wrap {\n  line-height: 36px;\n  font-size: 14px;\n}\n.rg-wrap .radio-wrap {\n  display: inline-block;\n  margin-right: 40px;\n}\n.rg-wrap .radio-wrap:last-child {\n  margin-right: 0;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$5 = "data-v-0faba680";
+    const __vue_scope_id__$6 = "data-v-0faba680";
     /* module identifier */
-    const __vue_module_identifier__$5 = undefined;
+    const __vue_module_identifier__$6 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$5 = false;
+    const __vue_is_functional_template__$6 = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$5 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
-      __vue_inject_styles__$5,
-      __vue_script__$5,
-      __vue_scope_id__$5,
-      __vue_is_functional_template__$5,
-      __vue_module_identifier__$5,
+    const __vue_component__$6 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
+      __vue_inject_styles__$6,
+      __vue_script__$6,
+      __vue_scope_id__$6,
+      __vue_is_functional_template__$6,
+      __vue_module_identifier__$6,
       false,
       createInjector,
       undefined,
       undefined
     );
 
-  var script$4 = {
+  var script$5 = {
     name: 'id2-name',
     props: {
       code: {
@@ -6169,10 +6168,10 @@
   };
 
   /* script */
-  const __vue_script__$4 = script$4;
+  const __vue_script__$5 = script$5;
 
   /* template */
-  var __vue_render__$4 = function () {
+  var __vue_render__$5 = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -6192,17 +6191,17 @@
       2
     )
   };
-  var __vue_staticRenderFns__$4 = [];
-  __vue_render__$4._withStripped = true;
+  var __vue_staticRenderFns__$5 = [];
+  __vue_render__$5._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$4 = undefined;
+    const __vue_inject_styles__$5 = undefined;
     /* scoped */
-    const __vue_scope_id__$4 = undefined;
+    const __vue_scope_id__$5 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$4 = undefined;
+    const __vue_module_identifier__$5 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$4 = false;
+    const __vue_is_functional_template__$5 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -6211,13 +6210,13 @@
     
 
     
-    const __vue_component__$4 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
-      __vue_inject_styles__$4,
-      __vue_script__$4,
-      __vue_scope_id__$4,
-      __vue_is_functional_template__$4,
-      __vue_module_identifier__$4,
+    const __vue_component__$5 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
+      __vue_inject_styles__$5,
+      __vue_script__$5,
+      __vue_scope_id__$5,
+      __vue_is_functional_template__$5,
+      __vue_module_identifier__$5,
       false,
       undefined,
       undefined,
@@ -6237,7 +6236,7 @@
   //
   //
   //
-  var script$3 = {
+  var script$4 = {
     name: 'rr-dropdown',
     props: {
       options: {
@@ -6260,10 +6259,10 @@
   };
 
   /* script */
-  const __vue_script__$3 = script$3;
+  const __vue_script__$4 = script$4;
 
   /* template */
-  var __vue_render__$3 = function () {
+  var __vue_render__$4 = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -6308,34 +6307,34 @@
       1
     )
   };
-  var __vue_staticRenderFns__$3 = [];
-  __vue_render__$3._withStripped = true;
+  var __vue_staticRenderFns__$4 = [];
+  __vue_render__$4._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$3 = function (inject) {
+    const __vue_inject_styles__$4 = function (inject) {
       if (!inject) return
       inject("data-v-b7fa7d94_0", { source: ".d-wrap[data-v-b7fa7d94] {\n  cursor: pointer;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\RrDropdown\\index.vue","index.vue"],"names":[],"mappings":"AAoCA;EACA,eAAA;ACnCA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <el-dropdown class=\"d-wrap\" @command=\"handleCommand\" v-bind=\"$attrs\" v-on=\"$listeners\">\r\n    <span class=\"el-dropdown-link\">\r\n      <id2-name :value=\"value\" :options=\"options\">\r\n        <i class=\"el-icon-arrow-down el-icon--right\"></i>\r\n      </id2-name>\r\n    </span>\r\n    <el-dropdown-menu slot=\"dropdown\">\r\n      <el-dropdown-item v-for=\"item in options\" :key=\"item.id\" :command=\"item.id\">{{ item.name }}</el-dropdown-item>\r\n    </el-dropdown-menu>\r\n  </el-dropdown>\r\n</template>\r\n\r\n<script>\r\nexport default {\r\n  name: 'rr-dropdown',\r\n  props: {\r\n    options: {\r\n      type: Array,\r\n      default: () => [],\r\n    },\r\n    value: {\r\n      type: [String, Number],\r\n    },\r\n  },\r\n  methods: {\r\n    handleCommand(event) {\r\n      console.log(event)\r\n      this.$emit('input', event)\r\n      this.$emit('change', event)\r\n    },\r\n  },\r\n}\r\n</script>\r\n\r\n<style lang=\"scss\" scoped>\r\n.d-wrap {\r\n  cursor: pointer;\r\n}\r\n</style>",".d-wrap {\n  cursor: pointer;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$3 = "data-v-b7fa7d94";
+    const __vue_scope_id__$4 = "data-v-b7fa7d94";
     /* module identifier */
-    const __vue_module_identifier__$3 = undefined;
+    const __vue_module_identifier__$4 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$3 = false;
+    const __vue_is_functional_template__$4 = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$3 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
-      __vue_inject_styles__$3,
-      __vue_script__$3,
-      __vue_scope_id__$3,
-      __vue_is_functional_template__$3,
-      __vue_module_identifier__$3,
+    const __vue_component__$4 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
+      __vue_inject_styles__$4,
+      __vue_script__$4,
+      __vue_scope_id__$4,
+      __vue_is_functional_template__$4,
+      __vue_module_identifier__$4,
       false,
       createInjector,
       undefined,
@@ -6343,7 +6342,7 @@
     );
 
   //
-  var script$2 = {
+  var script$3 = {
     name: 'rr-count-to',
     components: {
       CountTo: CountTo__default["default"]
@@ -6357,10 +6356,10 @@
   };
 
   /* script */
-  const __vue_script__$2 = script$2;
+  const __vue_script__$3 = script$3;
 
   /* template */
-  var __vue_render__$2 = function () {
+  var __vue_render__$3 = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -6392,34 +6391,34 @@
       2
     )
   };
-  var __vue_staticRenderFns__$2 = [];
-  __vue_render__$2._withStripped = true;
+  var __vue_staticRenderFns__$3 = [];
+  __vue_render__$3._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$2 = function (inject) {
+    const __vue_inject_styles__$3 = function (inject) {
       if (!inject) return
       inject("data-v-489d265d_0", { source: ".c-w[data-v-489d265d] {\n  display: inline-block;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\RrCountTo\\index.vue","index.vue"],"names":[],"mappings":"AAkCA;EACA,qBAAA;ACjCA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <div class=\"c-w\">\r\n    <slot>\r\n      &nbsp;\r\n    </slot>\r\n    <template v-if=\"typeof value == 'number'\">\r\n      <count-to v-bind=\"$attrs\" :end-val=\"value\" v-on=\"$listeners\" />\r\n    </template>\r\n    <template v-else>\r\n      {{ value }}\r\n    </template>\r\n  </div>\r\n</template>\r\n\r\n<script>\r\n/**\r\n * 针对 vue-countTo 的二次封装\r\n */\r\nimport CountTo from 'vue-count-to'\r\nexport default {\r\n  name: 'rr-count-to',\r\n  components: {\r\n    CountTo,\r\n  },\r\n  props: {\r\n    value: {\r\n      type: [Number, String],\r\n      default: '--',\r\n    },\r\n  },\r\n}\r\n</script>\r\n\r\n<style lang=\"sass\" scoped>\r\n.c-w\r\n    display: inline-block\r\n</style>",".c-w {\n  display: inline-block;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$2 = "data-v-489d265d";
+    const __vue_scope_id__$3 = "data-v-489d265d";
     /* module identifier */
-    const __vue_module_identifier__$2 = undefined;
+    const __vue_module_identifier__$3 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$2 = false;
+    const __vue_is_functional_template__$3 = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$2 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
-      __vue_inject_styles__$2,
-      __vue_script__$2,
-      __vue_scope_id__$2,
-      __vue_is_functional_template__$2,
-      __vue_module_identifier__$2,
+    const __vue_component__$3 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
+      __vue_inject_styles__$3,
+      __vue_script__$3,
+      __vue_scope_id__$3,
+      __vue_is_functional_template__$3,
+      __vue_module_identifier__$3,
       false,
       createInjector,
       undefined,
@@ -6430,7 +6429,7 @@
   //
   //
   //
-  var script$1 = {
+  var script$2 = {
     name: 'rr-echarts',
     props: {
       option: {
@@ -6470,10 +6469,10 @@
   };
 
   /* script */
-  const __vue_script__$1 = script$1;
+  const __vue_script__$2 = script$2;
 
   /* template */
-  var __vue_render__$1 = function () {
+  var __vue_render__$2 = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -6483,17 +6482,17 @@
       style: { height: _vm.height, width: _vm.width },
     })
   };
-  var __vue_staticRenderFns__$1 = [];
-  __vue_render__$1._withStripped = true;
+  var __vue_staticRenderFns__$2 = [];
+  __vue_render__$2._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$1 = undefined;
+    const __vue_inject_styles__$2 = undefined;
     /* scoped */
-    const __vue_scope_id__$1 = undefined;
+    const __vue_scope_id__$2 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$1 = undefined;
+    const __vue_module_identifier__$2 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$1 = false;
+    const __vue_is_functional_template__$2 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -6502,13 +6501,13 @@
     
 
     
-    const __vue_component__$1 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
-      __vue_inject_styles__$1,
-      __vue_script__$1,
-      __vue_scope_id__$1,
-      __vue_is_functional_template__$1,
-      __vue_module_identifier__$1,
+    const __vue_component__$2 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
+      __vue_inject_styles__$2,
+      __vue_script__$2,
+      __vue_scope_id__$2,
+      __vue_is_functional_template__$2,
+      __vue_module_identifier__$2,
       false,
       undefined,
       undefined,
@@ -6525,7 +6524,7 @@
   //
   //
   //
-  var script = {
+  var script$1 = {
     name: 'Sparrow',
     data: function data() {
       return {
@@ -6542,8 +6541,8 @@
   var img = "data:image/png;base64,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";
 
   /* script */
-  const __vue_script__ = script;
-  var __vue_render__ = function () {
+  const __vue_script__$1 = script$1;
+  var __vue_render__$1 = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -6581,17 +6580,461 @@
       ),
     ])
   };
+  var __vue_staticRenderFns__$1 = [];
+  __vue_render__$1._withStripped = true;
+
+    /* style */
+    const __vue_inject_styles__$1 = function (inject) {
+      if (!inject) return
+      inject("data-v-d8a30a96_0", { source: ".sparrow[data-v-d8a30a96] {\n  bottom: 32px;\n  position: fixed;\n  z-index: 10000;\n  right: 32px;\n  display: flex;\n  flex-direction: column;\n  justify-content: right;\n  align-items: flex-end;\n}\n.sparrow-button[data-v-d8a30a96] {\n  background: #304156;\n  width: 56px;\n  height: 56px;\n  padding: 15px;\n  border-radius: 68px;\n  color: #fff;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  margin-top: 20px;\n  cursor: pointer;\n}\n.sparrow-content[data-v-d8a30a96] {\n  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.6);\n  border-radius: 5px;\n  overflow: hidden;\n}\n.sparrow-iframe[data-v-d8a30a96] {\n  border: 0;\n  width: 1200px;\n  height: 600px;\n}\n.sparrow-button-icon[data-v-d8a30a96] {\n  width: 100%;\n  height: 100%;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\Sparrow\\index.vue","index.vue"],"names":[],"mappings":"AA0BA;EACA,YAAA;EACA,eAAA;EACA,cAAA;EACA,WAAA;EACA,aAAA;EACA,sBAAA;EACA,sBAAA;EACA,qBAAA;ACzBA;AD2BA;EACA,mBAAA;EACA,WAAA;EACA,YAAA;EACA,aAAA;EACA,mBAAA;EACA,WAAA;EACA,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,gBAAA;EACA,eAAA;ACxBA;AD0BA;EACA,2CAAA;EACA,kBAAA;EACA,gBAAA;ACvBA;ADyBA;EACA,SAAA;EACA,aAAA;EACA,aAAA;ACtBA;ADwBA;EACA,WAAA;EACA,YAAA;ACrBA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <div class=\"sparrow\">\r\n    <div class=\"sparrow-content\" v-show=\"showEdit\">\r\n      <iframe class=\"sparrow-iframe\" src=\"http://localhost:8000/\" />\r\n    </div>\r\n    <div class=\"sparrow-button\" @click=\"toggleEdit\">\r\n      <img class=\"sparrow-button-icon\" src=\"@/assets/images/sparrow.png\" />\r\n    </div>\r\n  </div>\r\n</template>\r\n<script>\r\nexport default {\r\n  name: 'Sparrow',\r\n  data() {\r\n    return {\r\n      showEdit: false,\r\n    }\r\n  },\r\n  methods: {\r\n    toggleEdit() {\r\n      this.showEdit = !this.showEdit\r\n    },\r\n  },\r\n}\r\n</script>\r\n<style lang=\"scss\" scoped>\r\n.sparrow {\r\n  bottom: 32px;\r\n  position: fixed;\r\n  z-index: 10000;\r\n  right: 32px;\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: right;\r\n  align-items: flex-end;\r\n}\r\n.sparrow-button {\r\n  background: #304156;\r\n  width: 56px;\r\n  height: 56px;\r\n  padding: 15px;\r\n  border-radius: 68px;\r\n  color: #fff;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  margin-top: 20px;\r\n  cursor: pointer;\r\n}\r\n.sparrow-content {\r\n  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.6);\r\n  border-radius: 5px;\r\n  overflow: hidden;\r\n}\r\n.sparrow-iframe {\r\n  border: 0;\r\n  width: 1200px;\r\n  height: 600px;\r\n}\r\n.sparrow-button-icon {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n</style>\r\n",".sparrow {\n  bottom: 32px;\n  position: fixed;\n  z-index: 10000;\n  right: 32px;\n  display: flex;\n  flex-direction: column;\n  justify-content: right;\n  align-items: flex-end;\n}\n\n.sparrow-button {\n  background: #304156;\n  width: 56px;\n  height: 56px;\n  padding: 15px;\n  border-radius: 68px;\n  color: #fff;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  margin-top: 20px;\n  cursor: pointer;\n}\n\n.sparrow-content {\n  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.6);\n  border-radius: 5px;\n  overflow: hidden;\n}\n\n.sparrow-iframe {\n  border: 0;\n  width: 1200px;\n  height: 600px;\n}\n\n.sparrow-button-icon {\n  width: 100%;\n  height: 100%;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
+
+    };
+    /* scoped */
+    const __vue_scope_id__$1 = "data-v-d8a30a96";
+    /* module identifier */
+    const __vue_module_identifier__$1 = undefined;
+    /* functional template */
+    const __vue_is_functional_template__$1 = false;
+    /* style inject SSR */
+    
+    /* style inject shadow dom */
+    
+
+    
+    const __vue_component__$1 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
+      __vue_inject_styles__$1,
+      __vue_script__$1,
+      __vue_scope_id__$1,
+      __vue_is_functional_template__$1,
+      __vue_module_identifier__$1,
+      false,
+      createInjector,
+      undefined,
+      undefined
+    );
+
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  var script = {
+    name: 'RrSelectCheckbox',
+    props: {
+      fetchList: {
+        type: Function,
+        "default": function _default() {}
+      },
+      data: {
+        type: String,
+        "default": ''
+      },
+      title: {
+        type: String,
+        "default": ''
+      }
+    },
+    data: function data() {
+      return {
+        channelList: [],
+        checkboxVal: [],
+        checkAll: false,
+        appName: '',
+        isIndeterminate: false
+      };
+    },
+    created: function created() {
+      var _this = this;
+
+      this.fetchList().then(function (res) {
+        console.log(res);
+        _this.channelList = res || [];
+
+        if (_this.data) {
+          _this.checkboxVal = _this.data.split(',');
+        }
+      });
+    },
+    computed: {
+      checkboxList: function checkboxList() {
+        var _this2 = this;
+
+        return this.checkboxVal.map(function (val) {
+          return _this2.channelList.find(function (item) {
+            return item.channelName == val;
+          });
+        });
+      },
+      _channelList: function _channelList() {
+        return this.channelList.filter(function (item) {
+          return !item.hide;
+        });
+      }
+    },
+    methods: {
+      handleInput: function handleInput(val) {
+        this.channelList = this.channelList.map(function (item) {
+          if (item.channelName.indexOf(val) == -1) {
+            item.hide = true;
+          } else {
+            item.hide = false;
+          }
+
+          return item;
+        });
+
+        if (!this._channelList.length) {
+          this.checkAll = this.isIndeterminate = false;
+          return;
+        }
+
+        this.validate();
+      },
+      validate: function validate() {
+        var _this3 = this;
+
+        var tag = 0;
+
+        this._channelList.forEach(function (item) {
+          if (_this3.checkboxVal.includes(item.channelName)) {
+            tag++;
+          }
+        });
+
+        if (tag === this._channelList.length) {
+          this.checkAll = true;
+          this.isIndeterminate = false;
+        } else if (tag) {
+          this.isIndeterminate = true;
+          this.checkAll = false;
+        } else {
+          this.isIndeterminate = false;
+          this.checkAll = false;
+        }
+      },
+      handleChange: function handleChange() {
+        if (!this._channelList.length) {
+          this.isIndeterminate = false;
+          this.checkAll = false;
+        } else {
+          this.validate();
+        }
+      },
+      handleCheckAllChange: function handleCheckAllChange(val) {
+        var _this4 = this;
+
+        if (this.isIndeterminate) {
+          this.checkAll = val = true;
+        }
+
+        if (val) {
+          var tag = this._channelList.reduce(function (pre, cur) {
+            return pre ? pre + ',' + cur.channelName : cur.channelName;
+          }, '');
+
+          this.checkboxVal = _toConsumableArray(new Set([].concat(_toConsumableArray(this.checkboxVal), _toConsumableArray(tag.split(',')))));
+        } else {
+          (function () {
+            var vals = [];
+            var checkboxVal = _this4.checkboxVal;
+
+            _this4._channelList.forEach(function (item) {
+              return vals.push(item.channelName);
+            });
+
+            while (vals.length) {
+              checkboxVal = checkboxVal.filter(function (channelName) {
+                return channelName != vals[0];
+              });
+              vals.shift();
+            }
+
+            _this4.checkboxVal = checkboxVal;
+          })();
+        }
+
+        this.isIndeterminate = false;
+      },
+      removeTag: function removeTag() {
+        this.handleChange();
+      },
+      handleClick: function handleClick(i) {
+        this.checkboxVal.splice(i, 1);
+        this.handleChange(this.checkboxVal);
+      },
+      handleClear: function handleClear() {
+        this.checkboxVal = [];
+        this.handleChange(this.checkboxVal);
+      }
+    },
+    watch: {
+      checkboxVal: function checkboxVal(nVal) {
+        this.$emit('update:data', nVal.join());
+      }
+    }
+  };
+
+  /* script */
+  const __vue_script__ = script;
+
+  /* template */
+  var __vue_render__ = function () {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c("el-select", {
+      staticClass: "rr-select-checkbox",
+      staticStyle: { width: "90%" },
+      attrs: { multiple: "", clearable: "" },
+      on: { "remove-tag": _vm.removeTag, clear: _vm.handleClear },
+      scopedSlots: _vm._u(
+        [
+          _vm.title
+            ? {
+                key: "prefix",
+                fn: function () {
+                  return [
+                    _c("div", { staticClass: "prefix" }, [
+                      _vm._v(_vm._s(_vm.title)),
+                    ]),
+                  ]
+                },
+                proxy: true,
+              }
+            : null,
+          {
+            key: "empty",
+            fn: function () {
+              return [
+                _c("div", { staticClass: "content" }, [
+                  _c("div", { staticClass: "left" }, [
+                    _c("div", { staticClass: "top" }, [
+                      _c(
+                        "div",
+                        { staticClass: "left-floor" },
+                        [
+                          _c("el-input", {
+                            attrs: { placeholder: "应用名称", clearable: "" },
+                            on: { input: _vm.handleInput },
+                            model: {
+                              value: _vm.appName,
+                              callback: function ($$v) {
+                                _vm.appName = $$v;
+                              },
+                              expression: "appName",
+                            },
+                          }),
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "flex left-floor" }, [
+                        _c(
+                          "div",
+                          [
+                            _c(
+                              "el-checkbox",
+                              {
+                                attrs: { indeterminate: _vm.isIndeterminate },
+                                on: { change: _vm.handleCheckAllChange },
+                                model: {
+                                  value: _vm.checkAll,
+                                  callback: function ($$v) {
+                                    _vm.checkAll = $$v;
+                                  },
+                                  expression: "checkAll",
+                                },
+                              },
+                              [
+                                _c("span", { staticClass: "text" }, [
+                                  _vm._v("全选"),
+                                ]),
+                              ]
+                            ),
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c("div", [_vm._t("left-action")], 2),
+                      ]),
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "ul" },
+                      [
+                        _c(
+                          "el-checkbox-group",
+                          {
+                            on: { change: _vm.handleChange },
+                            model: {
+                              value: _vm.checkboxVal,
+                              callback: function ($$v) {
+                                _vm.checkboxVal = $$v;
+                              },
+                              expression: "checkboxVal",
+                            },
+                          },
+                          [
+                            _vm._l(_vm._channelList, function (item) {
+                              return _c(
+                                "div",
+                                { key: item.id },
+                                [
+                                  _c(
+                                    "el-checkbox",
+                                    {
+                                      directives: [
+                                        {
+                                          name: "show",
+                                          rawName: "v-show",
+                                          value: !item.hide,
+                                          expression: "!item.hide",
+                                        },
+                                      ],
+                                      staticClass: "wrap",
+                                      attrs: { label: item.channelName },
+                                    },
+                                    [_vm._v(_vm._s(item.channelName))]
+                                  ),
+                                ],
+                                1
+                              )
+                            }),
+                          ],
+                          2
+                        ),
+                      ],
+                      1
+                    ),
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "right" }, [
+                    _c("div", { staticClass: "top" }, [
+                      _c("div", { staticClass: "flex" }, [
+                        _c("div", { staticClass: "text" }, [
+                          _vm._v(
+                            "已选择 " +
+                              _vm._s(_vm.checkboxVal.length) +
+                              "/" +
+                              _vm._s(_vm.channelList.length)
+                          ),
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          [
+                            _c("el-button", { on: { click: _vm.handleClear } }, [
+                              _vm._v("清空"),
+                            ]),
+                          ],
+                          1
+                        ),
+                      ]),
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "ul",
+                      _vm._l(_vm.checkboxList, function (item, index) {
+                        return _c("li", { key: index }, [
+                          _vm._v(
+                            "\n            " +
+                              _vm._s(item.channelName) +
+                              "\n            "
+                          ),
+                          _c("i", {
+                            staticClass: "el-icon-close",
+                            on: {
+                              click: function ($event) {
+                                return _vm.handleClick(index)
+                              },
+                            },
+                          }),
+                        ])
+                      }),
+                      0
+                    ),
+                  ]),
+                ]),
+              ]
+            },
+            proxy: true,
+          },
+        ],
+        null,
+        true
+      ),
+      model: {
+        value: _vm.checkboxVal,
+        callback: function ($$v) {
+          _vm.checkboxVal = $$v;
+        },
+        expression: "checkboxVal",
+      },
+    })
+  };
   var __vue_staticRenderFns__ = [];
   __vue_render__._withStripped = true;
 
     /* style */
     const __vue_inject_styles__ = function (inject) {
       if (!inject) return
-      inject("data-v-d8a30a96_0", { source: ".sparrow[data-v-d8a30a96] {\n  bottom: 32px;\n  position: fixed;\n  z-index: 10000;\n  right: 32px;\n  display: flex;\n  flex-direction: column;\n  justify-content: right;\n  align-items: flex-end;\n}\n.sparrow-button[data-v-d8a30a96] {\n  background: #304156;\n  width: 56px;\n  height: 56px;\n  padding: 15px;\n  border-radius: 68px;\n  color: #fff;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  margin-top: 20px;\n  cursor: pointer;\n}\n.sparrow-content[data-v-d8a30a96] {\n  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.6);\n  border-radius: 5px;\n  overflow: hidden;\n}\n.sparrow-iframe[data-v-d8a30a96] {\n  border: 0;\n  width: 1200px;\n  height: 600px;\n}\n.sparrow-button-icon[data-v-d8a30a96] {\n  width: 100%;\n  height: 100%;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\Sparrow\\index.vue","index.vue"],"names":[],"mappings":"AA0BA;EACA,YAAA;EACA,eAAA;EACA,cAAA;EACA,WAAA;EACA,aAAA;EACA,sBAAA;EACA,sBAAA;EACA,qBAAA;ACzBA;AD2BA;EACA,mBAAA;EACA,WAAA;EACA,YAAA;EACA,aAAA;EACA,mBAAA;EACA,WAAA;EACA,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,gBAAA;EACA,eAAA;ACxBA;AD0BA;EACA,2CAAA;EACA,kBAAA;EACA,gBAAA;ACvBA;ADyBA;EACA,SAAA;EACA,aAAA;EACA,aAAA;ACtBA;ADwBA;EACA,WAAA;EACA,YAAA;ACrBA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <div class=\"sparrow\">\r\n    <div class=\"sparrow-content\" v-show=\"showEdit\">\r\n      <iframe class=\"sparrow-iframe\" src=\"http://localhost:8000/\" />\r\n    </div>\r\n    <div class=\"sparrow-button\" @click=\"toggleEdit\">\r\n      <img class=\"sparrow-button-icon\" src=\"@/assets/images/sparrow.png\" />\r\n    </div>\r\n  </div>\r\n</template>\r\n<script>\r\nexport default {\r\n  name: 'Sparrow',\r\n  data() {\r\n    return {\r\n      showEdit: false,\r\n    }\r\n  },\r\n  methods: {\r\n    toggleEdit() {\r\n      this.showEdit = !this.showEdit\r\n    },\r\n  },\r\n}\r\n</script>\r\n<style lang=\"scss\" scoped>\r\n.sparrow {\r\n  bottom: 32px;\r\n  position: fixed;\r\n  z-index: 10000;\r\n  right: 32px;\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: right;\r\n  align-items: flex-end;\r\n}\r\n.sparrow-button {\r\n  background: #304156;\r\n  width: 56px;\r\n  height: 56px;\r\n  padding: 15px;\r\n  border-radius: 68px;\r\n  color: #fff;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  margin-top: 20px;\r\n  cursor: pointer;\r\n}\r\n.sparrow-content {\r\n  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.6);\r\n  border-radius: 5px;\r\n  overflow: hidden;\r\n}\r\n.sparrow-iframe {\r\n  border: 0;\r\n  width: 1200px;\r\n  height: 600px;\r\n}\r\n.sparrow-button-icon {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n</style>\r\n",".sparrow {\n  bottom: 32px;\n  position: fixed;\n  z-index: 10000;\n  right: 32px;\n  display: flex;\n  flex-direction: column;\n  justify-content: right;\n  align-items: flex-end;\n}\n\n.sparrow-button {\n  background: #304156;\n  width: 56px;\n  height: 56px;\n  padding: 15px;\n  border-radius: 68px;\n  color: #fff;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  margin-top: 20px;\n  cursor: pointer;\n}\n\n.sparrow-content {\n  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.6);\n  border-radius: 5px;\n  overflow: hidden;\n}\n\n.sparrow-iframe {\n  border: 0;\n  width: 1200px;\n  height: 600px;\n}\n\n.sparrow-button-icon {\n  width: 100%;\n  height: 100%;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
+      inject("data-v-42d3b0ad_0", { source: ".prefix[data-v-42d3b0ad] {\n  padding-right: 10px;\n  color: #6eb3f9 !important;\n}\n.rr-select-checkbox[data-v-42d3b0ad]  .el-select__tags {\n  padding-left: 45px;\n}\n.rr-select-checkbox[data-v-42d3b0ad]  .el-input input {\n  padding-left: 45px;\n}\n.content[data-v-42d3b0ad] {\n  height: 280px;\n  display: flex;\n}\n.content > div[data-v-42d3b0ad] {\n  width: 50%;\n}\n.content > div.left[data-v-42d3b0ad] {\n  border-right: 1px solid #ddd;\n}\n.content > div.left .ul[data-v-42d3b0ad] {\n  height: 190px;\n  overflow-y: auto;\n}\n.content ul[data-v-42d3b0ad] {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  height: 228px;\n  overflow-y: auto;\n}\n.content ul li[data-v-42d3b0ad] {\n  padding: 10px;\n  font-size: 14px;\n  display: flex;\n  justify-content: space-between;\n}\n.content ul li[data-v-42d3b0ad]:hover {\n  background-color: #f4f8fe;\n}\n.content ul li i[data-v-42d3b0ad]:hover {\n  cursor: pointer;\n}\n.content .flex[data-v-42d3b0ad] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n}\n.content .left-floor[data-v-42d3b0ad]:not(:last-child) {\n  margin-bottom: 10px;\n}\n.content .top[data-v-42d3b0ad] {\n  padding: 10px;\n  box-sizing: border-box;\n  border-bottom: 1px solid #ddd;\n}\n.content .text[data-v-42d3b0ad] {\n  font-size: 14px;\n  color: #606266;\n}\n.content .wrap[data-v-42d3b0ad] {\n  width: 100%;\n  padding: 10px;\n  box-sizing: border-box;\n  margin: 0;\n}\n.content .wrap[data-v-42d3b0ad]:hover {\n  background-color: #f4f8fe;\n}\n\n/*# sourceMappingURL=index.vue.map */", map: {"version":3,"sources":["E:\\workspace\\rr\\rr-c\\rr-ui\\packages\\RrSelectCheckbox\\index.vue","index.vue"],"names":[],"mappings":"AAwLA;EACA,mBAAA;EACA,yBAAA;ACvLA;AD2LA;EACA,kBAAA;ACxLA;AD4LA;EACA,kBAAA;AC1LA;AD+LA;EACA,aAAA;EACA,aAAA;AC5LA;AD6LA;EACA,UAAA;AC3LA;AD4LA;EACA,4BAAA;AC1LA;AD2LA;EACA,aAAA;EACA,gBAAA;ACzLA;AD6LA;EACA,SAAA;EACA,UAAA;EACA,gBAAA;EACA,aAAA;EACA,gBAAA;AC3LA;AD4LA;EACA,aAAA;EACA,eAAA;EACA,aAAA;EACA,8BAAA;AC1LA;AD2LA;EACA,yBAAA;ACzLA;AD2LA;EACA,eAAA;ACzLA;AD6LA;EACA,aAAA;EACA,mBAAA;EACA,8BAAA;AC3LA;AD6LA;EACA,mBAAA;AC3LA;AD8LA;EACA,aAAA;EACA,sBAAA;EACA,6BAAA;AC5LA;AD+LA;EACA,eAAA;EACA,cAAA;AC7LA;ADgMA;EACA,WAAA;EACA,aAAA;EACA,sBAAA;EACA,SAAA;AC9LA;AD+LA;EACA,yBAAA;AC7LA;;AAEA,oCAAoC","file":"index.vue","sourcesContent":["<template>\r\n  <el-select class=\"rr-select-checkbox\" v-model=\"checkboxVal\" multiple style=\"width: 90%\" @remove-tag=\"removeTag\" @clear=\"handleClear\" clearable>\r\n    <template #prefix v-if=\"title\">\r\n      <div class=\"prefix\">{{ title }}</div>\r\n    </template>\r\n    <template #empty>\r\n      <div class=\"content\">\r\n        <div class=\"left\">\r\n          <div class=\"top\">\r\n            <div class=\"left-floor\">\r\n              <el-input placeholder=\"应用名称\" v-model=\"appName\" @input=\"handleInput\" clearable></el-input>\r\n            </div>\r\n            <div class=\"flex left-floor\">\r\n              <div>\r\n                <el-checkbox v-model=\"checkAll\" :indeterminate=\"isIndeterminate\" @change=\"handleCheckAllChange\">\r\n                  <span class=\"text\">全选</span>\r\n                </el-checkbox>\r\n              </div>\r\n              <div>\r\n                <slot name=\"left-action\"> </slot>\r\n              </div>\r\n            </div>\r\n          </div>\r\n          <div class=\"ul\">\r\n            <el-checkbox-group v-model=\"checkboxVal\" @change=\"handleChange\">\r\n              <template>\r\n                <div v-for=\"item in _channelList\" :key=\"item.id\">\r\n                  <el-checkbox class=\"wrap\" :label=\"item.channelName\" v-show=\"!item.hide\">{{ item.channelName }}</el-checkbox>\r\n                </div>\r\n              </template>\r\n            </el-checkbox-group>\r\n          </div>\r\n        </div>\r\n        <div class=\"right\">\r\n          <div class=\"top\">\r\n            <div class=\"flex\">\r\n              <div class=\"text\">已选择 {{ checkboxVal.length }}/{{ channelList.length }}</div>\r\n              <div>\r\n                <el-button @click=\"handleClear\">清空</el-button>\r\n              </div>\r\n            </div>\r\n          </div>\r\n\r\n          <ul>\r\n            <li v-for=\"(item, index) in checkboxList\" :key=\"index\">\r\n              {{ item.channelName }}\r\n              <i class=\"el-icon-close\" @click=\"handleClick(index)\"></i>\r\n            </li>\r\n          </ul>\r\n        </div>\r\n      </div>\r\n    </template>\r\n  </el-select>\r\n</template>\r\n\r\n<script>\r\nexport default {\r\n  name: 'RrSelectCheckbox',\r\n  props: {\r\n    fetchList: {\r\n      type: Function,\r\n      default: () => {}\r\n    },\r\n    data: {\r\n      type: String,\r\n      default: ''\r\n    },\r\n    title: {\r\n      type: String,\r\n      default: ''\r\n    }\r\n  },\r\n  data() {\r\n    return {\r\n      channelList: [],\r\n      checkboxVal: [],\r\n      checkAll: false,\r\n      appName: '',\r\n      isIndeterminate: false\r\n    }\r\n  },\r\n  created() {\r\n    this.fetchList().then((res) => {\r\n      console.log(res)\r\n      this.channelList = res || []\r\n      if (this.data) {\r\n        this.checkboxVal = this.data.split(',')\r\n      }\r\n    })\r\n  },\r\n  computed: {\r\n    checkboxList() {\r\n      return this.checkboxVal.map((val) => {\r\n        return this.channelList.find((item) => item.channelName == val)\r\n      })\r\n    },\r\n    _channelList() {\r\n      return this.channelList.filter((item) => !item.hide)\r\n    }\r\n  },\r\n  methods: {\r\n    handleInput(val) {\r\n      this.channelList = this.channelList.map((item) => {\r\n        if (item.channelName.indexOf(val) == -1) {\r\n          item.hide = true\r\n        } else {\r\n          item.hide = false\r\n        }\r\n        return item\r\n      })\r\n      if (!this._channelList.length) {\r\n        this.checkAll = this.isIndeterminate = false\r\n        return\r\n      }\r\n      this.validate()\r\n    },\r\n    validate() {\r\n      let tag = 0\r\n      this._channelList.forEach((item) => {\r\n        if (this.checkboxVal.includes(item.channelName)) {\r\n          tag++\r\n        }\r\n      })\r\n      if (tag === this._channelList.length) {\r\n        this.checkAll = true\r\n        this.isIndeterminate = false\r\n      } else if (tag) {\r\n        this.isIndeterminate = true\r\n        this.checkAll = false\r\n      } else {\r\n        this.isIndeterminate = false\r\n        this.checkAll = false\r\n      }\r\n    },\r\n    handleChange() {\r\n      if (!this._channelList.length) {\r\n        this.isIndeterminate = false\r\n        this.checkAll = false\r\n      } else {\r\n        this.validate()\r\n      }\r\n    },\r\n    handleCheckAllChange(val) {\r\n      if (this.isIndeterminate) {\r\n        this.checkAll = val = true\r\n      }\r\n      if (val) {\r\n        let tag = this._channelList.reduce((pre, cur) => {\r\n          return pre ? pre + ',' + cur.channelName : cur.channelName\r\n        }, '')\r\n        this.checkboxVal = [...new Set([...this.checkboxVal, ...tag.split(',')])]\r\n      } else {\r\n        let vals = []\r\n        let checkboxVal = this.checkboxVal\r\n        this._channelList.forEach((item) => vals.push(item.channelName))\r\n        while (vals.length) {\r\n          checkboxVal = checkboxVal.filter((channelName) => channelName != vals[0])\r\n          vals.shift()\r\n        }\r\n        this.checkboxVal = checkboxVal\r\n      }\r\n      this.isIndeterminate = false\r\n    },\r\n    removeTag() {\r\n      this.handleChange()\r\n    },\r\n    handleClick(i) {\r\n      this.checkboxVal.splice(i, 1)\r\n      this.handleChange(this.checkboxVal)\r\n    },\r\n    handleClear() {\r\n      this.checkboxVal = []\r\n      this.handleChange(this.checkboxVal)\r\n    }\r\n  },\r\n  watch: {\r\n    checkboxVal(nVal) {\r\n      this.$emit('update:data', nVal.join())\r\n    }\r\n  }\r\n}\r\n</script>\r\n\r\n<style lang=\"scss\" scoped>\r\n.prefix {\r\n  padding-right: 10px;\r\n  color: #6eb3f9 !important;\r\n}\r\n\r\n.rr-select-checkbox ::v-deep {\r\n  .el-select__tags {\r\n    padding-left: 45px;\r\n  }\r\n\r\n  .el-input {\r\n    input {\r\n      padding-left: 45px;\r\n    }\r\n  }\r\n}\r\n\r\n.content {\r\n  height: 280px;\r\n  display: flex;\r\n  & > div {\r\n    width: 50%;\r\n    &.left {\r\n      border-right: 1px solid #ddd;\r\n      .ul {\r\n        height: 190px;\r\n        overflow-y: auto;\r\n      }\r\n    }\r\n  }\r\n  ul {\r\n    margin: 0;\r\n    padding: 0;\r\n    list-style: none;\r\n    height: 228px;\r\n    overflow-y: auto;\r\n    li {\r\n      padding: 10px;\r\n      font-size: 14px;\r\n      display: flex;\r\n      justify-content: space-between;\r\n      &:hover {\r\n        background-color: #f4f8fe;\r\n      }\r\n      i:hover {\r\n        cursor: pointer;\r\n      }\r\n    }\r\n  }\r\n  .flex {\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: space-between;\r\n  }\r\n  .left-floor:not(:last-child) {\r\n    margin-bottom: 10px;\r\n  }\r\n\r\n  .top {\r\n    padding: 10px;\r\n    box-sizing: border-box;\r\n    border-bottom: 1px solid #ddd;\r\n  }\r\n\r\n  .text {\r\n    font-size: 14px;\r\n    color: #606266;\r\n  }\r\n\r\n  .wrap {\r\n    width: 100%;\r\n    padding: 10px;\r\n    box-sizing: border-box;\r\n    margin: 0;\r\n    &:hover {\r\n      background-color: #f4f8fe;\r\n    }\r\n  }\r\n}\r\n</style>\r\n",".prefix {\n  padding-right: 10px;\n  color: #6eb3f9 !important;\n}\n\n.rr-select-checkbox ::v-deep .el-select__tags {\n  padding-left: 45px;\n}\n.rr-select-checkbox ::v-deep .el-input input {\n  padding-left: 45px;\n}\n\n.content {\n  height: 280px;\n  display: flex;\n}\n.content > div {\n  width: 50%;\n}\n.content > div.left {\n  border-right: 1px solid #ddd;\n}\n.content > div.left .ul {\n  height: 190px;\n  overflow-y: auto;\n}\n.content ul {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  height: 228px;\n  overflow-y: auto;\n}\n.content ul li {\n  padding: 10px;\n  font-size: 14px;\n  display: flex;\n  justify-content: space-between;\n}\n.content ul li:hover {\n  background-color: #f4f8fe;\n}\n.content ul li i:hover {\n  cursor: pointer;\n}\n.content .flex {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n}\n.content .left-floor:not(:last-child) {\n  margin-bottom: 10px;\n}\n.content .top {\n  padding: 10px;\n  box-sizing: border-box;\n  border-bottom: 1px solid #ddd;\n}\n.content .text {\n  font-size: 14px;\n  color: #606266;\n}\n.content .wrap {\n  width: 100%;\n  padding: 10px;\n  box-sizing: border-box;\n  margin: 0;\n}\n.content .wrap:hover {\n  background-color: #f4f8fe;\n}\n\n/*# sourceMappingURL=index.vue.map */"]}, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__ = "data-v-d8a30a96";
+    const __vue_scope_id__ = "data-v-42d3b0ad";
     /* module identifier */
     const __vue_module_identifier__ = undefined;
     /* functional template */
@@ -6616,7 +7059,7 @@
     );
 
   // import '../styles/element-variables.scss'
-  var components = [__vue_component__$s, __vue_component__$r, __vue_component__$d, __vue_component__$c, __vue_component__$b, __vue_component__$9, __vue_component__$8, __vue_component__$7, __vue_component__$6, __vue_component__$5, __vue_component__$1, __vue_component__$4, __vue_component__$3, __vue_component__$2, __vue_component__];
+  var components = [__vue_component__$t, __vue_component__$s, __vue_component__$e, __vue_component__$d, __vue_component__$c, __vue_component__$a, __vue_component__$9, __vue_component__$8, __vue_component__$7, __vue_component__$6, __vue_component__$2, __vue_component__$5, __vue_component__$4, __vue_component__$3, __vue_component__$1, __vue_component__];
   var index = {
     install: function install(Vue) {
       Vue.use(register);

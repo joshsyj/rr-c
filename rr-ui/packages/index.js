@@ -16,6 +16,7 @@ import RrDropdown from './RrDropdown'
 import RrCountTo from './RrCountTo'
 import RrEcharts from './RrEcharts'
 import Sparrow from './Sparrow'
+import RrSelectCheckbox from './RrSelectCheckbox'
 
 const components = [
   DynamicForm,
@@ -33,6 +34,7 @@ const components = [
   RrDropdown,
   RrCountTo,
   Sparrow,
+  RrSelectCheckbox
 ]
 
 export default {

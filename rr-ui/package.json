@@ -1,6 +1,6 @@
 {
   "name": "rr-vue2-elem",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "vue2-elementUi",
   "private": false,
   "main": "lib/rr-vue2-elem.js",
